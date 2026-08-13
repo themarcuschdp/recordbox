@@ -75,16 +75,17 @@
       }
       .nav-search.open{
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 100%;
+        top: 50%;
+        left: 16px;
+        right: 16px;
+        transform: translateY(-50%);
+        height: auto;
         width: auto;
-        padding: 0 16px;
+        padding: 0.45rem 0.9rem;
         margin-right: 0;
         background: rgba(22,20,18,0.98);
-        border: none;
-        border-radius: 0;
+        border: 1px solid var(--border);
+        border-radius: 999px;
         z-index: 95;
         gap: 0.6rem;
       }
