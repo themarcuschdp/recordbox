@@ -3818,10 +3818,12 @@ figcaption {
 }
 
 .hero-video-wrapper {
-  width: 100%;
+  width: 100vw;
   height: 60vh;
   overflow: hidden;
   position: relative;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
 }
 
 .hero-video {
