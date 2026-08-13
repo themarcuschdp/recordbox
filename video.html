@@ -115,6 +115,34 @@
   .back-btn:hover{ color: var(--text); border-color: var(--muted); }
   .back-btn svg{ width:13px; height:13px; }
 
+  .nav-search{
+    display:flex;
+    align-items:center;
+    gap:0.5rem;
+    border:1px solid #fff;
+    border-radius: 999px;
+    padding: 0.42rem 0.9rem;
+    background: transparent;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+  .nav-search svg{ width:14px; height:14px; color:#fff; flex-shrink:0; }
+  .nav-search input{
+    appearance:none;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:#fff;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    width: 140px;
+    min-width: 0;
+  }
+  .nav-search input::placeholder{ color: rgba(255,255,255,0.55); }
+  @media (max-width: 600px){
+    .nav-search input{ width: 80px; }
+  }
+
   /* desktop-only category buttons, placed after the logo — styled like
      the .back-btn "Home" button above (same look, different position) */
   .cat-nav-desktop{ display:none; }
@@ -552,7 +580,11 @@
     </button>
     <a href="index.html" class="brand"><img src="assets/images/site-logo.png" alt="recordbox" class="brand-logo-img" /></a>
     <nav class="cat-nav-desktop" id="cat-nav-desktop" aria-label="Browse categories"></nav>
-    <a href="index.html" class="back-btn" style="margin-left:auto;">
+    <div class="nav-search" style="margin-left:auto;">
+      <input type="text" id="nav-search-input" placeholder="Search videos" aria-label="Search videos" />
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
+    <a href="index.html" class="back-btn">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9.5"/></svg>
       Home
     </a>
@@ -616,6 +648,7 @@ const CATS = [
 const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
 
 let activeFilter = 'all';
+let searchQuery = '';
 let player = null;
 let currentUrl = null;
 
@@ -633,7 +666,9 @@ function truncate(str, n){
 }
 
 function currentList(){
-  return activeFilter === 'all' ? VIDEOS : VIDEOS.filter(v => v.category === activeFilter);
+  let list = activeFilter === 'all' ? VIDEOS : VIDEOS.filter(v => v.category === activeFilter);
+  if (searchQuery) list = list.filter(v => v.title.toLowerCase().includes(searchQuery));
+  return list;
 }
 
 function renderCatMenu(){
@@ -896,6 +931,11 @@ const urlCategory = new URLSearchParams(window.location.search).get('category');
 if (urlCategory && CATS.some(c => c.key === urlCategory)) {
   activeFilter = urlCategory;
 }
+
+document.getElementById('nav-search-input').addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  renderGrid();
+});
 
 renderCatMenu();
 renderGrid();

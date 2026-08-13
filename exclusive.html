@@ -18,6 +18,35 @@
        --font-body, etc.) defined globally in style.css under "CHANEL
        PRIVATE PAGE STYLES" so the look stays in sync automatically. */
 
+    .nav-search{
+      display:flex;
+      align-items:center;
+      gap:0.5rem;
+      border:1px solid #fff;
+      border-radius: 999px;
+      padding: 0.42rem 0.9rem;
+      background: transparent;
+      flex-shrink: 1;
+      min-width: 0;
+      margin-left: auto;
+    }
+    .nav-search svg{ width:14px; height:14px; color:#fff; flex-shrink:0; }
+    .nav-search input{
+      appearance:none;
+      border:none;
+      outline:none;
+      background:transparent;
+      color:#fff;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      width: 140px;
+      min-width: 0;
+    }
+    .nav-search input::placeholder{ color: rgba(255,255,255,0.55); }
+    @media (max-width: 600px){
+      .nav-search input{ width: 80px; }
+    }
+
     .watch-layout{
       max-width: 1400px;
       margin: 0 auto;
@@ -480,6 +509,10 @@
 
   <header class="site-header">
     <span class="site-name" id="header-title">Screening Room</span>
+    <div class="nav-search">
+      <input type="text" id="nav-search-input" placeholder="Search videos" aria-label="Search videos" />
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    </div>
     <button class="lock-btn" id="lock-btn" title="Home">
       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none"
            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
@@ -570,6 +603,7 @@
   const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
   let player = null;
   let currentUrl = null;
+  let searchQuery = '';
 
   function escapeHtml(str) {
     var d = document.createElement('div');
@@ -613,23 +647,30 @@
   }
 
   /* ── Build the video grid ─────────────────────────────────── */
+  function currentList() {
+    if (!searchQuery) return VIDEOS;
+    return VIDEOS.filter(function(v) { return v.title.toLowerCase().indexOf(searchQuery) !== -1; });
+  }
+
   function buildGallery() {
     var grid = document.getElementById('grid');
     grid.innerHTML = '';
 
-    if (!VIDEOS.length) {
+    var list = currentList();
+
+    if (!list.length) {
       grid.innerHTML =
         '<div class="empty-state">' +
           '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24">' +
             '<rect x="2" y="7" width="20" height="14" rx="2"/>' +
             '<path d="M16 3l-4 4-4-4"/>' +
           '</svg>' +
-          '<p>No videos yet. Add entries to the VIDEOS array in the source file.</p>' +
+          '<p>' + (VIDEOS.length ? 'No videos match your search.' : 'No videos yet. Add entries to the VIDEOS array in the source file.') + '</p>' +
         '</div>';
       return;
     }
 
-    VIDEOS.forEach(function(v) {
+    list.forEach(function(v) {
       var card = document.createElement('div');
       card.className = 'card' + (v.url === currentUrl ? ' playing' : '');
       card.tabIndex = 0;
@@ -791,6 +832,11 @@
       input.style.borderColor = '#e06060';
       setTimeout(function() { input.style.borderColor = ''; }, 600);
     }
+  });
+
+  document.getElementById('nav-search-input').addEventListener('input', function(e) {
+    searchQuery = e.target.value.trim().toLowerCase();
+    buildGallery();
   });
 
   document.getElementById('lock-btn').addEventListener('click', function() {
