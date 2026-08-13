@@ -127,6 +127,7 @@
     min-width: 0;
     margin-right: 10px;
     box-sizing: border-box;
+    overflow: hidden;
     transition: width .25s ease, padding .25s ease;
   }
   .nav-search-toggle{
@@ -153,10 +154,11 @@
     line-height: 1.6;
     width: 140px;
     min-width: 0;
+    white-space: nowrap;
     transition: width .25s ease, opacity .2s ease;
   }
   .nav-search input::placeholder{ color: rgba(255,255,255,0.55); }
-  @media (max-width: 700px){
+  @media (max-width: 1000px){
     .nav-search{
       width: 36.84px;
       padding: 0.45rem;
@@ -970,7 +972,7 @@ if (urlCategory && CATS.some(c => c.key === urlCategory)) {
 
 const navSearch = document.getElementById('nav-search');
 const navSearchInput = document.getElementById('nav-search-input');
-const isMobileSearch = () => window.matchMedia('(max-width: 700px)').matches;
+const isMobileSearch = () => window.matchMedia('(max-width: 1000px)').matches;
 
 navSearchInput.addEventListener('input', (e) => {
   searchQuery = e.target.value.trim().toLowerCase();

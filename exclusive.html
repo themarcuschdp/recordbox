@@ -31,6 +31,7 @@
       margin-left: auto;
       margin-right: 10px;
       box-sizing: border-box;
+      overflow: hidden;
       transition: width .25s ease, padding .25s ease;
     }
     .nav-search-toggle{
@@ -57,10 +58,11 @@
       line-height: 1.6;
       width: 140px;
       min-width: 0;
+      white-space: nowrap;
       transition: width .25s ease, opacity .2s ease;
     }
     .nav-search input::placeholder{ color: rgba(255,255,255,0.55); }
-    @media (max-width: 700px){
+    @media (max-width: 1000px){
       .nav-search{
         width: 36.84px;
         padding: 0.45rem;
@@ -871,7 +873,7 @@
 
   var navSearch = document.getElementById('nav-search');
   var navSearchInput = document.getElementById('nav-search-input');
-  var isMobileSearch = function() { return window.matchMedia('(max-width: 700px)').matches; };
+  var isMobileSearch = function() { return window.matchMedia('(max-width: 1000px)').matches; };
 
   navSearchInput.addEventListener('input', function(e) {
     searchQuery = e.target.value.trim().toLowerCase();
