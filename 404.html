@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page not found — recordbox</title>
+<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="icon" href="/assets/images/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; height:100%; }
+  :root{
+    --bg:         #161412;
+    --surface:    #1e1b18;
+    --border:     #302c28;
+    --amber:      #fe0000;
+    --text:       #f4f0eb;
+    --muted:      #9a938a;
+    --font-display: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    min-height:100%;
+    text-align:center;
+    padding: 24px;
+  }
+  .brand-logo-img{ height: 28px; width:auto; display:block; margin-bottom: 40px; }
+  .code{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(64px, 14vw, 120px);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--amber);
+    margin: 0;
+  }
+  h1{
+    font-family: var(--font-display);
+    font-size: clamp(18px, 3vw, 24px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 18px 0 8px;
+  }
+  p{
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 420px;
+    margin: 0 0 32px;
+  }
+  a.home-btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--amber);
+    border: 1px solid var(--amber);
+    border-radius: 6px;
+    color: #fff;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.85rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  a.home-btn:hover{ opacity: 0.85; }
+  a.home-btn svg{ width:14px; height:14px; }
+</style>
+</head>
+<body>
+  <img src="/assets/images/site-logo.png" alt="recordbox" class="brand-logo-img" />
+  <p class="code">404</p>
+  <h1>Oops, wrong turn.</h1>
+  <p>The page you're looking for doesn't exist or may have moved. Let's get you back on track.</p>
+  <a href="/" class="home-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back Home
+  </a>
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Private Screening Room</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/assets/images/favicon-32x32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=5">
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <style>
+    /* ── Watch-style player (same behavior as video.html) ──────
+       Reuses the design tokens (--bg, --surface, --amber, --font-display,
+       --font-body, etc.) defined globally in style.css under "CHANEL
+       PRIVATE PAGE STYLES" so the look stays in sync automatically. */
+
+    .watch-layout{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      display: block;
+    }
+    .watch-sidebar{ margin-top: 22px; }
+
+    @media (min-width: 1000px){
+      .watch-main{
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 380px;
+        gap: 28px;
+      }
+      .watch-sidebar{ margin-top: 0; }
+    }
+
+    /* sticky wrapper (desktop only: video + meta stick together while sidebar scrolls) */
+    @media (min-width: 1000px){
+      .watch-sticky{
+        position: sticky;
+        top: 24px;
+        align-self: start;
+      }
+    }
+
+    /* player: on mobile it plays inline in normal document flow at the top of the page */
+    #player-dock{
+      display: none;
+      z-index: 3;
+      background: #000;
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    #player-dock.active{ display:block; }
+
+    /* mobile sticky mini-player: when the playing video scrolls out from the
+       top of the viewport, it docks as a small fixed player. */
+    #player-dock.docked{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 60;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+    }
+    .dock-close{
+      position:absolute;
+      top: 6px;
+      right: 6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      z-index: 5;
+      padding: 0;
+    }
+    .dock-close svg{ width:13px; height:13px; }
+    /* Plyr adds .plyr--hide-controls while idle; only show our close button
+       alongside Plyr's own controls (i.e. when that class is absent). */
+    #player-dock.docked:not(.hide-controls) .dock-close{ display:flex; }
+
+    .player-frame{
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background:#000;
+      display:flex;
+      justify-content:center;
+    }
+    .player-frame video, .player-frame .plyr{
+      width: 100%;
+      height: 100%;
+    }
+    .plyr{
+      --plyr-color-main: var(--amber);
+    }
+
+    /* meta block under player */
+    .player-meta{
+      padding: 18px 2px 0;
+    }
+    #player-dock:not(.active) ~ .player-meta{ display: none; }
+    .player-title{
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 14px;
+      line-height: 1.3;
+    }
+    .channel-row{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .channel-avatar{
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--amber);
+      color:#fff;
+      font-family: var(--font-display);
+      font-size: 15px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+    .channel-name{
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .channel-count{
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 2px 0 0;
+    }
+    .player-desc{
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 720px;
+    }
+    .player-desc.hidden{ display:none; }
+    .player-desc .readmore-btn{
+      background:none;border:none;color: var(--amber);
+      font-size: 13.5px; font-weight:700; cursor:pointer; padding:0; margin-left:4px;
+      font-family:inherit;
+    }
+
+    .empty-player{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      aspect-ratio: 16/9;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .empty-player.show{ display:flex; }
+
+    /* grid / sidebar list (shared component) */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 22px 18px;
+    }
+    @media (min-width: 1000px) and (max-width: 2200px){
+      .grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    .card{
+      cursor:pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      overflow:hidden;
+      transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+      -webkit-animation: fadeUp 0.4s ease both;
+      animation: fadeUp 0.4s ease both;
+    }
+    .card:hover{
+      border-color: var(--amber-dim);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+    }
+    .card.playing{ border-color: var(--amber); }
+
+    @keyframes fadeUp{
+      from{ opacity:0; transform: translateY(12px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    /* thumbnail: a muted, lazily-loaded video frame */
+    .thumb{
+      position:relative;
+      aspect-ratio: 16/9;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .thumb video{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      pointer-events:none;
+      transition: transform .4s ease;
+    }
+    .card:hover .thumb video{ transform: scale(1.05); }
+
+    .thumb::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to top, rgba(22,20,18,0.7) 0%, rgba(22,20,18,0.15) 55%, transparent 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .thumb .play-ico{
+      position:absolute;
+      top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      width: 42px; height:42px;
+      border-radius:50%;
+      border: 1.5px solid rgba(255,255,255,0.55);
+      background: rgba(0,0,0,0.45);
+      display:flex;align-items:center;justify-content:center;
+      transition: border-color .2s ease, transform .2s ease;
+      flex-shrink:0;
+      z-index:2;
+    }
+    .thumb .play-ico svg{ width:14px; height:14px; margin-left:2px; fill:#fff; }
+    .card:hover .play-ico{ border-color: var(--amber); transform: translate(-50%,-50%) scale(1.08); }
+
+    .card-body{
+      padding: 12px 12px 14px;
+      display:flex;
+      gap: 10px;
+    }
+    .card-title{
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin: 0;
+      color: var(--text);
+    }
+
+    /* desktop sidebar: cards become a horizontal list */
+    @media (min-width: 1000px){
+      .watch-sidebar .grid{
+        display:flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .watch-sidebar .card{
+        display:flex;
+        flex-direction:row;
+        gap: 10px;
+        background: transparent;
+        border: none;
+      }
+      .watch-sidebar .card:hover{ transform:none; border-color: transparent; background: var(--surface); box-shadow:none; }
+      .watch-sidebar .card.playing{ background: var(--surface); border-color: transparent; }
+      .watch-sidebar .thumb{
+        width: 168px;
+        flex-shrink: 0;
+      }
+      .watch-sidebar .thumb .play-ico{ width:32px; height:32px; }
+      .watch-sidebar .thumb .play-ico svg{ width:11px; height:11px; }
+      .watch-sidebar .card-body{
+        padding: 2px 4px;
+        flex: 1;
+        min-width: 0;
+      }
+      .watch-sidebar .card-title{
+        font-size: 12.5px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    }
+
+    button:focus-visible, .card:focus-visible, a:focus-visible{
+      outline: 2px solid var(--amber);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      #player-dock, .card, .thumb video{ transition: none !important; animation: none !important; }
+    }
+
+    @media (max-width: 600px){
+      .watch-layout{ padding: 16px; }
+      .grid{ grid-template-columns: 1fr; margin: 0 -16px; }
+      .grid .card{ border-left: none; border-right: none; }
+    }
+  </style>
+</head>
+<body class="chanel">
+
+<div class="rb-loader-overlay rb-loader-hidden" id="rb-loader" aria-hidden="true" style="display:none;">
+  <div class="rb-preloader">
+    <svg class="rb-hex" viewBox="0 0 200 200" width="120" height="120" aria-hidden="true" focusable="false">
+      <path class="rb-slice rb-slice-1" d="M100,100 L100,10 L177.94,55 Z" />
+      <path class="rb-slice rb-slice-2" d="M100,100 L177.94,55 L177.94,145 Z" />
+      <path class="rb-slice rb-slice-3" d="M100,100 L177.94,145 L100,190 Z" />
+      <path class="rb-slice rb-slice-4" d="M100,100 L100,190 L22.06,145 Z" />
+      <path class="rb-slice rb-slice-5" d="M100,100 L22.06,145 L22.06,55 Z" />
+      <path class="rb-slice rb-slice-6" d="M100,100 L22.06,55 L100,10 Z" />
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONFIGURATION — edit these values
+═══════════════════════════════════════════════════════════ -->
+<script>
+  /* ── Site password ──────────────────────────────────────── */
+  const SITE_PASSWORD = "changeme";
+
+  /* ── Page title shown in the header & browser tab ──────── */
+  const SITE_TITLE = "Private Screening Room";
+
+  /* ── Videos ───────────────────────────────────────────────
+     url:         direct video URL (mp4, mov, etc.)
+     title:       shown below the card and in the player
+     description: optional subtitle shown under the player
+  ─────────────────────────────────────────────────────────── */
+  const VIDEOS = [
+    {
+      title: "31 Le Rouge Masterclass",
+      url: "https://videos.recordbox.me/chanel-31-le-rouge-masterclass-rev.mp4",
+    },
+    {
+      title: "Academy Novelty",
+      url: "https://videos.recordbox.me/chanel-academy-novelty-soukaina.mp4",
+    },
+    {
+      title: "Beaut Seminar",
+      url: "https://videos.recordbox.me/chanel-beaut-seminar-2023-draft.mp4",
+    },
+    {
+      title: "Bootcamp Highlights",
+      url: "https://videos.recordbox.me/chanel-bootcamp-highlights-short.mp4",
+    },
+    {
+      title: "Christmas Training",
+      url: "https://videos.recordbox.me/chanel-christmas-training.mp4",
+    },
+    {
+      title: "Client Experience Manager",
+      url: "https://videos.recordbox.me/chanel-client-experience-manager-jenny.mp4",
+    },
+    {
+      title: "COC Getaway",
+      url: "https://videos.recordbox.me/chanel-coc-getaway-revised.mp4",
+    },
+    {
+      title: "Dubai Mall Podium",
+      url: "https://videos.recordbox.me/chanel-dubai-mall-podium.mp4",
+    },
+    {
+      title: "F&B Convention 2023",
+      url: "https://videos.recordbox.me/chanel-f&b-convention-2023-s1.mp4",
+    },
+    {
+      title: "F&B Convention Inspired by Coco S1",
+      url: "https://videos.recordbox.me/chanel-f&b-convention-inspired-by-coco-s1-nm.mp4",
+    },
+    {
+      title: "F&B Convention Inspired by Coco S2",
+      url: "https://videos.recordbox.me/chanel-f&b-convention-inspired-by-coco-s2.mp4",
+    },
+    {
+      title: "F&B Convention Inspired by Coco Session 1",
+      url: "https://videos.recordbox.me/chanel-f&b-convention-inspired-by-coco-session-1-fnl-cg.mp4",
+    },
+    {
+      title: "Fascia Seminar",
+      url: "https://videos.recordbox.me/chanel-fascia-seminar.mp4",
+    },
+    {
+      title: "Fashion Days",
+      url: "https://videos.recordbox.me/chanel-fashion-days-rev-june-23.mp4",
+    },
+    {
+      title: "FB Convention S2",
+      url: "https://videos.recordbox.me/chanel-fb-convention-s2.mp4",
+    },
+    {
+      title: "FB Convention S3",
+      url: "https://videos.recordbox.me/chanel-fb-convention-s3.mp4",
+    },
+    {
+      title: "FB Convention S4",
+      url: "https://videos.recordbox.me/chanel-fb-convention-s4.mp4",
+    },
+    {
+      title: "InChanel Launch",
+      url: "https://videos.recordbox.me/chanel-inchanel-launch-final.mp4",
+    },
+    {
+      title: "Les Beiges Academy",
+      url: "https://videos.recordbox.me/chanel-les-beiges-chanel-academy-720p.mp4",
+    },
+    {
+      title: "Lesage Savoir-Faire",
+      url: "https://videos.recordbox.me/chanel-lesage-savoir-faire-v2.mp4",
+    },
+    {
+      title: "Message Mode",
+      url: "https://videos.recordbox.me/chanel-message-mode.mp4",
+    },
+    {
+      title: "No.1 Podiums",
+      url: "https://videos.recordbox.me/chanel-no1-podiums-dm-moe.mp4",
+    },
+    {
+      title: "PR Recap 2025",
+      url: "https://videos.recordbox.me/chanel-pr-recap-video-2025-final.mp4",
+    },
+    {
+      title: "Skin Care Experts",
+      url: "https://videos.recordbox.me/chanel-skin-care-experts-muriel-720p.mp4",
+    },
+  ];
+</script>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+
+<!-- Lock Screen -->
+<div class="screen active" id="lock-screen">
+  <div class="lock-card">
+
+    <div class="lock-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+           viewBox="0 0 24 24">
+        <rect width="18" height="11" x="3" y="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+
+    <div>
+      <div class="lock-title" id="lock-title">Private Screening Room</div>
+      <div class="lock-subtitle">Enter password to access the collection</div>
+    </div>
+
+    <form class="lock-form" id="lock-form" autocomplete="off" novalidate>
+      <div class="field-wrap">
+        <input type="password" id="password-input" placeholder="Password"
+               autocomplete="current-password" autofocus />
+      </div>
+      <button type="submit" class="btn-primary" id="unlock-btn">Unlock</button>
+      <div class="error-msg" id="error-msg">Incorrect password. Try again.</div>
+    </form>
+
+  </div>
+</div>
+
+<!-- Gallery Screen -->
+<div class="screen" id="gallery-screen">
+
+  <header class="site-header">
+    <span class="site-name" id="header-title">Screening Room</span>
+    <button class="lock-btn" id="lock-btn" title="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+           viewBox="0 0 24 24">
+        <path d="M3 11.5 12 4l9 7.5"/>
+        <path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9.5"/>
+      </svg>
+      Home
+    </button>
+  </header>
+
+  <div class="watch-layout">
+    <div class="watch-main">
+      <div class="watch-sticky">
+        <div id="dock-sentinel"></div>
+        <div id="player-dock">
+          <button type="button" class="dock-close" id="dock-close" aria-label="Close player">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <div class="player-frame">
+            <video id="dock-video" playsinline controls></video>
+          </div>
+        </div>
+        <div class="empty-player" id="empty-player">Select a video to play</div>
+
+        <div class="player-meta">
+          <p class="player-title" id="dock-title"></p>
+          <div class="channel-row">
+            <div class="channel-avatar" id="dock-badge"></div>
+            <div>
+              <p class="channel-name" id="channel-name"></p>
+              <p class="channel-count" id="channel-count"></p>
+            </div>
+          </div>
+          <p class="player-desc" id="dock-desc"></p>
+        </div>
+      </div>
+
+      <aside class="watch-sidebar">
+        <div class="grid" id="grid"></div>
+      </aside>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+  /* ── Apply config ─────────────────────────────────────────── */
+  document.title = SITE_TITLE;
+  document.getElementById('lock-title').textContent = SITE_TITLE;
+  document.getElementById('header-title').textContent = SITE_TITLE;
+  document.getElementById('dock-badge').textContent = SITE_TITLE.charAt(0);
+  document.getElementById('channel-name').textContent = SITE_TITLE;
+  document.getElementById('channel-count').textContent = VIDEOS.length + ' videos';
+
+  /* ── Session (sessionStorage so it resets when tab closes) ── */
+  const SESSION_KEY = '__screening_room_auth__';
+
+  function isUnlocked() {
+    try { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function setUnlocked(val) {
+    try {
+      if (val) sessionStorage.setItem(SESSION_KEY, '1');
+      else sessionStorage.removeItem(SESSION_KEY);
+    } catch (e) { /* Safari private mode */ }
+  }
+
+  /* ── Screen transitions ───────────────────────────────────── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    var target = document.getElementById(id);
+    if (target) target.classList.add('active');
+  }
+
+  /* ── Reveal the gallery behind the RecordBox preloader, once per
+     browser session (shared with index.html / video.html) ── */
+  function revealGalleryWithPreloader() {
+    showScreen('gallery-screen');
+  }
+
+  /* ── Watch-style player state (same behavior as video.html) ── */
+  const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
+  let player = null;
+  let currentUrl = null;
+
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function truncate(str, n) {
+    if (str.length <= n) return { short: str, needsMore: false };
+    var cut = str.slice(0, n);
+    cut = cut.slice(0, cut.lastIndexOf(' '));
+    return { short: cut + '…', needsMore: true };
+  }
+
+  /* ── Lazy-load thumbnail videos only when they scroll into view ──
+     Prevents every card from opening a network connection at once,
+     which is what made playback slow on pages with many videos. ── */
+  var thumbObserver = null;
+  function initLazyThumbs() {
+    var thumbs = document.querySelectorAll('.lazy-thumb');
+    if (!('IntersectionObserver' in window)) {
+      Array.prototype.forEach.call(thumbs, function(v) {
+        v.src = v.getAttribute('data-src');
+        v.preload = 'metadata';
+      });
+      return;
+    }
+    if (!thumbObserver) {
+      thumbObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            var v = entry.target;
+            v.src = v.getAttribute('data-src');
+            v.preload = 'metadata';
+            thumbObserver.unobserve(v);
+          }
+        });
+      }, { rootMargin: '200px 0px' });
+    }
+    Array.prototype.forEach.call(thumbs, function(v) { thumbObserver.observe(v); });
+  }
+
+  /* ── Build the video grid ─────────────────────────────────── */
+  function buildGallery() {
+    var grid = document.getElementById('grid');
+    grid.innerHTML = '';
+
+    if (!VIDEOS.length) {
+      grid.innerHTML =
+        '<div class="empty-state">' +
+          '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24">' +
+            '<rect x="2" y="7" width="20" height="14" rx="2"/>' +
+            '<path d="M16 3l-4 4-4-4"/>' +
+          '</svg>' +
+          '<p>No videos yet. Add entries to the VIDEOS array in the source file.</p>' +
+        '</div>';
+      return;
+    }
+
+    VIDEOS.forEach(function(v) {
+      var card = document.createElement('div');
+      card.className = 'card' + (v.url === currentUrl ? ' playing' : '');
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', 'Play ' + v.title);
+
+      card.innerHTML =
+        '<div class="thumb">' +
+          '<video data-src="' + escapeHtml(v.url) + '#t=0.5" class="lazy-thumb" preload="none" muted playsinline tabindex="-1"></video>' +
+          '<div class="play-ico">' +
+            '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<p class="card-title">' + escapeHtml(v.title) + '</p>' +
+        '</div>';
+
+      card.addEventListener('click', function() { selectVideo(v); });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectVideo(v); }
+      });
+
+      grid.appendChild(card);
+    });
+
+    initLazyThumbs();
+  }
+
+  /* On mobile, selecting a video scrolls the (already inline, normal-flow)
+     player into view at the top instead of relying on the sticky/fixed
+     desktop behavior. (Unlike video.html this doesn't reload the page,
+     since a reload would trip the auto-lock-on-leave below.) */
+  function selectVideo(v) {
+    playVideo(v);
+    if (!isDesktop()) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function playVideo(v) {
+    currentUrl = v.url;
+
+    var dock = document.getElementById('player-dock');
+    var videoEl = document.getElementById('dock-video');
+    var emptyPlayer = document.getElementById('empty-player');
+
+    dock.classList.add('active');
+    emptyPlayer.classList.remove('show');
+
+    if (!player) {
+      player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
+      player.once('ready', function() {
+        var plyrEl = dock.querySelector('.plyr');
+        if (!plyrEl) return;
+        var sync = function() { dock.classList.toggle('hide-controls', plyrEl.classList.contains('plyr--hide-controls')); };
+        sync();
+        new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
+      });
+    }
+    player.source = {
+      type: 'video',
+      sources: [{ src: v.url, type: 'video/mp4' }],
+    };
+    player.once('canplay', function() {
+      player.play().catch(function(err) { console.warn('Playback blocked:', err); });
+    });
+    player.on('error', function(e) {
+      console.error('Plyr/video error for', v.url, e);
+    });
+
+    document.getElementById('dock-title').textContent = v.title;
+
+    var descEl = document.getElementById('dock-desc');
+    if (v.description) {
+      descEl.classList.remove('hidden');
+      var t = truncate(v.description, 220);
+      if (t.needsMore) {
+        descEl.innerHTML = '<span id="dock-desc-text">' + escapeHtml(t.short) + '</span><button class="readmore-btn" id="dock-readmore">Read more</button>';
+        document.getElementById('dock-readmore').addEventListener('click', function() {
+          var textEl = document.getElementById('dock-desc-text');
+          if (this.textContent === 'Read more') {
+            textEl.textContent = v.description;
+            this.textContent = 'Read less';
+          } else {
+            textEl.textContent = t.short;
+            this.textContent = 'Read more';
+          }
+        });
+      } else {
+        descEl.textContent = v.description;
+      }
+    } else {
+      descEl.classList.add('hidden');
+      descEl.textContent = '';
+    }
+
+    buildGallery();
+  }
+
+  function closePlayer() {
+    currentUrl = null;
+    var dock = document.getElementById('player-dock');
+    if (player) { player.pause(); }
+    dock.classList.remove('active');
+    dock.classList.remove('docked');
+    buildGallery();
+  }
+
+  /* ── Mobile sticky mini-player: once the playing video scrolls out past
+     the top of the viewport, dock it as a small fixed player under the
+     header. Undocks automatically once scrolled back to its original spot. ── */
+  var dockObserver = null;
+  function initDockObserver() {
+    var dock = document.getElementById('player-dock');
+    var sentinel = document.getElementById('dock-sentinel');
+    if (!('IntersectionObserver' in window)) return;
+    if (!dockObserver) {
+      dockObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (isDesktop() || !dock.classList.contains('active')) {
+            dock.classList.remove('docked');
+            return;
+          }
+          dock.classList.toggle('docked', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+        });
+      }, { threshold: 0 });
+      dockObserver.observe(sentinel);
+    }
+  }
+
+  function maybeAutoplayForDesktop() {
+    if (!isDesktop()) return;
+    if (!currentUrl && VIDEOS.length) playVideo(VIDEOS[0]);
+  }
+
+  /* ── Lightbox close/open wiring is now the sticky player above ── */
+  document.getElementById('dock-close').addEventListener('click', function(e) {
+    e.stopPropagation();
+    closePlayer();
+  });
+
+  /* ── Auth ─────────────────────────────────────────────────── */
+  document.getElementById('lock-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var input = document.getElementById('password-input');
+    var err   = document.getElementById('error-msg');
+    var btn   = document.getElementById('unlock-btn');
+
+    if (input.value === SITE_PASSWORD) {
+      err.classList.remove('visible');
+      btn.disabled = true;
+      setUnlocked(true);
+      buildGallery();
+      initDockObserver();
+      revealGalleryWithPreloader();
+      maybeAutoplayForDesktop();
+    } else {
+      err.classList.add('visible');
+      input.value = '';
+      input.focus();
+      input.style.borderColor = '#e06060';
+      setTimeout(function() { input.style.borderColor = ''; }, 600);
+    }
+  });
+
+  document.getElementById('lock-btn').addEventListener('click', function() {
+    setUnlocked(false);
+    closePlayer();
+    window.location.href = (function() {
+      var params = new URLSearchParams(window.location.search);
+      return params.get('from') === 'works' ? 'index.html#news' : 'index.html';
+    })();
+  });
+
+  /* ── Auto-lock when leaving the page ─────────────────────── */
+  window.addEventListener('beforeunload', function() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  });
+  window.addEventListener('pagehide', function() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  });
+
+  window.addEventListener('resize', function() {
+    maybeAutoplayForDesktop();
+  });
+
+  /* ── Init ─────────────────────────────────────────────────── */
+  if (isUnlocked()) {
+    buildGallery();
+    initDockObserver();
+    revealGalleryWithPreloader();
+    maybeAutoplayForDesktop();
+  }
+</script>
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+</body>
+</html>
