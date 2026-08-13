@@ -119,6 +119,7 @@
   .nav-search{
     display:flex;
     align-items:center;
+    justify-content:center;
     gap:0.5rem;
     border:1px solid var(--border);
     border-radius: 999px;
@@ -170,12 +171,23 @@
       opacity: 0;
     }
     .nav-search.open{
-      width: 170px;
-      padding: 0.45rem 0.9rem;
-      gap:0.5rem;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      width: auto;
+      padding: 0 16px;
+      margin-right: 0;
+      background: rgba(22,20,18,0.98);
+      border: none;
+      border-radius: 0;
+      z-index: 95;
+      gap: 0.6rem;
     }
     .nav-search.open input{
-      width: 130px;
+      flex: 1;
+      width: auto;
       opacity: 1;
     }
   }
@@ -987,10 +999,9 @@ document.getElementById('nav-search-toggle').addEventListener('click', () => {
   if (!navSearch.classList.contains('open')) {
     navSearch.classList.add('open');
     navSearchInput.focus();
-  } else if (!navSearchInput.value.trim()) {
-    navSearch.classList.remove('open');
   } else {
-    navSearchInput.focus();
+    navSearch.classList.remove('open');
+    navSearchInput.blur();
   }
 });
 
