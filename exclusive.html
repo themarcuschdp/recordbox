@@ -31,8 +31,21 @@
       margin-left: auto;
       margin-right: 10px;
       box-sizing: border-box;
+      transition: width .25s ease, padding .25s ease;
     }
-    .nav-search svg{ width:14px; height:14px; color: var(--muted); flex-shrink:0; }
+    .nav-search-toggle{
+      appearance:none;
+      border:none;
+      background:transparent;
+      padding:0;
+      margin:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+    .nav-search svg{ width:14px; height:14px; color: var(--muted); flex-shrink:0; pointer-events:none; }
     .nav-search input{
       appearance:none;
       border:none;
@@ -44,12 +57,29 @@
       line-height: 1.6;
       width: 140px;
       min-width: 0;
+      transition: width .25s ease, opacity .2s ease;
     }
     .nav-search input::placeholder{ color: rgba(255,255,255,0.55); }
-    @media (max-width: 600px){
-      .nav-search input{ width: 80px; }
+    @media (max-width: 700px){
+      .nav-search{
+        width: 36.84px;
+        padding: 0.45rem;
+        gap:0;
+      }
+      .nav-search input{
+        width: 0;
+        opacity: 0;
+      }
+      .nav-search.open{
+        width: 170px;
+        padding: 0.45rem 0.9rem;
+        gap:0.5rem;
+      }
+      .nav-search.open input{
+        width: 130px;
+        opacity: 1;
+      }
     }
-
     .watch-layout{
       max-width: 1400px;
       margin: 0 auto;
@@ -512,9 +542,11 @@
 
   <header class="site-header">
     <span class="site-name" id="header-title">Screening Room</span>
-    <div class="nav-search">
+    <div class="nav-search" id="nav-search">
       <input type="text" id="nav-search-input" placeholder="Search videos" aria-label="Search videos" />
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <button type="button" class="nav-search-toggle" id="nav-search-toggle" aria-label="Toggle search">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
     </div>
     <button class="lock-btn" id="lock-btn" title="Home">
       <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none"
@@ -837,9 +869,39 @@
     }
   });
 
-  document.getElementById('nav-search-input').addEventListener('input', function(e) {
+  var navSearch = document.getElementById('nav-search');
+  var navSearchInput = document.getElementById('nav-search-input');
+  var isMobileSearch = function() { return window.matchMedia('(max-width: 700px)').matches; };
+
+  navSearchInput.addEventListener('input', function(e) {
     searchQuery = e.target.value.trim().toLowerCase();
     buildGallery();
+  });
+
+  document.getElementById('nav-search-toggle').addEventListener('click', function() {
+    if (!isMobileSearch()) { navSearchInput.focus(); return; }
+    if (!navSearch.classList.contains('open')) {
+      navSearch.classList.add('open');
+      navSearchInput.focus();
+    } else if (!navSearchInput.value.trim()) {
+      navSearch.classList.remove('open');
+    } else {
+      navSearchInput.focus();
+    }
+  });
+
+  navSearchInput.addEventListener('blur', function() {
+    if (isMobileSearch() && !navSearchInput.value.trim()) navSearch.classList.remove('open');
+  });
+
+  navSearchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      navSearchInput.value = '';
+      searchQuery = '';
+      buildGallery();
+      if (isMobileSearch()) navSearch.classList.remove('open');
+      navSearchInput.blur();
+    }
   });
 
   document.getElementById('lock-btn').addEventListener('click', function() {
