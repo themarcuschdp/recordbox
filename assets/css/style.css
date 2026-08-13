@@ -3817,22 +3817,6 @@ figcaption {
   min-height: 70svh;
 }
 
-.hero-video-wrapper {
-  width: 100vw;
-  height: 60vh;
-  overflow: hidden;
-  position: relative;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-}
-
-.hero-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
 .social-wrapper {
   flex-wrap: wrap;
   justify-content: flex-start;
