@@ -10,10 +10,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.plyr.io" crossorigin>
+  <!-- Every playable video on this page comes from this origin, so warm the
+       connection before the grid starts requesting them. -->
+  <link rel="preconnect" href="https://media.recordbox.me" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=5">
-  <link rel="stylesheet" href="assets/css/watch.css?v=1">
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+  <link rel="stylesheet" href="assets/css/watch.css?v=2">
+  <!-- Plyr's stylesheet only matters once the player is instantiated, which
+       happens on first video click — load it without blocking first paint. -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" /></noscript>
   <style>
     /* ── Watch-style player (same behavior as video.html) ──────
        Reuses the design tokens (--bg, --surface, --amber, --font-display,
@@ -1009,6 +1014,9 @@
     maybeAutoplayForDesktop();
   }
 </script>
-<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<!-- Plyr is only referenced from playVideo(), which runs on click, so it
+     never needs to block parsing. defer keeps it out of the critical path
+     while still guaranteeing it has executed before any user interaction. -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js" defer></script>
 </body>
 </html>

@@ -6093,6 +6093,9 @@ body.portfolio #work {
   pointer-events: none;
 }
 
+/* Hexagon preloader — index.html. exclusive.html renders the same markup
+   but reads these rules from its own copy in watch.css, so keep the two
+   in sync if you restyle the hexagon. */
 .rb-preloader {
   flex-direction: column;
   align-items: center;
@@ -6192,24 +6195,6 @@ body.portfolio #work {
   }
 }
 
-/* ===== Reusable RecordBox loader overlay (video.html, exclusive.html) ===== */
-.rb-loader-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 3000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--floral-white);
-  opacity: 1;
-  transition: opacity 0.4s ease;
-}
-
-.rb-loader-overlay.rb-loader-hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-html.skip-preloader .rb-loader-overlay {
-  display: none !important;
-}
+/* The .rb-loader-overlay rules that used to live here moved to watch.css.
+   Only exclusive.html ever used them, and that page no longer loads this
+   stylesheet — it has no Webflow markup on it at all. */

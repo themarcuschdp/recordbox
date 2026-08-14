@@ -1,5 +1,58 @@
 /* ========== CHANEL PRIVATE PAGE STYLES ========== */
 
+    /* ── Webflow base rules the watch pages used to inherit ───────────────
+       video.html and exclusive.html previously loaded the full 110KB
+       style.css. They use none of its class selectors — but they did depend
+       on its bare-element base layer (the Webflow body/p/img rules and the
+       normalize block). Those pages now skip style.css entirely, so the
+       handful of rules they actually relied on are reproduced verbatim here.
+
+       These are copied to preserve the pages' existing rendering exactly,
+       not because the values are ideal — see the note on `p` below. */
+    :root { --orange: #ff3c00; }
+
+    /* Webflow's body rule set these two; everything on both pages inherits
+       them, so the pages render uppercase and semibold by default. */
+    body.watch, body.chanel {
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    /* normalize.css: without this, form controls fall back to the UA's
+       13.33px / normal-line-height defaults instead of inheriting the body
+       typography — which is what sized every .cat-btn and .hamburger. */
+    button, input, optgroup, select, textarea {
+      color: inherit;
+      font: inherit;
+      margin: 0;
+    }
+
+    /* normalize.css again, and it must stay after the `font: inherit` above:
+       it deliberately walks back the inherited line-height for text inputs
+       only. exclusive.html's password field depends on this. */
+    input { line-height: normal; }
+
+    /* Webflow's base <p>. Note the font-family: these pages only load Syne
+       and DM Sans, so "Inter Tight" has always fallen back to the generic
+       sans-serif here. Kept as-is so nothing shifts; worth revisiting
+       separately as a design decision rather than as part of a perf change. */
+    p {
+      color: var(--orange);
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-family: 'Inter Tight', sans-serif;
+      font-size: 18px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    img {
+      vertical-align: middle;
+      max-width: 100%;
+      display: inline-block;
+    }
+
+
     /* ─── Design Tokens ─────────────────────────────────────── */
     :root {
       --bg:         #161412;
@@ -475,3 +528,82 @@
       .lb-meta { display: none; }
     }
   
+
+    /* ── RecordBox preloader ──────────────────────────────────
+       exclusive.html shows the hexagon preloader + fade-out overlay.
+       The hexagon rules below are duplicated from style.css, which
+       serves the same markup on index.html — kept in sync by hand so
+       that video.html/exclusive.html don't have to pull in the whole
+       110KB Webflow stylesheet just for a loading spinner. If you
+       restyle the hexagon, change it in both places. */
+    .rb-preloader {
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      display: flex;
+    }
+
+    .rb-hex { overflow: visible; }
+
+    .rb-slice {
+      stroke: var(--bg);
+      stroke-width: 3px;
+      stroke-linejoin: round;
+      transform-box: fill-box;
+      transform-origin: 50% 50%;
+      opacity: 0;
+      animation: rb-slice-cycle 1.2s cubic-bezier(0.22, 0.75, 0.32, 1.15) infinite;
+    }
+
+    .rb-slice-1, .rb-slice-6 { fill: #e3211f; }
+    .rb-slice-2, .rb-slice-3 { fill: #221c19; }
+    .rb-slice-4 { fill: #431411; }
+    .rb-slice-5 { fill: #6f1a17; }
+
+    .rb-slice-1 { animation-delay: 0.02s; }
+    .rb-slice-2 { animation-delay: 0.05s; }
+    .rb-slice-3 { animation-delay: 0.08s; }
+    .rb-slice-4 { animation-delay: 0.11s; }
+    .rb-slice-5 { animation-delay: 0.14s; }
+    .rb-slice-6 { animation-delay: 0.17s; }
+
+    @keyframes rb-slice-cycle {
+      0%   { opacity: 0; transform: scale(0.25) rotate(-20deg); }
+      27%  { opacity: 1; transform: scale(1.08) rotate(2deg); }
+      38%  { opacity: 1; transform: scale(1) rotate(0deg); }
+      67%  { opacity: 1; transform: scale(1) rotate(0deg); }
+      100% { opacity: 0; transform: scale(0.25) rotate(-20deg); }
+    }
+
+    @media screen and (max-width: 479px) {
+      .rb-hex { width: 90px; height: 90px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rb-slice {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+    }
+
+    /* Full-screen overlay the preloader sits in. Only exclusive.html
+       uses this one — index.html has its own .page-loading overlay. */
+    .rb-loader-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      opacity: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .rb-loader-overlay.rb-loader-hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    html.skip-preloader .rb-loader-overlay { display: none !important; }
