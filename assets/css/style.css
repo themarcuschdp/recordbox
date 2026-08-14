@@ -5372,6 +5372,19 @@ body.portfolio #work .card-block-wrapper {
     display: none;
   }
 
+  .button-rounded {
+    width: 94%;
+    text-align: center;
+    justify-content: center;
+    display: flex;
+  }
+
+  .category-tag {
+    width: 94%;
+    text-align: center;
+    display: block;
+  }
+
   .subhead {
     font-size: 21px;
   }
