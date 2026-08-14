@@ -4658,14 +4658,12 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
 
 .hero-video-reveal {
   opacity: 0;
-  transform: scale(1.04);
   animation: hero-video-reveal-in 1s ease-out 0.15s forwards;
 }
 
 @keyframes hero-video-reveal-in {
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
