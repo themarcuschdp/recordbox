@@ -4839,6 +4839,9 @@ body.portfolio #work .card-block-wrapper {
 
 .logo-marquee {
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 22px;
   overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
@@ -4860,6 +4863,10 @@ body.portfolio #work .card-block-wrapper {
   flex: none;
 }
 
+.logo-track-row-2 {
+  display: none;
+}
+
 @keyframes logo-marquee-scroll {
   from {
     transform: translateX(0);
@@ -4867,6 +4874,13 @@ body.portfolio #work .card-block-wrapper {
 
   to {
     transform: translateX(-50%);
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .logo-track-row-2 {
+    display: flex;
+    animation-direction: reverse;
   }
 }
 
