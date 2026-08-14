@@ -4648,6 +4648,14 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   border: 0;
 }
 
+.hero-video-frame {
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  overflow: hidden;
+}
+
 .hero-video-reveal {
   opacity: 0;
   transform: scale(1.04);
