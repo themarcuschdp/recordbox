@@ -4527,6 +4527,7 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
 
 .agencx-logo {
   width: min(220px, 100%);
+  height: auto;
 }
 
 .number-grid {
@@ -5862,6 +5863,7 @@ body.portfolio #work .card-block-wrapper {
 
   .agencx-logo {
     width: min(240px, 100%);
+    height: auto;
   }
 
   .number-wrapper {
