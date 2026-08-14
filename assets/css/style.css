@@ -3853,6 +3853,7 @@ figcaption {
 .animation-image {
   z-index: 1;
   width: 20px;
+  height: auto;
   position: relative;
 }
 
@@ -4672,6 +4673,7 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
 
 .asterisk {
   width: 22px;
+  height: auto;
 }
 
 .track {
@@ -5532,6 +5534,7 @@ body.portfolio #work .card-block-wrapper {
 
   .asterisk {
     width: 20px;
+    height: auto;
   }
 
   .collection-card {
