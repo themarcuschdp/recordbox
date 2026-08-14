@@ -4406,6 +4406,18 @@ figcaption {
   background-color: #0000 !important;
 }
 
+/* Every other .button-rounded also carries Webflow's w-inline-block
+   class (display:inline-block, shrink-wraps to its text). This pill
+   is a plain div, missing that class, so it defaults to display:block
+   and stretches full width instead of hugging "View our work" like
+   the other buttons. Desktop only, per request — mobile is untouched. */
+@media screen and (min-width: 992px) {
+  .button-rounded.pill-static {
+    display: inline-block;
+    max-width: 100%;
+  }
+}
+
 .we-are-grid .button-text {
   transition: transform 0.2s ease;
 }
