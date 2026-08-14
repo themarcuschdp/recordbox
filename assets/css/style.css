@@ -4837,6 +4837,45 @@ body.portfolio #work .card-block-wrapper {
   display: flex;
 }
 
+.logo-marquee {
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.logo-track {
+  align-items: center;
+  gap: 50px;
+  width: max-content;
+  display: flex;
+  animation: logo-marquee-scroll 22s linear infinite;
+}
+
+.logo-marquee:hover .logo-track {
+  animation-play-state: paused;
+}
+
+.logo-track img {
+  flex: none;
+}
+
+@keyframes logo-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-track {
+    animation: none;
+  }
+}
+
 .award-icon {
   background-image: url("/assets/images/icon-projects.svg");
   background-position: 0%;
@@ -5096,6 +5135,10 @@ body.portfolio #work .card-block-wrapper {
 @media screen and (min-width: 1440px) {
   .logo-strip {
     grid-column-gap: 46px;
+  }
+
+  .logo-track {
+    gap: 46px;
   }
 }
 
@@ -5365,6 +5408,10 @@ body.portfolio #work .card-block-wrapper {
     grid-row-gap: 30px;
     justify-content: space-between;
     max-width: 100%;
+  }
+
+  .logo-track {
+    gap: 30px;
   }
 
   .award-grid {
@@ -5935,6 +5982,10 @@ body.portfolio #work .card-block-wrapper {
   .logo-strip {
     grid-column-gap: 22px;
     grid-row-gap: 22px;
+  }
+
+  .logo-track {
+    gap: 22px;
   }
 
   .section-take {
