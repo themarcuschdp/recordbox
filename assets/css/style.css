@@ -4387,10 +4387,13 @@ figcaption {
 .button-rounded.pill-static {
   cursor: default;
   pointer-events: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.button-rounded.pill-static:hover {
-  background-color: #0000;
+.button-rounded.pill-static:hover,
+.button-rounded.pill-static:active,
+.button-rounded.pill-static:focus {
+  background-color: #0000 !important;
 }
 
 .we-are-grid .button-text {
