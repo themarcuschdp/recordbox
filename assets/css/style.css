@@ -3304,9 +3304,13 @@ figcaption {
 }
 
 /* The Latest Work track isn't wrapped in .section, so it misses that
-   class's 5% side padding; match it here so the heading lines up with
-   the rest of the page's section headings. */
-.container.add-percent {
+   class's 5% side padding. .section applies its padding to a
+   full-width element, BEFORE the inner .container's max-width:1200px
+   centers it — so the padding has to go on .sticky (the track's
+   full-width ancestor) rather than on .container.add-percent itself.
+   Padding .container after it's already centered at max-width just
+   pushes the heading further right the wider the viewport gets. */
+.sticky {
   padding-left: 5%;
   padding-right: 5%;
 }
@@ -5109,7 +5113,7 @@ body.portfolio #work .card-block-wrapper {
     font-size: 60px;
   }
 
-  .container.add-percent {
+  .sticky {
     padding-left: 3%;
   }
 
