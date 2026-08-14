@@ -4736,6 +4736,17 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   display: flex;
 }
 
+/* .card-wrapper's flex children get "blockified" per spec, so the
+   <picture> added around .main-image for WebP support becomes a real
+   flex item sized to its own intrinsic content and centered (since
+   align-items is center, not stretch) instead of filling the card,
+   the way the bare <img> used to via its own width/height:100%. */
+.card-wrapper picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .circle-button {
   z-index: 2;
   background-color: var(--orange);
