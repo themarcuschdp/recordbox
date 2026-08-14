@@ -3816,7 +3816,7 @@ figcaption {
   justify-content: center;
   align-items: center;
   min-height: 100svh;
-  padding: 190px 135px 150px 5%;
+  padding: 190px 135px 0 5%;
   display: flex;
   position: relative;
 }
@@ -4668,6 +4668,15 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   overflow: hidden;
 }
 
+/* This video's ordinary .margin-60px wrapper leaves a visible gap
+   (body's near-black background) between the hero section and the
+   video. Zero it out for this specific instance only, without
+   touching the shared .margin-60px utility class (reused elsewhere
+   on the page). */
+.margin-60px:has(> .hero-video-frame) {
+  margin-top: 0;
+}
+
 .hero-video-reveal {
   opacity: 0;
   transform: translate3d(0, 100px, 0);
@@ -5158,7 +5167,7 @@ body.portfolio #work .card-block-wrapper {
     background-image: none;
     min-height: auto;
     padding-top: 167px;
-    padding-bottom: 158px;
+    padding-bottom: 0;
   }
 
   .hero.for-inner {
@@ -5469,7 +5478,7 @@ body.portfolio #work .card-block-wrapper {
 
   .hero {
     padding-top: 161px;
-    padding-bottom: 167px;
+    padding-bottom: 0;
   }
 
   .hero.for-inner {
@@ -5777,7 +5786,7 @@ body.portfolio #work .card-block-wrapper {
   .hero {
     background-image: none;
     padding-top: 124px;
-    padding-bottom: 130px;
+    padding-bottom: 0;
     padding-right: 5%;
   }
 
