@@ -4384,6 +4384,15 @@ figcaption {
   background-color: var(--orange);
 }
 
+.button-rounded.pill-static {
+  cursor: default;
+  pointer-events: none;
+}
+
+.button-rounded.pill-static:hover {
+  background-color: #0000;
+}
+
 .we-are-grid .button-text {
   transition: transform 0.2s ease;
 }
