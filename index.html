@@ -318,12 +318,12 @@
                             <video
                                 class="embedded-vimeo"
                                 style="object-fit: cover"
-                                src="https://media.recordbox.me/personal/dubai-museum-timelapse.mp4"
+                                data-src="https://media.recordbox.me/personal/dubai-museum-timelapse.mp4"
                                 autoplay
                                 muted
                                 loop
                                 playsinline
-                                preload="auto"
+                                preload="none"
                             ></video>
                         </div>
                     </div>
@@ -404,12 +404,12 @@
                                     <video
                                         class="photo"
                                         style="width: 100%; height: 100%"
-                                        src="https://media.recordbox.me/personal/camp-workshop-videography.mp4"
+                                        data-src="https://media.recordbox.me/personal/camp-workshop-videography.mp4"
                                         autoplay
                                         muted
                                         loop
                                         playsinline
-                                        preload="auto"
+                                        preload="none"
                                     ></video>
                                     <div class="heading-overlay _2"></div>
                                 </div>
@@ -448,12 +448,12 @@
                                                         <video
                                                             class="main-image"
                                                             style="width: 100%; aspect-ratio: 1000 / 876; object-fit: cover"
-                                                            src="https://media.recordbox.me/personal/86.mp4"
+                                                            data-src="https://media.recordbox.me/personal/86.mp4"
                                                             autoplay
                                                             muted
                                                             loop
                                                             playsinline
-                                                            preload="auto"
+                                                            preload="none"
                                                         ></video>
                                                         <div class="overlay"></div>
                                                         <div class="circle-button">
@@ -537,12 +537,12 @@
                                                         <video
                                                             class="main-image"
                                                             style="width: 100%; aspect-ratio: 1000 / 876; object-fit: cover"
-                                                            src="https://media.recordbox.me/corporate/sephora-dubai-mall-clip.mp4"
+                                                            data-src="https://media.recordbox.me/corporate/sephora-dubai-mall-clip.mp4"
                                                             autoplay
                                                             muted
                                                             loop
                                                             playsinline
-                                                            preload="auto"
+                                                            preload="none"
                                                         ></video>
                                                         <div class="overlay"></div>
                                                         <div class="circle-button">
@@ -626,12 +626,12 @@
                                                         <video
                                                             class="main-image"
                                                             style="width: 100%; aspect-ratio: 1000 / 876; object-fit: cover"
-                                                            src="https://media.recordbox.me/corporate/ica-abu-dhabi-clip.mp4"
+                                                            data-src="https://media.recordbox.me/corporate/ica-abu-dhabi-clip.mp4"
                                                             autoplay
                                                             muted
                                                             loop
                                                             playsinline
-                                                            preload="auto"
+                                                            preload="none"
                                                         ></video>
                                                         <div class="overlay"></div>
                                                         <div class="circle-button">
@@ -825,12 +825,12 @@
                                 <video
                                     class="embedded-vimeo"
                                     style="object-fit: cover"
-                                    src="https://media.recordbox.me/personal/paul-aggarao-dubai-rain.mp4"
+                                    data-src="https://media.recordbox.me/personal/paul-aggarao-dubai-rain.mp4"
                                     autoplay
                                     muted
                                     loop
                                     playsinline
-                                    preload="auto"
+                                    preload="none"
                                 ></video>
                                 <div class="heading-overlay _2"></div>
                             </div>
@@ -1387,6 +1387,36 @@
                         observer.observe(element);
                     });
                 }
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                var lazyVideos = document.querySelectorAll('video[data-src]');
+                if (!lazyVideos.length) return;
+
+                function loadVideo(video) {
+                    video.src = video.getAttribute('data-src');
+                    video.removeAttribute('data-src');
+                    video.load();
+                }
+
+                if (!('IntersectionObserver' in window)) {
+                    Array.prototype.forEach.call(lazyVideos, loadVideo);
+                    return;
+                }
+
+                var videoObserver = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            loadVideo(entry.target);
+                            videoObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { rootMargin: '200px 0px' });
+
+                Array.prototype.forEach.call(lazyVideos, function (video) {
+                    videoObserver.observe(video);
+                });
             });
         </script>
         <script>
