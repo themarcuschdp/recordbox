@@ -4660,9 +4660,10 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
 }
 
 .hero-video-frame {
-  max-width: 100%;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100vw;
+  max-width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
   position: relative;
   overflow: hidden;
 }
