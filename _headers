@@ -1,4 +1,27 @@
-/assets/*
+# Long-lived caching is only safe for files whose name changes when their
+# contents do. The Webflow bundle and jQuery are content-hashed by the
+# exporter (webflow.schunk.6d83011aa4f34449.js), and images are replaced
+# rather than edited in place, so both can be pinned for a year.
+#
+# The stylesheets are the exception: style.css and watch.css keep the same
+# name forever, so "immutable" pins whatever a visitor cached first and no
+# later edit ever reaches them. That has already silently swallowed changes
+# in two separate PRs. They get a short max-age instead, with
+# stale-while-revalidate so a returning visitor still renders from cache
+# immediately and picks the new file up in the background — no blocking
+# revalidation on the critical path.
+#
+# These rules are written to not overlap. A single /assets/* rule plus a
+# narrower /assets/css/* rule would leave two Cache-Control headers matching
+# the same request, and which one wins is not worth depending on.
+
+/assets/css/*
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+
+/assets/images/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/animate/*
   Cache-Control: public, max-age=31536000, immutable
 
 /favicon.ico
