@@ -4715,6 +4715,15 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   height: auto;
 }
 
+/* The "Latest work" section (#work) has a bright orange background, unlike
+   every other section this icon appears in — at the icon's normal color
+   it was nearly invisible against it. The live IX2 interaction handled
+   this with a brightness filter that ramped with scroll position; kept
+   simple here as a flat boost instead, scoped to just this one instance. */
+#work .asterisk {
+  filter: brightness(200%);
+}
+
 .track {
   height: 500vh;
   padding-bottom: 50px;
