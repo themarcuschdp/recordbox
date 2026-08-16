@@ -6435,3 +6435,28 @@ a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .social-circle {
     transition: none;
   }
 }
+
+/* Wipe overlay for the "our work" tiles and the "about" section's camp-
+   workshop photo — .heading-overlay._2 sits over the image, starting at
+   translate(0%, 100%) (its existing static rule, off-screen below). This
+   drives it through .photo-animation's own scroll reveal: rises to fully
+   cover the image, then continues rising off the top, wiping the image
+   into view — measured on the live interaction as one continuous ~1s
+   transform, not two separate steps (the image reaching 100% opacity
+   partway through is coincidental to it being fully hidden behind the
+   overlay at that point, not a separate keyframe). Driven by the same
+   IntersectionObserver as .scroll-reveal and .our-work-reveal, extended
+   to include this class too. */
+.heading-overlay._2.overlay-reveal {
+  transition: transform 1s ease;
+}
+
+.heading-overlay._2.overlay-reveal.is-visible {
+  transform: translate(0%, -110%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading-overlay._2.overlay-reveal {
+    transition: none;
+  }
+}
