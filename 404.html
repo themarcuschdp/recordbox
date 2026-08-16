@@ -7,10 +7,26 @@
 <link rel="icon" href="/favicon.ico" type="image/x-icon" />
 <link rel="icon" href="/assets/images/favicon-32x32.png" type="image/png" sizes="32x32" />
 <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Oswald + Inter Tight, self-hosted (matches index.html and the watch
+     pages) instead of a fonts.googleapis.com/fonts.gstatic.com round trip.
+     Preloaded because both render text in the first paint. -->
+<link rel="preload" href="/assets/fonts/oswald-variable.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="/assets/fonts/inter-tight-variable.woff2" as="font" type="font/woff2" crossorigin />
 <style>
+  @font-face {
+    font-family: 'Oswald';
+    font-style: normal;
+    font-weight: 200 700;
+    font-display: swap;
+    src: url('/assets/fonts/oswald-variable.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Inter Tight';
+    font-style: normal;
+    font-weight: 200 700;
+    font-display: swap;
+    src: url('/assets/fonts/inter-tight-variable.woff2') format('woff2');
+  }
   *{ box-sizing: border-box; }
   html,body{ margin:0; padding:0; height:100%; }
   :root{
@@ -20,8 +36,11 @@
     --amber:      #fe0000;
     --text:       #f4f0eb;
     --muted:      #9a938a;
-    --font-display: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    /* .code below asks for weight 800; Oswald's variable axis tops out at
+       700 (the font's own max), so it clamps rather than matching exactly —
+       visually negligible at this size. */
+    --font-display: 'Oswald', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body:    'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
   }
   body{
     background: var(--bg);

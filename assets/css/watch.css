@@ -1,24 +1,32 @@
 /* ========== CHANEL PRIVATE PAGE STYLES ========== */
 
-    /* Self-hosted, replacing the fonts.googleapis.com / fonts.gstatic.com
-       round trip both watch pages made. Google served every requested
-       weight as an identical URL pointing at one variable-font file, so
-       one download per family covers the whole weight range — declared
-       here as a range rather than as separate per-weight blocks. */
+    /* These pages used to run their own pairing (Syne + DM Sans) apart from
+       the rest of the site. Now on the same Oswald + Inter Tight files
+       index.html uses, self-hosted for the same reason — replacing the
+       fonts.googleapis.com / fonts.gstatic.com round trip both watch pages
+       made. Google served every requested weight as an identical URL
+       pointing at one variable-font file, so one download per family
+       covers the whole weight range — declared here as a range rather
+       than as separate per-weight blocks.
+
+       Oswald's variable axis tops out at 700 (checked against the actual
+       file), so .lock-title's font-weight: 800 clamps to 700 — the
+       heaviest weight the font has rather than an exact match. Visually
+       negligible at that size; not worth a synthetic-bold workaround. */
     @font-face {
-      font-family: 'Syne';
+      font-family: 'Oswald';
       font-style: normal;
-      font-weight: 400 800;
+      font-weight: 200 700;
       font-display: swap;
-      src: url('/assets/fonts/syne-variable.woff2') format('woff2');
+      src: url('/assets/fonts/oswald-variable.woff2') format('woff2');
     }
 
     @font-face {
-      font-family: 'DM Sans';
+      font-family: 'Inter Tight';
       font-style: normal;
-      font-weight: 300 500;
+      font-weight: 200 700;
       font-display: swap;
-      src: url('/assets/fonts/dm-sans-variable.woff2') format('woff2');
+      src: url('/assets/fonts/inter-tight-variable.woff2') format('woff2');
     }
 
     /* ── Webflow base rules the watch pages used to inherit ───────────────
@@ -53,10 +61,11 @@
        only. exclusive.html's password field depends on this. */
     input { line-height: normal; }
 
-    /* Webflow's base <p>. Note the font-family: these pages only load Syne
-       and DM Sans, so "Inter Tight" has always fallen back to the generic
-       sans-serif here. Kept as-is so nothing shifts; worth revisiting
-       separately as a design decision rather than as part of a perf change. */
+    /* Webflow's base <p>. It always declared font-family: Inter Tight, but
+       until now these pages never actually loaded that font (they only
+       shipped Syne + DM Sans), so every <p> silently fell back to generic
+       sans-serif. Now that Inter Tight is loaded site-wide, this rule
+       finally renders as originally declared. */
     p {
       color: var(--orange);
       margin-top: 0;
@@ -86,8 +95,8 @@
       --text:       #f4f0eb;
       --muted:      #8f8579;
       --radius:     10px;
-      --font-display: 'Syne', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-body:    'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-display: 'Oswald', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body:    'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     /* ─── Reset ─────────────────────────────────────────────── */
