@@ -2071,14 +2071,6 @@ textarea.w-input, textarea.w-select {
   display: grid;
 }
 
-@font-face {
-  font-family: Hubotsans Slnt Wdth Wght;
-  src: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/6515931475afc13560fa1329_HubotSans%5Bslnt%2Cwdth%2Cwght%5D.ttf") format("truetype");
-  font-weight: 200 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --orange: #ff3c00;
   --floral-white: #161412;
@@ -5063,16 +5055,6 @@ body.portfolio #work .card-block-wrapper {
   display: flex;
 }
 
-.photo-badge {
-  background-image: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/690e3e8c4234afd8998647e1_unlock-2.jpg");
-  background-position: 50%;
-  background-repeat: no-repeat;
-  background-size: cover;
-  border-radius: 7px;
-  min-width: 140px;
-  min-height: 130px;
-}
-
 .badge-paragraph {
   opacity: 1;
   color: #000;
@@ -6295,6 +6277,42 @@ a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .social-circle {
 
 @media (prefers-reduced-motion: reduce) {
   .social-circle, .animation-image {
+    transition: none;
+  }
+}
+
+/* ===== First-visit preloader hide, replacing its Webflow IX2 timeline =====
+   The preloader used to hide itself via a Webflow "page load" interaction
+   with no data-w-id on any element in .page-loading — the comment on that
+   markup already warned it "stalls forever" without that interaction, which
+   is exactly what happened once the Webflow scripts were removed: nothing
+   was left to ever hide the overlay on a first visit (repeat visits were
+   unaffected — those already skip straight past this via the .skip-preloader
+   rule in the inline <style> at the top of <head>).
+
+   Timing below was measured frame-by-frame from the live interaction, not
+   guessed: ~4s static hold, then the hexagon icon fades over ~300ms, a
+   ~200ms gap, then the background overlay slides up over ~500ms — matching
+   what was actually shipping. Driven by the script beside the other
+   preloader logic near the end of <body>. */
+.numbers.on-preloader {
+  transition: opacity 0.3s ease;
+}
+
+.numbers.on-preloader.pl-hide {
+  opacity: 0;
+}
+
+.loading-overlay {
+  transition: transform 0.5s ease;
+}
+
+.loading-overlay.pl-hide {
+  transform: translateY(-100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numbers.on-preloader, .loading-overlay {
     transition: none;
   }
 }

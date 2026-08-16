@@ -1340,38 +1340,34 @@
                 <div class="loading-overlay"></div>
             </div>
         </div>
-        <!-- jQuery + the Webflow bundle total ~780KB uncompressed. Without defer
-             the parser stops dead at each one, so the tail of the document (the
-             contact form, footer and preloader markup above) can't finish
-             parsing until all five have downloaded and executed. defer lets the
-             parser run to completion first; deferred scripts still execute in
-             document order, and still before DOMContentLoaded, so jQuery is
-             guaranteed to be in place for the Webflow chunks and every
-             DOMContentLoaded handler below still fires after Webflow is up. -->
-        <script
-            src="/assets/animate/jquery-3.5.1.min.dc5e7f18c8.js?site=6515931475afc13560fa12d6"
-            type="text/javascript"
-            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
-            crossorigin="anonymous"
-            defer
-        ></script>
-        <script src="/assets/animate/webflow.schunk.6d83011aa4f34449.js" type="text/javascript" defer></script>
-        <script src="/assets/animate/webflow.schunk.0d62b8c91f71aed0.js" type="text/javascript" defer></script>
-        <script src="/assets/animate/webflow.2dcec2a9.c21eef37897ecb15.js" type="text/javascript" defer></script>
-        <script src="/assets/animate/webflow.8c73df52.4a4d1e588c070eff.js" type="text/javascript" defer></script>
-        <style>
-            .w-webflow-badge {
-                display: none !important;
-            }
-        </style>
+        <!-- jQuery and the four Webflow interaction chunks (~152KB gzip) used to
+             load here. Every element that depended on them — the 21 scroll
+             reveals, the 2 footer reveals, the nav toggle, the one social-icon
+             hover effect — has a vanilla JS/CSS replacement now (see style.css
+             and the scripts below), verified against load, scroll, hover, and
+             click with every remaining data-w-id element showing zero effect.
+             Deleting the scripts also retired the .w-webflow-badge CSS rule and
+             the MutationObserver that used to sit here removing that badge —
+             both existed only to hide something Webflow's own JS injected, so
+             neither has anything to do once that JS is gone. -->
         <script>
-            new MutationObserver(function (m) {
-                m.forEach(function (r) {
-                    r.addedNodes.forEach(function (n) {
-                        if (n.classList && n.classList.contains("w-webflow-badge")) n.remove();
-                    });
-                });
-            }).observe(document.body, { childList: true, subtree: true });
+            /* Replaces the Webflow "page load" interaction that used to hide
+               .page-loading — see the CSS comment above .numbers.on-preloader
+               in style.css for the measured timing this reproduces. Repeat
+               visits never reach this: html.skip-preloader (set by the inline
+               script in <head>) hides the whole overlay instantly via CSS, so
+               this only runs the full hold-fade-slide sequence on a first
+               visit. */
+            document.addEventListener('DOMContentLoaded', function () {
+                if (document.documentElement.classList.contains('skip-preloader')) return;
+                var pageLoading = document.querySelector('.page-loading');
+                var numbers = document.querySelector('.numbers.on-preloader');
+                var overlay = document.querySelector('.loading-overlay');
+                if (!pageLoading || !numbers || !overlay) return;
+                setTimeout(function () { numbers.classList.add('pl-hide'); }, 4000);
+                setTimeout(function () { overlay.classList.add('pl-hide'); }, 4500);
+                setTimeout(function () { pageLoading.style.display = 'none'; }, 5000);
+            });
         </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
