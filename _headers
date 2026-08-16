@@ -5,18 +5,28 @@
 #
 # The stylesheets are the exception: style.css and watch.css keep the same
 # name forever, so "immutable" pins whatever a visitor cached first and no
-# later edit ever reaches them. That has already silently swallowed changes
-# in two separate PRs. They get a short max-age instead, with
-# stale-while-revalidate so a returning visitor still renders from cache
-# immediately and picks the new file up in the background — no blocking
-# revalidation on the critical path.
+# later edit ever reaches them. That has already silently swallowed CSS
+# changes in four separate rounds now — two other PRs, and then this same
+# repo's own active-development commits landing five times in a row without
+# anyone (including the author) remembering to bump ?v=. A max-age, even a
+# short one, has the same failure mode at a shorter delay: it still trusts
+# a stale copy for the whole window, and the fix depends on a human
+# remembering a manual step every single time CSS changes — which is
+# exactly the step that kept getting missed.
+#
+# no-cache (the name is misleading — it still caches the body) removes that
+# dependency entirely: every load sends a conditional request and gets
+# either a 304 off an unmodified file — cheap, no re-download — or the
+# actual new bytes if it changed. There is no window where a visitor can be
+# served content older than what's actually deployed, and ?v= stops being
+# something anyone has to remember.
 #
 # These rules are written to not overlap. A single /assets/* rule plus a
 # narrower /assets/css/* rule would leave two Cache-Control headers matching
 # the same request, and which one wins is not worth depending on.
 
 /assets/css/*
-  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+  Cache-Control: public, no-cache
 
 /assets/images/*
   Cache-Control: public, max-age=31536000, immutable
