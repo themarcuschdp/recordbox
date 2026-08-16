@@ -6316,3 +6316,113 @@ a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .social-circle {
     transition: none;
   }
 }
+
+/* ===== Three more Webflow IX2 interactions, found only after the scripts
+   were actually deleted =====
+   All three target a descendant of the hover/scroll trigger rather than the
+   trigger element itself — Webflow lets one interaction drive a whole
+   subtree, not just the element carrying its data-w-id. The earlier
+   element-by-element check only ever inspected elements that directly carry
+   a data-w-id, so none of these three were caught by it; they were found by
+   comparing hover/scroll behavior against the pre-deletion code side by
+   side. Timing values below are measured the same way as everything else in
+   this file, not guessed. */
+
+/* Nav link underline. Width was never actually animated — .button-line-first
+   is already 100% of its parent via inset: auto 0% 0% — only height grows,
+   0 to 130px (100% of the 130px-tall link) over ~450-500ms ease-out. */
+.button-line-first {
+  transition: height 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.navigation-line:hover .button-line-first {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-line-first {
+    transition: none;
+  }
+}
+
+/* "Latest work" card image zoom on hover: scale 1 → 1.2 over ~450ms
+   ease-out. (.circle-button's own hover reveal was pure CSS already and
+   never broke — see body.portfolio #work .card-block-wrapper:hover
+   .circle-button above.) */
+.main-image {
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card-block-wrapper:hover .main-image {
+  transform: scale(1.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-image {
+    transition: none;
+  }
+}
+
+/* "Our work" category tiles (4 of them, one per category) fade + rise into
+   place as they scroll into view — translateY(-50px)→0, opacity 0→1. Same
+   family of entrance reveal as .scroll-reveal elsewhere in this file (same
+   easing, same ~700ms duration), just travelling from above instead of
+   below, so it gets its own class rather than overloading that one. Driven
+   by the same IntersectionObserver as .scroll-reveal, extended to include
+   this class too — see the inline script in index.html. */
+.our-work-reveal {
+  opacity: 0;
+  transform: translateY(-50px);
+  transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.our-work-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .our-work-reveal {
+    transition: none;
+  }
+}
+
+/* "Let's talk" contact CTA ticker — a continuous, constant-velocity
+   horizontal marquee, not a scroll- or hover-triggered reveal, so it needs
+   no JS/observer at all. Measured at ~122px/s (30s per loop at this
+   content's width); the two .text-rotator-content divs in the markup are
+   an already-duplicated copy of the same content sitting side by side, so
+   animating each by its own -100% is exactly one copy-width and the loop
+   is seamless — done as a percentage so it stays correct at any viewport
+   width rather than a hardcoded pixel distance. */
+.text-rotator-content {
+  animation: text-rotator-scroll 30s linear infinite;
+}
+
+@keyframes text-rotator-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-rotator-content {
+    animation: none;
+  }
+}
+
+/* Header logo hover nudge: both stacked logo images shift up together by
+   55px (measured), not a crossfade — matches what the live interaction
+   actually did, not a guessed "swap" effect. */
+.agencx-logo {
+  transition: transform 0.3s ease;
+}
+
+.brand-logo:hover .agencx-logo {
+  transform: translateY(-55px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agencx-logo {
+    transition: none;
+  }
+}
