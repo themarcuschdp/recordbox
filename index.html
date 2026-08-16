@@ -1423,6 +1423,73 @@
             });
         </script>
         <script>
+            /* Replaces the Webflow IX2 "scroll" interaction driving the
+               "Latest work" section (#work). #work is 500vh tall; .sticky
+               inside it pins at top:0 for as long as the tall parent hasn't
+               finished scrolling past, and during that pin, .collection-list
+               (the row of cards) gets translated horizontally as a function
+               of scroll progress through the pin range — a standard
+               scroll-hijacked horizontal gallery.
+
+               Measuring the live interaction directly (not just reading the
+               CSS) showed raw scroll position doesn't map linearly to
+               translateX — the value visibly lags behind scroll and keeps
+               settling toward its target for a while after scrolling stops,
+               the same asymptotic-decay signature every other IX2 animation
+               in this file showed when sampled frame-by-frame. That's a
+               smoothed/lerped follower, not a direct 1:1 mapping, so it's
+               reproduced as one here: an rAF loop eases .collection-list's
+               actual position toward a target recomputed from scroll
+               position on every scroll/resize event, rather than setting
+               the transform directly from scroll position.
+
+               Disabled below 991px to match style.css's own mobile
+               breakpoint, where #work/.sticky/.collection-list/
+               .collection-card all get overridden back to a plain wrapping
+               grid (this is unrelated to anything IX2 ever drove, so it
+               needed no fix — just don't fight it here). */
+            document.addEventListener('DOMContentLoaded', function () {
+                var track = document.getElementById('work');
+                if (!track) return;
+                var sticky = track.querySelector('.sticky');
+                var wrapper = track.querySelector('.wrapper');
+                var list = track.querySelector('.collection-list');
+                if (!sticky || !wrapper || !list) return;
+
+                var MOBILE_BREAKPOINT = 991;
+                var targetX = 0;
+                var currentX = 0;
+                var rafId = null;
+
+                function computeTarget() {
+                    if (window.innerWidth <= MOBILE_BREAKPOINT) { targetX = 0; return; }
+                    var pinStart = track.offsetTop;
+                    var pinDistance = track.offsetHeight - sticky.offsetHeight;
+                    var maxTranslate = Math.max(0, list.scrollWidth - wrapper.getBoundingClientRect().width);
+                    var progress = pinDistance > 0 ? (window.scrollY - pinStart) / pinDistance : 0;
+                    progress = Math.max(0, Math.min(1, progress));
+                    targetX = -progress * maxTranslate;
+                }
+
+                function tick() {
+                    currentX += (targetX - currentX) * 0.09;
+                    if (Math.abs(targetX - currentX) < 0.05) currentX = targetX;
+                    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+                        list.style.transform = '';
+                    } else {
+                        list.style.transform = 'translate3d(' + currentX.toFixed(2) + 'px, 0, 0)';
+                    }
+                    rafId = requestAnimationFrame(tick);
+                }
+
+                window.addEventListener('scroll', computeTarget, { passive: true });
+                window.addEventListener('resize', computeTarget);
+                computeTarget();
+                currentX = targetX;
+                tick();
+            });
+        </script>
+        <script>
             document.addEventListener('DOMContentLoaded', function () {
                 var lazyVideos = document.querySelectorAll('video[data-src]');
                 if (!lazyVideos.length) return;
