@@ -1371,7 +1371,7 @@
         </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                var animatedElements = document.querySelectorAll('.contact-form-animate, .team-photo-animate, .hero-video-reveal, .scroll-reveal, .scroll-reveal-rise, .our-work-reveal, .overlay-reveal');
+                var animatedElements = document.querySelectorAll('.contact-form-animate, .team-photo-animate, .hero-video-reveal, .scroll-reveal, .scroll-reveal-rise');
                 if (animatedElements.length) {
                     var observer = new IntersectionObserver(function(entries) {
                         entries.forEach(function(entry) {
@@ -1383,6 +1383,42 @@
                     }, { threshold: 0.2 });
                     Array.prototype.forEach.call(animatedElements, function (element) {
                         observer.observe(element);
+                    });
+                }
+
+                /* .our-work-reveal (the image) and .overlay-reveal (its sibling
+                   wipe overlay) both live inside a .photo-animation card, but
+                   can't each be observed by their own box: .overlay-reveal's
+                   resting transform (translate(0%, 100%), so it starts fully
+                   below the image) shifts its actual bounding box roughly its
+                   own height further down the page than its sibling's. Under
+                   an instant jump-scroll both still cross the 20% threshold
+                   close enough together to look synced in testing, but under
+                   real, continuous scrolling they can cross it hundreds of
+                   pixels apart — easily leaving the image revealed while the
+                   overlay's own trigger point never gets reached if a visitor
+                   stops scrolling in between. Observing the stable, untransformed
+                   .photo-animation container itself instead and cascading
+                   .is-visible to whichever of the two children it has removes
+                   the gap entirely — both trigger off one shared, honest box. */
+                var cards = document.querySelectorAll('.photo-animation');
+                var revealCards = Array.prototype.filter.call(cards, function (card) {
+                    return card.querySelector('.our-work-reveal, .overlay-reveal');
+                });
+                if (revealCards.length) {
+                    var cardObserver = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                var img = entry.target.querySelector('.our-work-reveal');
+                                var overlay = entry.target.querySelector('.overlay-reveal');
+                                if (img) img.classList.add('is-visible');
+                                if (overlay) overlay.classList.add('is-visible');
+                                cardObserver.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.2 });
+                    revealCards.forEach(function (card) {
+                        cardObserver.observe(card);
                     });
                 }
             });

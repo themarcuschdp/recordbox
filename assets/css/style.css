@@ -6376,9 +6376,10 @@ a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .social-circle {
    place as they scroll into view — translateY(-50px)→0, opacity 0→1. Same
    family of entrance reveal as .scroll-reveal elsewhere in this file (same
    easing, same ~700ms duration), just travelling from above instead of
-   below, so it gets its own class rather than overloading that one. Driven
-   by the same IntersectionObserver as .scroll-reveal, extended to include
-   this class too — see the inline script in index.html. */
+   below, so it gets its own class rather than overloading that one.
+   Triggered from a second, dedicated IntersectionObserver in index.html
+   that watches the stable .photo-animation container rather than this
+   element directly — see the comment above .overlay-reveal below for why. */
 .our-work-reveal {
   opacity: 0;
   transform: translateY(-50px);
@@ -6444,9 +6445,17 @@ a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .social-circle {
    into view — measured on the live interaction as one continuous ~1s
    transform, not two separate steps (the image reaching 100% opacity
    partway through is coincidental to it being fully hidden behind the
-   overlay at that point, not a separate keyframe). Driven by the same
-   IntersectionObserver as .scroll-reveal and .our-work-reveal, extended
-   to include this class too. */
+   overlay at that point, not a separate keyframe).
+
+   Not observed by its own box: this element's resting transform
+   (translate(0%, 100%)) shifts its actual bounding rect roughly its own
+   height below its sibling image, so under real continuous scrolling it
+   can cross a 20%-visible threshold noticeably later than the image does
+   — a visitor who stops scrolling in between would see the image revealed
+   with no overlay at all. index.html's second IntersectionObserver
+   watches the stable, untransformed .photo-animation container instead
+   and cascades .is-visible to both children together off that one
+   honest box. */
 .heading-overlay._2.overlay-reveal {
   transition: transform 1s ease;
 }
