@@ -2046,14 +2046,6 @@ textarea.w-input, textarea.w-select {
   display: grid;
 }
 
-@font-face {
-  font-family: Hubotsans Slnt Wdth Wght;
-  src: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/6515931475afc13560fa1329_HubotSans%5Bslnt%2Cwdth%2Cwght%5D.ttf") format("truetype");
-  font-weight: 200 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --orange: #ff3c00;
   --floral-white: #161412;
@@ -2771,7 +2763,7 @@ textarea.w-input, textarea.w-select {
 
 .w-checkbox-input--inputType-custom.w--redirected-checked {
   background-color: #3898ec;
-  background-image: url("https://d3e54v103j8qbb.cloudfront.net/static/custom-checkbox-checkmark.589d534424.svg");
+  background-image: url("/assets/images/checkbox-checkmark.svg");
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: cover;
@@ -3985,7 +3977,7 @@ figcaption {
   border-width: 2px;
   border-color: var(--orange);
   background-color: #0000;
-  background-image: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/6515931475afc13560fa1365_custom-checkbox-checkmark.svg");
+  background-image: url("/assets/images/checkbox-checkmark.svg");
   background-size: 10px;
 }
 
@@ -4966,7 +4958,7 @@ body.portfolio #work .card-block-wrapper {
 }
 
 .start-icon {
-  background-image: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/6516a91a7d367d8cafc8fa0e_icons8-asterisk-192.png");
+  background-image: url("/assets/images/heading-asterisk-icon.png");
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: cover;
@@ -5036,7 +5028,6 @@ body.portfolio #work .card-block-wrapper {
 }
 
 .photo-badge {
-  background-image: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/690e3e8c4234afd8998647e1_unlock-2.jpg");
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: cover;
@@ -6214,4 +6205,152 @@ body.portfolio #work {
 
 html.skip-preloader .rb-loader-overlay {
   display: none !important;
+}
+
+/* =========================================================================
+   Native replacements for index.html's remaining Webflow IX2 interactions.
+   Webflow's own runtime (jquery + webflow.schunk*.js) has been removed —
+   see assets/js/interactions.js for the scroll/hover/click logic that
+   drives these classes. Values below were read out of the site's exported
+   IX2 interaction data before the runtime was dropped, so the motion
+   matches what Webflow was already doing.
+   ========================================================================= */
+
+/* Scroll-triggered entrances (was: SCROLL_INTO_VIEW "slideInBottom"/"slideInLeft") */
+.reveal-bottom,
+.reveal-left {
+  opacity: 0;
+  transition: opacity 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms,
+              transform 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms;
+  will-change: transform, opacity;
+}
+
+.reveal-bottom { transform: translate3d(0, 100px, 0); }
+.reveal-left { transform: translate3d(-100px, 0, 0); }
+
+.reveal-bottom.is-visible,
+.reveal-left.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+/* Footer content fade-up (was: the "Fade In - First" preset) */
+.reveal-fade-small {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0) scale(0.9);
+  transition: opacity 200ms ease, transform 200ms ease;
+  will-change: transform, opacity;
+}
+
+.reveal-fade-small.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+}
+
+/* Photo drift while scrolling (was: SCROLLING_IN_VIEW continuous parallax) */
+.photo-animation .photo,
+.photo-line-animation {
+  transform: translate3d(0, var(--parallax-y, 0px), 0);
+}
+
+/* Main content dims and shrinks slightly once the footer scrolls into view
+   (was: "Footer Into/Out of View", targeting .page-wrapper as a sibling) */
+.page-wrapper {
+  transition: transform 500ms ease-out, opacity 500ms ease-out;
+}
+
+.page-wrapper.is-dimmed {
+  transform: scale3d(0.95, 0.95, 1);
+  opacity: 0.5;
+}
+
+/* Social icon hover: circle blooms in, icon shrinks, both drift toward the
+   cursor (was: "Social Hover In/Out" + the MOUSE_X/MOUSE_Y "Social Icon
+   Animation" continuous action) */
+.social-icon {
+  --circle-scale: 0;
+  --icon-scale: 1;
+  --hover-tx: 0px;
+  --hover-ty: 0px;
+}
+
+.social-icon .social-circle {
+  transform: translate3d(var(--hover-tx), var(--hover-ty), 0) scale(var(--circle-scale));
+  transition: transform 400ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.social-icon .animation-image {
+  transform: translate3d(var(--hover-tx), var(--hover-ty), 0) scale(var(--icon-scale));
+  transition: transform 300ms ease;
+}
+
+.social-icon:hover {
+  --circle-scale: 1;
+  --icon-scale: 0.85;
+}
+
+/* Logo swap on hover: the two stacked logo images slide up together,
+   revealing the second copy underneath (was: "Logo Hover In/Out 2") */
+.logo-wrapper-line {
+  overflow: hidden;
+}
+
+.brand-logo .agencx-logo {
+  transition: transform 300ms ease;
+}
+
+.brand-logo:hover .agencx-logo {
+  transform: translateY(-100%);
+}
+
+/* "Let's talk" CTA: the black circle reveals on hover and drifts toward the
+   cursor (was: "CTA Hover In/Out" + the MOUSE_X/MOUSE_Y "CTA Circle
+   Animation" continuous action) */
+.project-circle-black.black {
+  --cta-scale: 0;
+  --cta-tx: 0px;
+  --cta-ty: 0px;
+  transform: translate3d(var(--cta-tx), var(--cta-ty), 0) scale(var(--cta-scale));
+  opacity: var(--cta-scale);
+  transition: transform 1000ms cubic-bezier(0.19, 1, 0.22, 1), opacity 500ms ease;
+}
+
+.section-take:hover .project-circle-black.black {
+  --cta-scale: 1;
+}
+
+/* Hamburger icon morphs into an X while the mobile nav is open
+   (was: "Hamburger First/Second Click (Mobile) 2") */
+.vertical-line-1,
+.verical-line-2 {
+  transition: transform 400ms ease;
+}
+
+.menu-button.w--open .vertical-line-1 {
+  transform: translateY(1px) rotate(-45deg);
+}
+
+.menu-button.w--open .verical-line-2 {
+  transform: translateY(-1px) rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-bottom,
+  .reveal-left,
+  .reveal-fade-small {
+    transition: opacity 200ms ease !important;
+    transform: none !important;
+  }
+
+  .photo-animation .photo,
+  .photo-line-animation,
+  .page-wrapper,
+  .social-icon .social-circle,
+  .social-icon .animation-image,
+  .brand-logo .agencx-logo,
+  .project-circle-black.black,
+  .vertical-line-1,
+  .verical-line-2 {
+    transition: none !important;
+  }
 }
