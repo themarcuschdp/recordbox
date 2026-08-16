@@ -7,14 +7,16 @@
   <link rel="icon" href="/favicon.ico" type="image/x-icon" />
   <link rel="icon" href="/assets/images/favicon-32x32.png" type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.plyr.io" crossorigin>
   <!-- Every playable video on this page comes from this origin, so warm the
        connection before the grid starts requesting them. -->
   <link rel="preconnect" href="https://media.recordbox.me" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/watch.css?v=2">
+  <!-- Syne and DM Sans are now self-hosted (see watch.css) instead of
+       fetched from fonts.googleapis.com/fonts.gstatic.com. Preloaded
+       because both render text in the first paint. -->
+  <link rel="preload" href="/assets/fonts/syne-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/dm-sans-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/watch.css?v=3">
   <!-- Plyr's stylesheet only matters once the player is instantiated, which
        happens on first video click — load it without blocking first paint. -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" media="print" onload="this.media='all'" />

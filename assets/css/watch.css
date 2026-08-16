@@ -1,5 +1,26 @@
 /* ========== CHANEL PRIVATE PAGE STYLES ========== */
 
+    /* Self-hosted, replacing the fonts.googleapis.com / fonts.gstatic.com
+       round trip both watch pages made. Google served every requested
+       weight as an identical URL pointing at one variable-font file, so
+       one download per family covers the whole weight range — declared
+       here as a range rather than as separate per-weight blocks. */
+    @font-face {
+      font-family: 'Syne';
+      font-style: normal;
+      font-weight: 400 800;
+      font-display: swap;
+      src: url('/assets/fonts/syne-variable.woff2') format('woff2');
+    }
+
+    @font-face {
+      font-family: 'DM Sans';
+      font-style: normal;
+      font-weight: 300 500;
+      font-display: swap;
+      src: url('/assets/fonts/dm-sans-variable.woff2') format('woff2');
+    }
+
     /* ── Webflow base rules the watch pages used to inherit ───────────────
        video.html and exclusive.html previously loaded the full 110KB
        style.css. They use none of its class selectors — but they did depend

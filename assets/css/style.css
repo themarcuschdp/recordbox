@@ -1,3 +1,28 @@
+/* Self-hosted, replacing the fonts.googleapis.com / fonts.gstatic.com round
+   trip. Google now serves each requested weight as an identical URL pointing
+   at one variable-font file — the 6 "different" @font-face blocks Google
+   returned for each family all shared one src, letting the browser pick the
+   weight from the font's own axis. Downloaded that one file per family
+   instead of the 6 duplicate declarations, and declared the weight as a
+   range so any value 200–900 resolves directly against it. Latin-only: the
+   site's text needs nothing outside the "latin" subset Google split out
+   (checked against every non-ASCII character actually in the markup). */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url('/assets/fonts/oswald-variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url('/assets/fonts/inter-tight-variable.woff2') format('woff2');
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -4966,7 +4991,10 @@ body.portfolio #work .card-block-wrapper {
 }
 
 .start-icon {
-  background-image: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/6516a91a7d367d8cafc8fa0e_icons8-asterisk-192.png");
+  /* Same icon as heading-asterisk-icon.png (the export localized every other
+     use of this asterisk as an <img>; this one background-image reference
+     was the one spot still pointing at Webflow's asset CDN). */
+  background-image: url("/assets/images/heading-asterisk-icon.png");
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: cover;
@@ -6198,3 +6226,75 @@ body.portfolio #work {
 /* The .rb-loader-overlay rules that used to live here moved to watch.css.
    Only exclusive.html ever used them, and that page no longer loads this
    stylesheet — it has no Webflow markup on it at all. */
+
+/* ===== Scroll reveals, replacing Webflow's IX2 runtime =====
+   These two classes replace the "scroll into view" fade-up interaction
+   that used to be driven by jQuery + two Webflow chunks (~152KB gzip) via
+   data-w-id. Motion values were measured from the live IX2 animation
+   frame-by-frame rather than guessed, so the replacement matches exactly:
+   translateY(100px)/scale(0.9)→identity, opacity 0→1, ease-out, ~700ms.
+
+   Both classes are driven by the existing IntersectionObserver in the
+   inline script below (extended to include them), the same one already
+   used for .contact-form-animate/.team-photo-animate/.hero-video-reveal —
+   not a second observer. */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(100px);
+  transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-rise {
+  opacity: 0;
+  transform: translateY(28px) scale(0.9);
+  transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-reveal-rise.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal, .scroll-reveal-rise {
+    transition: none;
+  }
+}
+
+/* ===== Social icon hover, replacing its Webflow IX2 binding =====
+   Of the 16 .social-icon links on the page, only this one — the nav's X
+   link — actually had the hover interaction bound in the live site today
+   (checked empirically: hovering any of the other 15, including its own
+   three siblings inside the same nav wrapper div, does nothing — Webflow
+   interactions attach per data-w-id element instance, not by container or
+   class). Scoped via that link's own data-w-id, left in place for exactly
+   this purpose, rather than a class/container selector that would have
+   caught its three siblings too. See the housekeeping note in the audit
+   about turning this on everywhere as a deliberate follow-up. */
+a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .animation-image {
+  transform: scale(0.85);
+}
+
+a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .social-circle {
+  transform: scale(1);
+}
+
+.social-circle {
+  transform: scale(0);
+  transition: transform 0.25s ease;
+}
+
+.animation-image {
+  transition: transform 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-circle, .animation-image {
+    transition: none;
+  }
+}

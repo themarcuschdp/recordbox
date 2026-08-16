@@ -22,22 +22,21 @@
         <meta content="summary_large_image" name="twitter:card" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <meta content="Webflow" name="generator" />
-        <link href="/assets/css/style.css?v=6" rel="stylesheet" type="text/css" />
-        <link href="https://fonts.googleapis.com" rel="preconnect" />
-        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous" />
+        <link href="/assets/css/style.css?v=9" rel="stylesheet" type="text/css" />
         <!-- Every video on this page streams from media.recordbox.me. Warming
              the connection here means the DNS + TLS handshake is already done
              by the time the hero video starts requesting bytes. -->
         <link href="https://media.recordbox.me" rel="preconnect" crossorigin="anonymous" />
-        <!-- Trimmed from 24 requested faces to 12: the italic axis was dropped
-             because the only italic rule in style.css targets <dfn>, which the
-             markup never uses, and weights 100/800/900 are never referenced.
-             This is a render-blocking third-party request, so a smaller
-             response here moves first paint directly. -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&family=Inter+Tight:wght@200;300;400;500;600;700&display=swap"
-            rel="stylesheet"
-        />
+        <!-- Oswald and Inter Tight are now self-hosted (see the @font-face
+             block at the top of style.css) rather than fetched from
+             fonts.googleapis.com/fonts.gstatic.com, which collapses two
+             third-party round trips — a render-blocking CSS request that
+             itself chained to a second origin for the font files — into
+             same-origin requests already covered by this deploy's normal
+             caching. Text renders in this typeface on first paint, so the
+             files are worth starting before the parser reaches style.css. -->
+        <link rel="preload" href="/assets/fonts/oswald-variable.woff2" as="font" type="font/woff2" crossorigin />
+        <link rel="preload" href="/assets/fonts/inter-tight-variable.woff2" as="font" type="font/woff2" crossorigin />
         <script type="text/javascript">
             !(function (o, c) {
                 var n = c.documentElement,
@@ -71,13 +70,20 @@
                on first-time visits. Default it visible so there's no gap to flash into. */
             .page-loading { display: flex; }
             html.skip-preloader .page-loading { display: none !important; }
-            /* The load interaction's timeline keeps running even while the overlay
-               above is hidden, so on repeat visits force the hero text straight to
-               its visible state instead of waiting on that hidden animation. */
-            html.skip-preloader [data-w-id="1bb98a3f-7440-0562-df9e-2f58af415199"],
-            html.skip-preloader [data-w-id="1bb98a3f-7440-0562-df9e-2f58af41519c"],
-            html.skip-preloader [data-w-id="1bb98a3f-7440-0562-df9e-2f58af4151a4"] {
+            /* Previously targeted the hero text's three data-w-id attributes directly;
+               those are gone now that the scroll-reveal system is vanilla JS/CSS
+               instead of Webflow IX2 (see style.css), so this targets .hero-reveal —
+               the same three elements — instead. Still needed: the reveal is driven by
+               an IntersectionObserver that only attaches after DOMContentLoaded, so on
+               a first-time visit the hero text is briefly at its pre-reveal opacity:0
+               until the observer fires (expected — that's what the preloader overlay
+               is covering). On a repeat visit the overlay is skipped instantly via the
+               rule above, which would expose that same brief blank window with nothing
+               left to hide it behind, so it's forced straight to visible here instead
+               of waiting on the observer. */
+            html.skip-preloader .hero-reveal {
                 opacity: 1 !important;
+                transform: none !important;
             }
         </style>
         <script>
@@ -235,23 +241,19 @@
                             <div>
                                 <div class="hero-title-flex">
                                     <h1
-                                        data-w-id="1bb98a3f-7440-0562-df9e-2f58af415199"
-                                        style="opacity: 0"
-                                        class="display-1"
+                                        class="display-1 scroll-reveal hero-reveal"
                                     >
                                         record<br />
                                     </h1>
                                     <h1
-                                        data-w-id="1bb98a3f-7440-0562-df9e-2f58af41519c"
-                                        style="opacity: 0"
-                                        class="display-1 with-line"
+                                        class="display-1 with-line scroll-reveal hero-reveal"
                                     >
                                         box<br />
                                     </h1>
                                 </div>
                                 <div class="margin-40px">
                                     <div class="we-are-grid">
-                                        <div data-w-id="1bb98a3f-7440-0562-df9e-2f58af4151a4" style="opacity: 0">
+                                        <div class="scroll-reveal hero-reveal">
                                             <p class="subhead">
                                                 Amplify your visual branding with Recordbox Agency dubai UAE.<strong
                                                     ><br
@@ -288,10 +290,9 @@
                                 src="/assets/images/social-icon-x.png"
                                 loading="lazy"
                                 width="20" height="20.0"
-                                data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a1"
                                 alt=""
                                 class="animation-image" />
-                            <div data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a2" class="social-circle"></div></a
+                            <div class="social-circle"></div></a
                         ><a href="https://twitter.com/" target="_blank" class="social-icon w-inline-block"
                             ><img
                                 src="/assets/images/social-icon-instagram.png"
@@ -344,25 +345,19 @@
                         <div>
                             <div class="number-grid">
                                 <div
-                                    data-w-id="0f2183aa-99c5-45ee-5356-1b2565cacb41"
-                                    style="opacity: 0"
-                                    class="number-wrapper"
+                                    class="number-wrapper scroll-reveal"
                                 >
                                     <h2 class="number-about" data-count-target="99" data-count-suffix="%">99%</h2>
                                     <div class="sub-text-about white">Client satisfaction</div>
                                 </div>
                                 <div
-                                    data-w-id="0f2183aa-99c5-45ee-5356-1b2565cacb46"
-                                    style="opacity: 0"
-                                    class="number-wrapper"
+                                    class="number-wrapper scroll-reveal"
                                 >
                                     <h2 class="number-about" data-count-target="13">13</h2>
                                     <div class="sub-text-about white">Years of experience</div>
                                 </div>
                                 <div
-                                    data-w-id="0f2183aa-99c5-45ee-5356-1b2565cacb4b"
-                                    style="opacity: 0"
-                                    class="number-wrapper"
+                                    class="number-wrapper scroll-reveal"
                                 >
                                     <h2 class="number-about" data-count-target="105">105</h2>
                                     <div class="sub-text-about white">Clients worldwide</div>
@@ -378,9 +373,7 @@
                         <div class="grid-2-columns">
                             <div id="w-node-_90da62b0-4cae-8014-b6c0-f55cb59deb8c-60fa12d5" class="about-flex">
                                 <div
-                                    data-w-id="90da62b0-4cae-8014-b6c0-f55cb59deb8d"
-                                    style="opacity: 0"
-                                    class="title-wrapper"
+                                    class="title-wrapper scroll-reveal"
                                 >
                                     <img
                                         src="/assets/images/heading-asterisk-icon.png"
@@ -391,12 +384,12 @@
                                     />
                                     <h2 class="top-text">about recordbox</h2>
                                 </div>
-                                <div data-w-id="90da62b0-4cae-8014-b6c0-f55cb59deb91" style="opacity: 0">
+                                <div class="scroll-reveal">
                                     <p class="title-2">
                                         RecordBox — CREATING EXCEPTIONAL VISUAL BRANDING. WE'RE PROUD CHAMPIONS OF EXCELLENCE IN EVERY PROJECT. EXPLORE OUR WORK FOR IN-DEPTH INSIGHTS INTO OUR ACCLAIMED PORTFOLIO.
                                     </p>
                                 </div>
-                                <div data-w-id="65d891ae-884a-f021-9df3-beef78db338f" style="opacity: 0">
+                                <div class="scroll-reveal">
                                     <div class="button-rounded pill-static">
                                         <div class="button-text-wrapper _20px">
                                             <div class="button-text small">View our work</div>
@@ -433,9 +426,7 @@
                         <div class="wrapper">
                             <div class="container add-percent">
                                 <div
-                                    data-w-id="1fae626b-65fb-aeec-e274-a797c32897c1"
-                                    style="opacity: 0"
-                                    class="title-wrapper"
+                                    class="title-wrapper scroll-reveal"
                                 >
                                     <img
                                         src="/assets/images/heading-asterisk-icon.png"
@@ -725,9 +716,7 @@
                     <div class="container">
                         <div>
                             <div
-                                data-w-id="6d350b70-f039-45ec-c704-3ed656f5d614"
-                                style="opacity: 0"
-                                class="title-wrapper"
+                                class="title-wrapper scroll-reveal"
                             >
                                 <img
                                     src="/assets/images/heading-asterisk-icon.png"
@@ -852,9 +841,7 @@
                     <div class="container">
                         <div>
                             <div
-                                data-w-id="576131c7-499d-fba5-2780-602c8eed8435"
-                                style="opacity: 0"
-                                class="title-wrapper"
+                                class="title-wrapper scroll-reveal"
                             >
                                 <img
                                     src="/assets/images/heading-asterisk-icon.png"
@@ -867,9 +854,7 @@
                             </div>
                             <div class="margin-50px">
                                 <div
-                                    data-w-id="cd2859fb-962a-59f5-b871-25964cda681f"
-                                    style="opacity: 0"
-                                    class="logo-strip"
+                                    class="logo-strip scroll-reveal"
                                 >
                                     <img src="/assets/images/client-logo-1.svg" alt="" width="120" height="48.02" /><img
                                         src="/assets/images/client-logo-2.svg"
@@ -884,12 +869,12 @@
                             </div>
                         </div>
                         <div class="margin-60px">
-                            <p data-w-id="58b5d077-7672-2ead-1896-fb3e459e141b" style="opacity: 0" class="title-1">
+                            <p class="title-1 scroll-reveal">
                                 You get results, we get proof of it.
                             </p>
                             <div class="margin-60px">
                                 <div class="award-grid">
-                                    <div data-w-id="6a784763-2ab5-59d3-3c7b-ffdcfc68c90a" style="opacity: 0">
+                                    <div class="scroll-reveal">
                                         <div class="award-icon"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -921,7 +906,7 @@
                                         id="w-node-_5ed47188-d038-4ea9-c8d5-6f4b9a44f874-60fa12d5"
                                         class="line-hieght for-mobile hide"
                                     ></div>
-                                    <div data-w-id="6a784763-2ab5-59d3-3c7b-ffdcfc68c92b" style="opacity: 0">
+                                    <div class="scroll-reveal">
                                         <div class="award-icon _2"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -953,7 +938,7 @@
                                         id="w-node-b2ab17d7-b5a4-6f3c-8fd5-b483dea321b8-60fa12d5"
                                         class="line-hieght for-mobile hide"
                                     ></div>
-                                    <div data-w-id="6a784763-2ab5-59d3-3c7b-ffdcfc68c94e" style="opacity: 0">
+                                    <div class="scroll-reveal">
                                         <div class="award-icon _3"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -1275,9 +1260,8 @@
                     </div>
                     <div class="margin-50px">
                         <div class="footer-grid">
-                            <div
+                            <div class="scroll-reveal-rise"
                                 id="w-node-a48725d2-5e9e-2213-0f69-c7af29e3488c-29e34889"
-                                data-w-id="a48725d2-5e9e-2213-0f69-c7af29e3488c"
                             >
                                 <div class="footer-tag">
                                     <div class="flex-tag-footer white"><div class="footer-title-tag">vist us</div></div>
@@ -1318,7 +1302,7 @@
                         </div>
                     </div>
                     <div class="margin-70px">
-                        <div data-w-id="a48725d2-5e9e-2213-0f69-c7af29e348ba" class="copyright-flex">
+                        <div class="copyright-flex scroll-reveal-rise">
                             <p class="copyright">
                                 © 2026 All Rights Reserved RecordBox 
                             </p>
@@ -1391,7 +1375,7 @@
         </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                var animatedElements = document.querySelectorAll('.contact-form-animate, .team-photo-animate, .hero-video-reveal');
+                var animatedElements = document.querySelectorAll('.contact-form-animate, .team-photo-animate, .hero-video-reveal, .scroll-reveal, .scroll-reveal-rise');
                 if (animatedElements.length) {
                     var observer = new IntersectionObserver(function(entries) {
                         entries.forEach(function(entry) {
@@ -1405,6 +1389,41 @@
                         observer.observe(element);
                     });
                 }
+            });
+        </script>
+        <script>
+            /* Replaces Webflow's navbar module for the mobile hamburger menu.
+               Mechanism confirmed by watching the live IX2-driven toggle:
+               clicking .menu-button adds .w--open to itself and adds an
+               empty data-nav-menu-open attribute to .nav-menu — the actual
+               show/hide styling is plain CSS already (the [data-nav-menu-open]
+               rule in style.css), so this only needs to toggle that state and
+               the matching ARIA attributes, not reimplement any presentation. */
+            document.addEventListener('DOMContentLoaded', function () {
+                var btn = document.querySelector('.menu-button.w-nav-button');
+                var menu = document.querySelector('.nav-menu.w-nav-menu');
+                if (!btn || !menu) return;
+
+                function closeMenu() {
+                    btn.classList.remove('w--open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    menu.removeAttribute('data-nav-menu-open');
+                }
+                function openMenu() {
+                    btn.classList.add('w--open');
+                    btn.setAttribute('aria-expanded', 'true');
+                    menu.setAttribute('data-nav-menu-open', '');
+                }
+                btn.addEventListener('click', function () {
+                    if (btn.classList.contains('w--open')) closeMenu();
+                    else openMenu();
+                });
+                // Matches the live site: picking a destination from the open
+                // mobile menu dismisses it instead of leaving it covering the
+                // page after the browser jumps to the target section.
+                Array.prototype.forEach.call(menu.querySelectorAll('a'), function (a) {
+                    a.addEventListener('click', closeMenu);
+                });
             });
         </script>
         <script>
