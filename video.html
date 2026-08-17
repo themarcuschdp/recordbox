@@ -1011,7 +1011,9 @@ function matchesCategory(v, key){
 }
 
 function currentList(){
-  let list = activeFilter === 'all' ? VIDEOS : VIDEOS.filter(v => matchesCategory(v, activeFilter));
+  // Locked (exclusive/gated) cards only ever belong on the ALL view —
+  // they should never show up under a specific category tab like Corporate.
+  let list = activeFilter === 'all' ? VIDEOS : VIDEOS.filter(v => matchesCategory(v, activeFilter) && !v.locked);
   if (searchQuery) list = list.filter(v => v.title.toLowerCase().includes(searchQuery));
   return list;
 }
