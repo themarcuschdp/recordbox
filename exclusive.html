@@ -728,6 +728,7 @@
   /* ── Watch-style player state (same behavior as video.html) ── */
   const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
   let player = null;
+  let hls = null;
   let currentUrl = null;
   let searchQuery = '';
 
@@ -815,6 +816,42 @@
     if (!isDesktop()) window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  /* Every row on this page is Bunny-hosted, so every one also has an HLS
+     manifest at the same guid (different path than the play_720p.mp4
+     fallback stored in v.url) — that's what gets adaptive quality
+     switching, since a single MP4 is always one fixed resolution.
+     hls.js (self-hosted at assets/js/hls.light.min.js) handles it for
+     Chrome/Firefox/Edge; Safari plays HLS natively so it skips hls.js
+     entirely; anything without either support falls back to v.url. */
+  function toHlsUrl(url) {
+    var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(url);
+    return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/playlist.m3u8' : null;
+  }
+
+  function loadSource(videoEl, v) {
+    if (hls) { hls.destroy(); hls = null; }
+
+    var hlsUrl = toHlsUrl(v.url);
+
+    if (hlsUrl && window.Hls && Hls.isSupported()) {
+      hls = new Hls();
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        if (!data.fatal) return;
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+        else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+        else { hls.destroy(); hls = null; }
+      });
+      hls.loadSource(hlsUrl);
+      hls.attachMedia(videoEl);
+    } else if (hlsUrl && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+      videoEl.src = hlsUrl;
+      videoEl.load();
+    } else {
+      videoEl.src = v.url;
+      videoEl.load();
+    }
+  }
+
   function playVideo(v) {
     currentUrl = v.url;
 
@@ -835,14 +872,11 @@
         new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
       });
     }
-    player.source = {
-      type: 'video',
-      sources: [{ src: v.url, type: 'video/mp4' }],
-    };
+    loadSource(videoEl, v);
     player.once('canplay', function() {
       player.play().catch(function(err) { console.warn('Playback blocked:', err); });
     });
-    player.on('error', function(e) {
+    player.once('error', function(e) {
       console.error('Plyr/video error for', v.url, e);
     });
 
@@ -1008,5 +1042,10 @@
      never needs to block parsing. defer keeps it out of the critical path
      while still guaranteeing it has executed before any user interaction. -->
 <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js" defer></script>
+<!-- hls.js, self-hosted (see toHlsUrl()/loadSource() above) — the "light"
+     build, since this site has no need for alternate-audio tracks,
+     subtitles, DRM, or the other features it strips out. Same
+     defer-until-needed reasoning as Plyr above. -->
+<script src="/assets/js/hls.light.min.js" defer></script>
 </body>
 </html>

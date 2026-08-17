@@ -42,6 +42,13 @@
 /assets/animate/*
   Cache-Control: public, max-age=31536000, immutable
 
+# Vendored third-party libraries (currently: hls.js). Same reasoning as
+# fonts above — no ?v= on these URLs, so an upgrade means renaming the
+# file (e.g. add the version to the filename) rather than overwriting
+# hls.light.min.js in place.
+/assets/js/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /favicon.ico
   Cache-Control: public, max-age=31536000
 
