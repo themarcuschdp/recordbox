@@ -1114,15 +1114,25 @@ function renderGrid(){
     grid.appendChild(card);
   });
 
-  /* CEO IN ACTION sits after the first row instead of leading the page,
-     so it doesn't read as if the whole catalog is CEO content — it's
-     one shelf among the videos, not the headline act. grid-column: 1/-1
-     (see CSS) makes it span the full row width and force a line break
-     regardless of the actual column count at the current breakpoint, so
-     "after 3 cards" only needs to approximate one row, not match it
-     exactly at every screen width. */
-  const afterIndex = Math.min(3, grid.children.length);
-  grid.insertBefore(ceoShorts, grid.children[afterIndex] || null);
+  repositionCeoShorts();
+}
+
+/* CEO IN ACTION belongs on row 2 specifically, not "somewhere after row
+   1" — so it doesn't read as if the whole catalog is CEO content, but
+   also doesn't drift onto row 4 on mobile's single-column grid, which a
+   hardcoded "after 3 cards" would do. Reads the grid's actual computed
+   column count (1 on mobile, 3 in the 1000-2200px range, whatever
+   auto-fill produces outside that) so "after one row" is exact at every
+   breakpoint, not just the one it happened to be tested at. Re-run on
+   resize too, since crossing the mobile/desktop breakpoint changes the
+   column count without necessarily triggering a category-switch re-render. */
+function repositionCeoShorts(){
+  const grid = document.getElementById('grid');
+  const ceoShorts = document.getElementById('ceo-shorts');
+  const cards = Array.from(grid.children).filter(el => el !== ceoShorts);
+  const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
+  const afterIndex = Math.min(cols, cards.length);
+  grid.insertBefore(ceoShorts, cards[afterIndex] || null);
 }
 
 /* On mobile, selecting a video does a real page refresh so the chosen
@@ -1470,6 +1480,7 @@ if (!isDesktop()) {
 
 window.addEventListener('resize', () => {
   syncPlayerToFilter();
+  repositionCeoShorts();
 });
 </script>
 
