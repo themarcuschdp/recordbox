@@ -119,12 +119,12 @@
     .watch-sidebar{ margin-top: 22px; }
 
     @media (min-width: 1000px){
-      .watch-main{
+      .watch-main.has-player{
         display: grid;
         grid-template-columns: minmax(0,1fr) 380px;
         gap: 28px;
       }
-      .watch-sidebar{ margin-top: 0; }
+      .watch-main.has-player .watch-sidebar{ margin-top: 0; }
     }
 
     /* sticky wrapper (desktop only: video + meta stick together while sidebar scrolls) */
@@ -989,6 +989,7 @@
 
     dock.classList.add('active');
     emptyPlayer.classList.remove('show');
+    document.querySelector('.watch-main').classList.add('has-player');
 
     if (!player) {
       player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
@@ -1043,6 +1044,7 @@
     if (player) { player.pause(); }
     dock.classList.remove('active');
     dock.classList.remove('docked');
+    document.querySelector('.watch-main').classList.remove('has-player');
     buildGallery();
   }
 
