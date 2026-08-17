@@ -1117,21 +1117,21 @@ function renderGrid(){
   repositionCeoShorts();
 }
 
-/* CEO IN ACTION belongs on row 2 specifically, not "somewhere after row
-   1" — so it doesn't read as if the whole catalog is CEO content, but
-   also doesn't drift onto row 4 on mobile's single-column grid, which a
-   hardcoded "after 3 cards" would do. Reads the grid's actual computed
-   column count (1 on mobile, 3 in the 1000-2200px range, whatever
-   auto-fill produces outside that) so "after one row" is exact at every
-   breakpoint, not just the one it happened to be tested at. Re-run on
-   resize too, since crossing the mobile/desktop breakpoint changes the
-   column count without necessarily triggering a category-switch re-render. */
+/* CEO IN ACTION belongs after row 2 specifically — so it doesn't read
+   as if the whole catalog is CEO content, but also doesn't drift onto
+   the wrong row on mobile's single-column grid, which a hardcoded card
+   count would do. Reads the grid's actual computed column count (1 on
+   mobile, 3 in the 1000-2200px range, whatever auto-fill produces
+   outside that) so "after two rows" is exact at every breakpoint, not
+   just the one it happened to be tested at. Re-run on resize too, since
+   crossing the mobile/desktop breakpoint changes the column count
+   without necessarily triggering a category-switch re-render. */
 function repositionCeoShorts(){
   const grid = document.getElementById('grid');
   const ceoShorts = document.getElementById('ceo-shorts');
   const cards = Array.from(grid.children).filter(el => el !== ceoShorts);
   const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
-  const afterIndex = Math.min(cols, cards.length);
+  const afterIndex = Math.min(cols * 2, cards.length);
   grid.insertBefore(ceoShorts, cards[afterIndex] || null);
 }
 
