@@ -42,7 +42,11 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.01 });
+      // Fast scrolling can carry a short element (a heading, a card) all the
+      // way through the viewport in less time than the reveal transition
+      // takes, so it never visibly finishes. rootMargin starts the reveal
+      // while the element is still off-screen below, giving it a head start.
+    }, { threshold: 0.01, rootMargin: '0px 0px 400px 0px' });
 
     els.forEach(function (el) { observer.observe(el); });
   }

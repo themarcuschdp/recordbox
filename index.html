@@ -312,11 +312,11 @@
                                     <h2 class="number-about" data-count-target="99" data-count-suffix="%">99%</h2>
                                     <div class="sub-text-about white">Client satisfaction</div>
                                 </div>
-                                <div class="number-wrapper reveal-bottom" style="transition-delay: 200ms">
+                                <div class="number-wrapper reveal-bottom" style="transition-delay: 60ms">
                                     <h2 class="number-about" data-count-target="13">13</h2>
                                     <div class="sub-text-about white">Years of experience</div>
                                 </div>
-                                <div class="number-wrapper reveal-bottom" style="transition-delay: 400ms">
+                                <div class="number-wrapper reveal-bottom" style="transition-delay: 120ms">
                                     <h2 class="number-about" data-count-target="105">105</h2>
                                     <div class="sub-text-about white">Clients worldwide</div>
                                 </div>
@@ -822,7 +822,7 @@
                             </p>
                             <div class="margin-60px">
                                 <div class="award-grid">
-                                    <div class="reveal-bottom" style="transition-delay: 100ms">
+                                    <div class="reveal-bottom" style="transition-delay: 30ms">
                                         <div class="award-icon"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -854,7 +854,7 @@
                                         id="w-node-_5ed47188-d038-4ea9-c8d5-6f4b9a44f874-60fa12d5"
                                         class="line-hieght for-mobile hide"
                                     ></div>
-                                    <div class="reveal-bottom" style="transition-delay: 200ms">
+                                    <div class="reveal-bottom" style="transition-delay: 60ms">
                                         <div class="award-icon _2"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -886,7 +886,7 @@
                                         id="w-node-b2ab17d7-b5a4-6f3c-8fd5-b483dea321b8-60fa12d5"
                                         class="line-hieght for-mobile hide"
                                     ></div>
-                                    <div class="reveal-bottom" style="transition-delay: 300ms">
+                                    <div class="reveal-bottom" style="transition-delay: 90ms">
                                         <div class="award-icon _3"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -1274,7 +1274,7 @@
                                 observer.unobserve(entry.target);
                             }
                         });
-                    }, { threshold: 0.01 });
+                    }, { threshold: 0.01, rootMargin: '0px 0px 400px 0px' });
                     Array.prototype.forEach.call(animatedElements, function (element) {
                         observer.observe(element);
                     });
