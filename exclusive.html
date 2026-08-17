@@ -10,13 +10,10 @@
   <link rel="preconnect" href="https://cdn.plyr.io" crossorigin>
   <!-- Every playable video on this page streams from Bunny Stream's MP4
        fallback host, so warm the connection before the grid starts
-       requesting them. (Previously pointed at media.recordbox.me, which
-       this page's VIDEOS array never actually referenced — it used a
-       third, unrelated videos.recordbox.me host that didn't resolve.) -->
+       requesting them. -->
   <link rel="preconnect" href="https://vz-00d6bbee-dbe.b-cdn.net" crossorigin>
-  <!-- Oswald and Inter Tight — same pairing as the rest of the site now,
-       replacing this page's former Syne/DM Sans — self-hosted (see
-       watch.css) instead of fetched from
+  <!-- Oswald and Inter Tight — same pairing as the rest of the site,
+       self-hosted (see watch.css) instead of fetched from
        fonts.googleapis.com/fonts.gstatic.com. Preloaded because both
        render text in the first paint. -->
   <link rel="preload" href="/assets/fonts/oswald-variable.woff2" as="font" type="font/woff2" crossorigin />
@@ -27,11 +24,18 @@
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" media="print" onload="this.media='all'" />
   <noscript><link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" /></noscript>
   <style>
-    /* ── Watch-style player (same behavior as video.html) ──────
-       Reuses the design tokens (--bg, --surface, --amber, --font-display,
-       --font-body, etc.) defined in assets/css/watch.css (split out of
-       style.css's former "CHANEL PRIVATE PAGE STYLES" section) so the
-       look stays in sync automatically. */
+    /* ── Watch-style player ──────────────────────────────────
+       This block is a direct copy of video.html's equivalent CSS (same
+       .watch-layout/.watch-main/.watch-sticky/#player-dock/.grid/.card
+       structure), not an independently-maintained lookalike — this page
+       used to drift from video.html in small ways (a grid that applied
+       unconditionally instead of gated behind .has-player, a sidebar
+       restyle-on-play rule missing that same gate, mismatched sticky
+       offsets) and each drift was a real, reproduced bug. Keeping this
+       identical to video.html's is what makes that whole class of bug
+       impossible instead of something to keep re-discovering. Only the
+       category-tab/CEO-shorts/locked-card pieces are left out, since this
+       page has no categories and everything on it is already unlocked. */
 
     .nav-search{
       display:flex;
@@ -110,12 +114,14 @@
         opacity: 1;
       }
     }
+
     .watch-layout{
       max-width: 1400px;
       margin: 0 auto;
       padding: 24px;
       display: block;
     }
+    .watch-main{ }
     .watch-sidebar{ margin-top: 22px; }
 
     @media (min-width: 1000px){
@@ -127,11 +133,15 @@
       .watch-main.has-player .watch-sidebar{ margin-top: 0; }
     }
 
-    /* sticky wrapper (desktop only: video + meta stick together while sidebar scrolls) */
+    /* sticky wrapper (desktop only: video + meta stick together while
+       sidebar scrolls) — offset matches this page's own sticky
+       .site-header height, same way video.html's offset matches its own
+       header. */
+    .watch-sticky{ }
     @media (min-width: 1000px){
       .watch-sticky{
         position: sticky;
-        top: 24px;
+        top: 84px;
         align-self: start;
       }
     }
@@ -148,10 +158,10 @@
     #player-dock.active{ display:block; }
 
     /* mobile sticky mini-player: when the playing video scrolls out from the
-       top of the viewport, it docks as a small fixed player. */
+       top of the viewport, it docks under this page's sticky header. */
     #player-dock.docked{
       position: fixed;
-      top: 0;
+      top: 62px;
       left: 0;
       right: 0;
       width: 100%;
@@ -265,7 +275,7 @@
     }
     .empty-player.show{ display:flex; }
 
-    /* grid / sidebar list (shared component) */
+    /* ---------- grid / sidebar list (shared component) ---------- */
     .grid{
       display:grid;
       grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -297,8 +307,7 @@
     }
 
     /* thumbnail: Bunny Stream's pre-generated thumbnail.jpg, lazy-loaded
-       natively via <img> — see video.html for why this replaced opening a
-       connection to the full video file just to paint one frame. */
+       natively via <img>. */
     .thumb{
       position:relative;
       aspect-ratio: 16/9;
@@ -355,34 +364,35 @@
       color: var(--text);
     }
 
-    /* desktop sidebar: cards become a horizontal list */
+    /* desktop sidebar: cards become a horizontal list (only once a video is
+       playing — gated behind .has-player, same as video.html). */
     @media (min-width: 1000px){
-      .watch-sidebar .grid{
+      .has-player .watch-sidebar .grid{
         display:flex;
         flex-direction: column;
         gap: 10px;
       }
-      .watch-sidebar .card{
+      .has-player .watch-sidebar .card{
         display:flex;
         flex-direction:row;
         gap: 10px;
         background: transparent;
         border: none;
       }
-      .watch-sidebar .card:hover{ transform:none; border-color: transparent; background: var(--surface); box-shadow:none; }
-      .watch-sidebar .card.playing{ background: var(--surface); border-color: transparent; }
-      .watch-sidebar .thumb{
+      .has-player .watch-sidebar .card:hover{ transform:none; border-color: transparent; background: var(--surface); box-shadow:none; }
+      .has-player .watch-sidebar .card.playing{ background: var(--surface); border-color: transparent; }
+      .has-player .watch-sidebar .thumb{
         width: 168px;
         flex-shrink: 0;
       }
-      .watch-sidebar .thumb .play-ico{ width:32px; height:32px; }
-      .watch-sidebar .thumb .play-ico svg{ width:11px; height:11px; }
-      .watch-sidebar .card-body{
+      .has-player .watch-sidebar .thumb .play-ico{ width:32px; height:32px; }
+      .has-player .watch-sidebar .thumb .play-ico svg{ width:11px; height:11px; }
+      .has-player .watch-sidebar .card-body{
         padding: 2px 4px;
         flex: 1;
         min-width: 0;
       }
-      .watch-sidebar .card-title{
+      .has-player .watch-sidebar .card-title{
         font-size: 12.5px;
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -408,19 +418,6 @@
   </style>
 </head>
 <body class="chanel">
-
-<div class="rb-loader-overlay rb-loader-hidden" id="rb-loader" aria-hidden="true" style="display:none;">
-  <div class="rb-preloader">
-    <svg class="rb-hex" viewBox="0 0 200 200" width="120" height="120" aria-hidden="true" focusable="false">
-      <path class="rb-slice rb-slice-1" d="M100,100 L100,10 L177.94,55 Z" />
-      <path class="rb-slice rb-slice-2" d="M100,100 L177.94,55 L177.94,145 Z" />
-      <path class="rb-slice rb-slice-3" d="M100,100 L177.94,145 L100,190 Z" />
-      <path class="rb-slice rb-slice-4" d="M100,100 L100,190 L22.06,145 Z" />
-      <path class="rb-slice rb-slice-5" d="M100,100 L22.06,145 L22.06,55 Z" />
-      <path class="rb-slice rb-slice-6" d="M100,100 L22.06,55 L100,10 Z" />
-    </svg>
-  </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════════════
      CONFIGURATION — edit these values
@@ -809,12 +806,6 @@
     if (target) target.classList.add('active');
   }
 
-  /* ── Reveal the gallery behind the RecordBox preloader, once per
-     browser session (shared with index.html / video.html) ── */
-  function revealGalleryWithPreloader() {
-    showScreen('gallery-screen');
-  }
-
   /* ── Watch-style player state (same behavior as video.html) ── */
   const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
   let player = null;
@@ -837,10 +828,7 @@
 
   /* Every row here is hosted on Bunny Stream, which pre-generates a
      thumbnail.jpg per video — a plain lazy-loaded <img> replaces the old
-     video-frame technique (that IntersectionObserver only avoided opening
-     every card's connection at once; it didn't fix the deeper problem
-     that each connection was to a full, sometimes multi-GB video file
-     just to paint one frame). Native img lazy-loading needs no observer. */
+     video-frame technique. */
   function thumbUrl(v) {
     var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(v.url);
     return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/thumbnail.jpg' : '';
@@ -853,7 +841,7 @@
      wasting a multi-MB download on exactly the connections where it
      matters most), never preloaded, and only committed after a
      throwaway Image() finishes loading and the mouse is still over the
-     card — see video.html for the identical technique. */
+     card. */
   var supportsHoverPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   function wireHoverPreview(imgEl) {
@@ -902,7 +890,7 @@
             '<rect x="2" y="7" width="20" height="14" rx="2"/>' +
             '<path d="M16 3l-4 4-4-4"/>' +
           '</svg>' +
-          '<p>' + (VIDEOS.length ? 'No videos match your search.' : 'No videos yet. Add entries to the VIDEOS array in the source file.') + '</p>' +
+          '<p>' + (VIDEOS.length ? 'No videos match your search.' : 'No videos yet.') + '</p>' +
         '</div>';
       return;
     }
@@ -937,8 +925,9 @@
 
   /* On mobile, selecting a video scrolls the (already inline, normal-flow)
      player into view at the top instead of relying on the sticky/fixed
-     desktop behavior. (Unlike video.html this doesn't reload the page,
-     since a reload would trip the auto-lock-on-leave below.) */
+     desktop behavior. Unlike video.html this doesn't reload the page —
+     a reload would trip the auto-lock-on-leave listener below and log the
+     user straight back out. */
   function selectVideo(v) {
     playVideo(v);
     if (!isDesktop()) window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -987,9 +976,9 @@
     var videoEl = document.getElementById('dock-video');
     var emptyPlayer = document.getElementById('empty-player');
 
+    document.querySelector('.watch-main').classList.add('has-player');
     dock.classList.add('active');
     emptyPlayer.classList.remove('show');
-    document.querySelector('.watch-main').classList.add('has-player');
 
     if (!player) {
       player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
@@ -1094,7 +1083,7 @@
       setUnlocked(true);
       buildGallery();
       initDockObserver();
-      revealGalleryWithPreloader();
+      showScreen('gallery-screen');
       maybeAutoplayForDesktop();
     } else {
       err.classList.add('visible');
@@ -1175,7 +1164,7 @@
   if (isUnlocked()) {
     buildGallery();
     initDockObserver();
-    revealGalleryWithPreloader();
+    showScreen('gallery-screen');
     maybeAutoplayForDesktop();
   }
 </script>
