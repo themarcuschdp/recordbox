@@ -969,13 +969,16 @@ function renderCatMenu(){
     closeCatMenu();
     renderCatMenu();
     renderGrid();
-    // On desktop, clicking any category tab always returns to a clean
-    // gallery view — even if the video playing happens to still belong
-    // to the newly selected category. (syncPlayerToFilter's more
+    // Clicking any category tab always returns to a clean gallery view —
+    // same on mobile (inline player collapses back to just the grid) as
+    // desktop (dock closes) — even if the video playing happens to still
+    // belong to the newly selected category. closePlayer() is plain
+    // DOM/state cleanup either way, no page reload involved, so there's
+    // nothing mobile-specific it needs. (syncPlayerToFilter's more
     // conservative "only close if it's no longer relevant" behavior
-    // stays as-is for the resize handler and mobile, where it already
-    // no-ops — this is specifically about the category-click gesture.)
-    if (isDesktop()) closePlayer();
+    // stays as-is for the resize handler — this is specifically about
+    // the category-click gesture.)
+    closePlayer();
   };
 
   CATS.forEach(c => {
