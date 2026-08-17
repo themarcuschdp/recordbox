@@ -716,7 +716,13 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    background: var(--surface-2);
+    background: repeating-linear-gradient(
+      45deg,
+      var(--surface-2),
+      var(--surface-2) 10px,
+      var(--surface) 10px,
+      var(--surface) 20px
+    );
   }
   .thumb-locked svg{
     width: 34px;
