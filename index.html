@@ -1734,6 +1734,19 @@
       }
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeVideoModal();
+
+        if (e.code === 'Space' || e.key === ' ') {
+          var tag = (e.target.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+          var modal = document.getElementById('simple-video-modal');
+          if (modal.classList.contains('open')) {
+            e.preventDefault();
+            var video = document.getElementById('svm-video');
+            if (video.paused) video.play().catch(function () {});
+            else video.pause();
+          }
+        }
       });
     </script>
     <!-- hls.js, self-hosted — see video.html for why (adaptive streaming,

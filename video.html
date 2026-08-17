@@ -1418,6 +1418,19 @@ document.getElementById('shorts-modal').addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && document.getElementById('shorts-modal').classList.contains('open')) closeShort();
+
+  if (e.code === 'Space' || e.key === ' ') {
+    const tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+    const shortsOpen = document.getElementById('shorts-modal').classList.contains('open');
+    const dockActive = document.getElementById('player-dock').classList.contains('active');
+    const activePlayer = shortsOpen ? shortsPlayer : (dockActive ? player : null);
+    if (activePlayer) {
+      e.preventDefault();
+      activePlayer.togglePlay();
+    }
+  }
 });
 
 renderCatMenu();

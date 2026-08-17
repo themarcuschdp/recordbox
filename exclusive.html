@@ -1138,6 +1138,17 @@
     maybeAutoplayForDesktop();
   });
 
+  document.addEventListener('keydown', function(e) {
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+    if (player && document.getElementById('player-dock').classList.contains('active')) {
+      e.preventDefault();
+      player.togglePlay();
+    }
+  });
+
   /* ── Init ─────────────────────────────────────────────────── */
   if (isUnlocked()) {
     buildGallery();
