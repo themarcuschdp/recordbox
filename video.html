@@ -1032,6 +1032,45 @@ function thumbMarkup(v){
   return `<div class="thumb-letter">${escapeHtml(v.letter)}</div>`;
 }
 
+/* Bunny also auto-generates a short animated preview.webp per video
+   (same guid, alongside thumbnail.jpg) — this wires that into a hover
+   effect on any <img> already pointed at a Bunny thumbnail. Gated to
+   devices that actually support hover: a touch tap can fire a synthetic
+   mouseenter right before navigating away, which would waste a
+   multi-MB download on exactly the connections where it matters most.
+   Never preloaded — only ever fetched on first real hover, into a
+   throwaway Image() first so a slow connection never shows a broken
+   image mid-swap, and only committed if the mouse is still over the
+   card once it finishes loading. */
+const supportsHoverPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+function wireHoverPreview(imgEl){
+  if (!supportsHoverPreview) return;
+  const m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(imgEl.src);
+  if (!m) return;
+
+  const staticSrc = imgEl.src;
+  const previewSrc = `https://vz-00d6bbee-dbe.b-cdn.net/${m[1]}/preview.webp`;
+  let hovering = false;
+  let preview = null;
+
+  // The thumbnail <img> itself is pointer-events:none (so clicks pass
+  // through to the card underneath) — it never receives mouseenter at
+  // all, so the listener has to live on the actual hoverable container.
+  const container = imgEl.closest('.thumb') || imgEl.parentElement;
+  container.addEventListener('mouseenter', () => {
+    hovering = true;
+    if (preview) { imgEl.src = previewSrc; return; }
+    preview = new Image();
+    preview.onload = () => { if (hovering) imgEl.src = previewSrc; };
+    preview.src = previewSrc;
+  });
+  container.addEventListener('mouseleave', () => {
+    hovering = false;
+    imgEl.src = staticSrc;
+  });
+}
+
 function renderGrid(){
   const grid = document.getElementById('grid');
   const emptyState = document.getElementById('empty-state');
@@ -1063,6 +1102,9 @@ function renderGrid(){
     card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectVideo(v); }
     });
+
+    const thumbImg = card.querySelector('.thumb-img');
+    if (thumbImg) wireHoverPreview(thumbImg);
 
     grid.appendChild(card);
   });
@@ -1295,6 +1337,7 @@ function renderCeoShorts(){
     card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openShort(shorts[i]); }
     });
+    wireHoverPreview(card.querySelector('img'));
   });
 }
 

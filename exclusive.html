@@ -826,6 +826,43 @@
     return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/thumbnail.jpg' : '';
   }
 
+  /* Bunny also auto-generates a short animated preview.webp per video
+     (same guid, alongside thumbnail.jpg) — wires that into a hover
+     effect. Gated to devices that actually support hover (a touch tap
+     can fire a synthetic mouseenter right before navigating away,
+     wasting a multi-MB download on exactly the connections where it
+     matters most), never preloaded, and only committed after a
+     throwaway Image() finishes loading and the mouse is still over the
+     card — see video.html for the identical technique. */
+  var supportsHoverPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  function wireHoverPreview(imgEl) {
+    if (!supportsHoverPreview) return;
+    var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(imgEl.src);
+    if (!m) return;
+
+    var staticSrc = imgEl.src;
+    var previewSrc = 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/preview.webp';
+    var hovering = false;
+    var preview = null;
+
+    // The thumbnail <img> itself is pointer-events:none (so clicks pass
+    // through to the card underneath) — it never receives mouseenter at
+    // all, so the listener has to live on the actual hoverable container.
+    var container = imgEl.closest('.thumb') || imgEl.parentElement;
+    container.addEventListener('mouseenter', function() {
+      hovering = true;
+      if (preview) { imgEl.src = previewSrc; return; }
+      preview = new Image();
+      preview.onload = function() { if (hovering) imgEl.src = previewSrc; };
+      preview.src = previewSrc;
+    });
+    container.addEventListener('mouseleave', function() {
+      hovering = false;
+      imgEl.src = staticSrc;
+    });
+  }
+
   /* ── Build the video grid ─────────────────────────────────── */
   function currentList() {
     if (!searchQuery) return VIDEOS;
@@ -872,6 +909,7 @@
       card.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectVideo(v); }
       });
+      wireHoverPreview(card.querySelector('.thumb-img'));
 
       grid.appendChild(card);
     });
