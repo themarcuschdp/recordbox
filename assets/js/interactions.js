@@ -27,7 +27,10 @@
     );
     if (!els.length) return;
 
-    if (reduceMotion || !('IntersectionObserver' in window)) {
+    // Reduced motion still gets a scroll-triggered reveal — the CSS media
+    // query above already trims it down to a quick opacity fade with no
+    // slide. Only skip the observer outright if it isn't supported at all.
+    if (!('IntersectionObserver' in window)) {
       els.forEach(function (el) { el.classList.add('is-visible'); });
       return;
     }
