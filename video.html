@@ -716,12 +716,10 @@
     display:flex;
     align-items:center;
     justify-content:center;
-    background: repeating-linear-gradient(
-      45deg,
-      var(--surface-2),
-      var(--surface-2) 10px,
-      var(--surface) 10px,
-      var(--surface) 20px
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--amber) 24%, var(--surface)) 0%,
+      color-mix(in srgb, var(--orange) 24%, var(--surface)) 100%
     );
   }
   .thumb-locked svg{
