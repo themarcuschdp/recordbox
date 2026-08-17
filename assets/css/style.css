@@ -4674,15 +4674,14 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
 
 .hero-video-reveal {
   opacity: 0;
-  transform: translate3d(0, 100px, 0);
+  transform: translateY(100px);
   transition: opacity 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms,
               transform 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms;
-  will-change: transform, opacity;
 }
 
 .hero-video-reveal.is-visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: none;
 }
 
 .asterisk {
@@ -6016,17 +6015,16 @@ body.portfolio #work {
 .team-photo-animate,
 .works-title-animate {
   opacity: 0;
-  transform: translate3d(0, 100px, 0);
+  transform: translateY(100px);
   transition: opacity 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms,
               transform 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms;
-  will-change: transform, opacity;
 }
 
 .contact-form-animate.is-visible,
 .team-photo-animate.is-visible,
 .works-title-animate.is-visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: none;
 }
 
 /* Chanel button in mobile hamburger menu */
@@ -6222,35 +6220,33 @@ html.skip-preloader .rb-loader-overlay {
   opacity: 0;
   transition: opacity 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms,
               transform 1000ms cubic-bezier(0.165, 0.840, 0.440, 1) 100ms;
-  will-change: transform, opacity;
 }
 
-.reveal-bottom { transform: translate3d(0, 100px, 0); }
-.reveal-left { transform: translate3d(-100px, 0, 0); }
+.reveal-bottom { transform: translateY(100px); }
+.reveal-left { transform: translateX(-100px); }
 
 .reveal-bottom.is-visible,
 .reveal-left.is-visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: none;
 }
 
 /* Footer content fade-up (was: the "Fade In - First" preset) */
 .reveal-fade-small {
   opacity: 0;
-  transform: translate3d(0, 28px, 0) scale(0.9);
+  transform: translateY(28px) scale(0.9);
   transition: opacity 200ms ease, transform 200ms ease;
-  will-change: transform, opacity;
 }
 
 .reveal-fade-small.is-visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: none;
 }
 
 /* Photo drift while scrolling (was: SCROLLING_IN_VIEW continuous parallax) */
 .photo-animation .photo,
 .photo-line-animation {
-  transform: translate3d(0, var(--parallax-y, 0px), 0);
+  transform: translateY(var(--parallax-y, 0px));
 }
 
 /* Main content dims and shrinks slightly once the footer scrolls into view

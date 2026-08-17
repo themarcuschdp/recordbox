@@ -42,7 +42,7 @@
           observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.2 });
+    }, { threshold: 0.01 });
 
     els.forEach(function (el) { observer.observe(el); });
   }
