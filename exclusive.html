@@ -1059,11 +1059,6 @@
     }
   }
 
-  function maybeAutoplayForDesktop() {
-    if (!isDesktop()) return;
-    if (!currentUrl && VIDEOS.length) playVideo(VIDEOS[0]);
-  }
-
   /* ── Lightbox close/open wiring is now the sticky player above ── */
   document.getElementById('dock-close').addEventListener('click', function(e) {
     e.stopPropagation();
@@ -1084,7 +1079,6 @@
       buildGallery();
       initDockObserver();
       showScreen('gallery-screen');
-      maybeAutoplayForDesktop();
     } else {
       err.classList.add('visible');
       input.value = '';
@@ -1145,10 +1139,6 @@
     try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
   });
 
-  window.addEventListener('resize', function() {
-    maybeAutoplayForDesktop();
-  });
-
   document.addEventListener('keydown', function(e) {
     if (e.code !== 'Space' && e.key !== ' ') return;
     var tag = (e.target.tagName || '').toLowerCase();
@@ -1165,7 +1155,6 @@
     buildGallery();
     initDockObserver();
     showScreen('gallery-screen');
-    maybeAutoplayForDesktop();
   }
 </script>
 <!-- Plyr is only referenced from playVideo(), which runs on click, so it
