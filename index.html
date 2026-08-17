@@ -1682,13 +1682,42 @@
       </div>
     </div>
     <script>
+      /* Bunny-hosted cards also have an HLS manifest at the same guid
+         (see video.html/exclusive.html for the same pattern) — that's
+         what gets adaptive quality switching, since the play_720p.mp4
+         used elsewhere is one fixed resolution. Cards not yet migrated
+         to Bunny (still on dead media.recordbox.me URLs) have no HLS
+         manifest to point at and fall straight to their data-video-url. */
+      var modalHls = null;
+      function toHlsUrl(url) {
+        var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(url);
+        return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/playlist.m3u8' : null;
+      }
       function openVideoModal(el) {
         var url = el.getAttribute('data-video-url');
         var title = el.getAttribute('data-video-title') || '';
         var modal = document.getElementById('simple-video-modal');
         var video = document.getElementById('svm-video');
         document.getElementById('svm-title').textContent = title;
-        video.src = url;
+
+        if (modalHls) { modalHls.destroy(); modalHls = null; }
+        var hlsUrl = toHlsUrl(url);
+        if (hlsUrl && window.Hls && Hls.isSupported()) {
+          modalHls = new Hls();
+          modalHls.on(Hls.Events.ERROR, function (event, data) {
+            if (!data.fatal) return;
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) modalHls.startLoad();
+            else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) modalHls.recoverMediaError();
+            else { modalHls.destroy(); modalHls = null; }
+          });
+          modalHls.loadSource(hlsUrl);
+          modalHls.attachMedia(video);
+        } else if (hlsUrl && video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = hlsUrl;
+        } else {
+          video.src = url;
+        }
+
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
         video.play().catch(function () {});
@@ -1696,6 +1725,7 @@
       function closeVideoModal() {
         var modal = document.getElementById('simple-video-modal');
         var video = document.getElementById('svm-video');
+        if (modalHls) { modalHls.destroy(); modalHls = null; }
         video.pause();
         video.removeAttribute('src');
         video.load();
@@ -1706,6 +1736,10 @@
         if (e.key === 'Escape') closeVideoModal();
       });
     </script>
+    <!-- hls.js, self-hosted — see video.html for why (adaptive streaming,
+         no third-party UI). Only referenced from openVideoModal(), which
+         runs on click, so defer keeps it off the critical path. -->
+    <script src="/assets/js/hls.light.min.js" defer></script>
     <!-- Contact form submission (FormSubmit.co, no server required) -->
     <script>
       (function () {
