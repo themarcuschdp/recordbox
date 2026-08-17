@@ -960,14 +960,20 @@ function distributeEvenly(a, b){
 }
 
 const lockedVideos = shuffleArr(VIDEOS.filter(v => v.locked));
-const unlockedCorpVideos = shuffleArr(VIDEOS.filter(v => !v.locked && v.category === 'corporate'));
-const otherVideos = shuffleArr(VIDEOS.filter(v => !v.locked && v.category !== 'corporate'));
+const unlockedVideos = shuffleArr(VIDEOS.filter(v => !v.locked));
 
-// Spread locked cards evenly within Corporate first (that's the filtered
-// view where all of them live), then spread that corporate block evenly
-// across everything else so the ALL view doesn't clump them either.
-const corporateVideos = distributeEvenly(lockedVideos, unlockedCorpVideos);
-const finalVideos = distributeEvenly(corporateVideos, otherVideos);
+// Locked cards only ever show on the ALL view (currentList() excludes them
+// from every specific category tab), so there's just one grid to place them
+// in. A 3-column desktop row times ~2 rows is roughly one screenful before
+// scrolling — spread only as many locked cards as fit at that spacing
+// through the browsing flow (about one per viewport), and park whatever's
+// left over as a single block at the very end instead of forcing tighter
+// spacing that would just clump them again.
+const VIEWPORT_CARDS = 6;
+const sparseCount = Math.min(lockedVideos.length, Math.floor(unlockedVideos.length / VIEWPORT_CARDS));
+const sparseLocked = lockedVideos.slice(0, sparseCount);
+const stackedLocked = lockedVideos.slice(sparseCount);
+const finalVideos = distributeEvenly(sparseLocked, unlockedVideos).concat(stackedLocked);
 
 VIDEOS.length = 0;
 VIDEOS.push(...finalVideos);
