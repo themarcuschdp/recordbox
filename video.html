@@ -508,25 +508,46 @@
     to{ opacity:1; transform: translateY(0); }
   }
 
-  /* thumbnail: a muted, lazily-loaded video frame (same technique as chanel.html) */
+  /* thumbnail: Bunny Stream generates a static JPG per video at encode
+     time (https://.../<guid>/thumbnail.jpg) — one small image request
+     with native lazy-loading, instead of the old technique of opening a
+     connection to the full video file and decoding a frame at 0.5s
+     client-side. That was fine for a handful of cards but genuinely slow
+     once the grid grew past a dozen entries, especially for the
+     multi-hundred-MB/multi-GB source files some of these are. Rows that
+     aren't hosted on Bunny yet have no generated thumbnail to point at,
+     so they fall back to a plain letter badge instead of attempting the
+     old (broken/slow) video-frame approach at all. */
   .thumb{
     position:relative;
     aspect-ratio: 16/9;
     background: var(--surface-2);
     overflow: hidden;
   }
-  .thumb video{
+  .thumb img.thumb-img{
     position:absolute;
     inset:0;
     width:100%;
     height:100%;
     object-fit: cover;
     pointer-events:none;
-    opacity: 0;
-    transition: transform .4s ease, opacity .4s ease;
+    transition: transform .4s ease;
   }
-  .thumb video.loaded{ opacity: 1; }
-  .card:hover .thumb video{ transform: scale(1.05); }
+  .card:hover .thumb img.thumb-img{ transform: scale(1.05); }
+
+  .thumb-letter{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--surface-2);
+    color: var(--amber);
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
 
   .thumb::after{
     content:'';
@@ -809,34 +830,17 @@ document.addEventListener('click', (e) => {
   if (!menu.contains(e.target)) closeCatMenu();
 });
 
-/* ── Lazy-load thumbnail video frames only when they scroll into view
-   (same technique as chanel.html) — keeps 70+ cards from opening
-   70+ network connections at once. ── */
-let thumbObserver = null;
-function initLazyThumbs(){
-  const thumbs = document.querySelectorAll('.lazy-thumb');
-  if (!('IntersectionObserver' in window)) {
-    thumbs.forEach(v => {
-      v.src = v.getAttribute('data-src');
-      v.preload = 'metadata';
-      v.addEventListener('loadeddata', () => v.classList.add('loaded'), { once: true });
-    });
-    return;
+/* Bunny-hosted rows get their pre-generated thumbnail.jpg via a plain
+   lazy-loaded <img> — no observer needed, the browser handles image lazy
+   loading natively. Rows not yet on Bunny have no thumbnail to fetch, so
+   they get a letter badge instead of hitting the old (broken/slow)
+   video-frame technique. */
+function thumbMarkup(v){
+  const m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(v.url);
+  if (m) {
+    return `<img src="https://vz-00d6bbee-dbe.b-cdn.net/${m[1]}/thumbnail.jpg" alt="" loading="lazy" class="thumb-img" />`;
   }
-  if (!thumbObserver) {
-    thumbObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const v = entry.target;
-          v.src = v.getAttribute('data-src');
-          v.preload = 'metadata';
-          v.addEventListener('loadeddata', () => v.classList.add('loaded'), { once: true });
-          thumbObserver.unobserve(v);
-        }
-      });
-    }, { rootMargin: '200px 0px' });
-  }
-  thumbs.forEach(v => thumbObserver.observe(v));
+  return `<div class="thumb-letter">${escapeHtml(v.letter)}</div>`;
 }
 
 function renderGrid(){
@@ -856,7 +860,7 @@ function renderGrid(){
 
     card.innerHTML = `
       <div class="thumb">
-        <video data-src="${escapeHtml(v.url)}#t=0.5" class="lazy-thumb" preload="none" muted playsinline tabindex="-1"></video>
+        ${thumbMarkup(v)}
       </div>
       <div class="card-body">
         <div>
@@ -873,8 +877,6 @@ function renderGrid(){
 
     grid.appendChild(card);
   });
-
-  initLazyThumbs();
 }
 
 /* On mobile, selecting a video does a real page refresh so the chosen

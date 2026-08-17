@@ -8,9 +8,12 @@
   <link rel="icon" href="/assets/images/favicon-32x32.png" type="image/png" sizes="32x32" />
   <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
   <link rel="preconnect" href="https://cdn.plyr.io" crossorigin>
-  <!-- Every playable video on this page comes from this origin, so warm the
-       connection before the grid starts requesting them. -->
-  <link rel="preconnect" href="https://media.recordbox.me" crossorigin>
+  <!-- Every playable video on this page streams from Bunny Stream's MP4
+       fallback host, so warm the connection before the grid starts
+       requesting them. (Previously pointed at media.recordbox.me, which
+       this page's VIDEOS array never actually referenced — it used a
+       third, unrelated videos.recordbox.me host that didn't resolve.) -->
+  <link rel="preconnect" href="https://vz-00d6bbee-dbe.b-cdn.net" crossorigin>
   <!-- Oswald and Inter Tight — same pairing as the rest of the site now,
        replacing this page's former Syne/DM Sans — self-hosted (see
        watch.css) instead of fetched from
@@ -293,14 +296,16 @@
       to{ opacity:1; transform: translateY(0); }
     }
 
-    /* thumbnail: a muted, lazily-loaded video frame */
+    /* thumbnail: Bunny Stream's pre-generated thumbnail.jpg, lazy-loaded
+       natively via <img> — see video.html for why this replaced opening a
+       connection to the full video file just to paint one frame. */
     .thumb{
       position:relative;
       aspect-ratio: 16/9;
       background: var(--surface-2);
       overflow: hidden;
     }
-    .thumb video{
+    .thumb img.thumb-img{
       position:absolute;
       inset:0;
       width:100%;
@@ -309,7 +314,7 @@
       pointer-events:none;
       transition: transform .4s ease;
     }
-    .card:hover .thumb video{ transform: scale(1.05); }
+    .card:hover .thumb img.thumb-img{ transform: scale(1.05); }
 
     .thumb::after{
       content:'';
@@ -435,157 +440,157 @@
   const VIDEOS = [
     {
       title: "31 Le Rouge Masterclass",
-      url: "https://videos.recordbox.me/chanel-31-le-rouge-masterclass-rev.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/7353947c-2551-4a56-b8e4-4079822e038d/play_720p.mp4",
       description: "Exclusive Chanel masterclass covering 31 Le Rouge — a private training film produced for internal use, capturing the craft and detail behind the collection.",
     },
     {
       title: "Academy Novelty",
-      url: "https://videos.recordbox.me/chanel-academy-novelty-soukaina.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/d85f5329-01ec-4bbd-a852-1f6f647b5b4a/play_720p.mp4",
       description: "Exclusive Chanel Academy session introducing the latest novelty, presented by Soukaina for internal training and brand education.",
     },
     {
       title: "Beaut Seminar",
-      url: "https://videos.recordbox.me/chanel-beaut-seminar-2023-draft.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/10214005-2dad-43c5-a972-e0998ea874a3/play_720p.mp4",
       description: "Exclusive recap of the 2023 Chanel Beauté seminar — an internal record of the sessions, presenters, and key training moments.",
     },
     {
       title: "Bootcamp Highlights",
-      url: "https://videos.recordbox.me/chanel-bootcamp-highlights-short.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/e220c8d1-6f5f-44aa-ae04-bc8ac5cba71e/play_720p.mp4",
       description: "Exclusive highlight reel from the Chanel bootcamp — a condensed look at the training program's most memorable moments.",
     },
     {
       title: "Christmas Training",
-      url: "https://videos.recordbox.me/chanel-christmas-training.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/7336ccff-f888-4767-a10a-f24a5f2cc115/play_720p.mp4",
       description: "Exclusive Chanel training film built around the Christmas collection, produced for internal briefing and team preparation.",
     },
     {
       title: "Client Experience Manager",
-      url: "https://videos.recordbox.me/chanel-client-experience-manager-jenny.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/9b01be80-8097-46a1-8fa4-da7c6a8f7044/play_720p.mp4",
       description: "Exclusive Chanel feature on the Client Experience Manager role, with Jenny walking through the responsibilities and standards behind the position.",
     },
     {
       title: "COC Getaway",
-      url: "https://videos.recordbox.me/chanel-coc-getaway-revised.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/471f7302-9ae8-4451-a407-14087a797be8/play_720p.mp4",
       description: "Exclusive recap film of the Chanel COC Getaway — an internal record of the retreat's highlights and team moments.",
     },
     {
       title: "Dubai Mall Podium",
-      url: "https://videos.recordbox.me/chanel-dubai-mall-podium.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/4282c62c-87be-41b8-b2b4-8dd1b2c8728e/play_720p.mp4",
       description: "Exclusive coverage of the Chanel podium activation at Dubai Mall, capturing the installation and guest experience on site.",
     },
     {
       title: "F&B Convention 2023",
-      url: "https://videos.recordbox.me/chanel-f&b-convention-2023-s1.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/c09b280e-7b43-49cc-8ff6-210e48dd3f8e/play_720p.mp4",
       description: "Exclusive session recording from the 2023 Chanel Fragrance & Beauty Convention, produced for internal reference.",
     },
     {
       title: "F&B Convention Inspired by Coco S1",
-      url: "https://videos.recordbox.me/chanel-f&b-convention-inspired-by-coco-s1-nm.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/06ced5cd-3a52-4b84-b500-35cf2c9a3c81/play_720p.mp4",
       description: "Exclusive session from the Chanel Fragrance & Beauty Convention themed 'Inspired by Coco', part one of the internal training series.",
     },
     {
       title: "F&B Convention Inspired by Coco S2",
-      url: "https://videos.recordbox.me/chanel-f&b-convention-inspired-by-coco-s2.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/0cff863a-1a5d-49d9-a1e4-0a6250ae9c3d/play_720p.mp4",
       description: "Exclusive session from the Chanel Fragrance & Beauty Convention themed 'Inspired by Coco', part two of the internal training series.",
     },
     {
       title: "F&B Convention Inspired by Coco Session 1",
-      url: "https://videos.recordbox.me/chanel-f&b-convention-inspired-by-coco-session-1-fnl-cg.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/cf1853b8-0161-4a1f-a76e-011707432cba/play_720p.mp4",
       description: "Exclusive final cut of Session 1 from the 'Inspired by Coco' Chanel Fragrance & Beauty Convention, produced for internal distribution.",
     },
     {
       title: "Fascia Seminar",
-      url: "https://videos.recordbox.me/chanel-fascia-seminar.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ce069e04-097d-4eb3-a044-87ca468975fe/play_720p.mp4",
       description: "Exclusive recording of the Chanel Fascia seminar, documenting the training content for internal use.",
     },
     {
       title: "Fashion Days",
-      url: "https://videos.recordbox.me/chanel-fashion-days-rev-june-23.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/094193bc-f631-4c68-a769-9cb488abd19f/play_720p.mp4",
       description: "Exclusive recap of Chanel Fashion Days, revised June 2023 — an internal record of the event's presentations and highlights.",
     },
     {
       title: "FB Convention S2",
-      url: "https://videos.recordbox.me/chanel-fb-convention-s2.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/55f1ed1d-1adc-4b62-b381-66cecfc1cc57/play_720p.mp4",
       description: "Exclusive Session 2 recording from a Chanel Fragrance & Beauty Convention, produced for internal reference.",
     },
     {
       title: "FB Convention S3",
-      url: "https://videos.recordbox.me/chanel-fb-convention-s3.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/be740e4f-9641-487f-a1dd-9f8fb4010651/play_720p.mp4",
       description: "Exclusive Session 3 recording from a Chanel Fragrance & Beauty Convention, produced for internal reference.",
     },
     {
       title: "FB Convention S4",
-      url: "https://videos.recordbox.me/chanel-fb-convention-s4.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/595328a5-5f23-4af9-a4ac-77d05b92f41c/play_720p.mp4",
       description: "Exclusive Session 4 recording from a Chanel Fragrance & Beauty Convention, produced for internal reference.",
     },
     {
       title: "InChanel Launch",
-      url: "https://videos.recordbox.me/chanel-inchanel-launch-final.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/85e61a8a-ba49-4415-b28b-aac02a0c74d1/play_720p.mp4",
       description: "Exclusive final cut of the InChanel platform launch film, produced for internal rollout and team briefing.",
     },
     {
       title: "Les Beiges Academy",
-      url: "https://videos.recordbox.me/chanel-les-beiges-chanel-academy-720p.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/c0cdbf9f-df86-4f96-83e9-bf35cfb14a16/play_720p.mp4",
       description: "Exclusive Chanel Academy training session dedicated to Les Beiges, covering technique and product knowledge for internal use.",
     },
     {
       title: "Lesage Savoir-Faire",
-      url: "https://videos.recordbox.me/chanel-lesage-savoir-faire-v2.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/a1b96263-61ba-4988-8be6-9ca3515f5268/play_720p.mp4",
       description: "Exclusive feature on Lesage savoir-faire, showcasing the maison's embroidery craftsmanship for internal Chanel audiences.",
     },
     {
       title: "Message Mode",
-      url: "https://videos.recordbox.me/chanel-message-mode.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/87c077c3-b901-4c67-acc4-3f7c349e094f/play_720p.mp4",
       description: "Exclusive Chanel internal film on Message Mode, produced for team briefing and brand communication training.",
     },
     {
       title: "No.1 Podiums",
-      url: "https://videos.recordbox.me/chanel-no1-podiums-dm-moe.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/9ebdc68f-02bc-4115-bdd5-3c615f7add11/play_720p.mp4",
       description: "Exclusive coverage of the Chanel No.1 podium activations, capturing the installation and in-store experience.",
     },
     {
       title: "PR Recap 2025",
-      url: "https://videos.recordbox.me/chanel-pr-recap-video-2025-final.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ae2d0a50-073f-4d6b-abf6-03316dcf771c/play_720p.mp4",
       description: "Exclusive final recap of Chanel PR activity for 2025, compiled for internal review of the year's coverage and events.",
     },
     {
       title: "Skin Care Experts",
-      url: "https://videos.recordbox.me/chanel-skin-care-experts-muriel-720p.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ba8bd121-1f47-4ddc-b904-7453da5deda7/play_720p.mp4",
       description: "Exclusive Chanel training film on skin care expertise, presented by Muriel for internal team education.",
     },
     {
       title: "Skin Care Experts",
-      url: "https://videos.recordbox.me/chanel-skin-care-experts-muriel.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/0f91b657-80d8-4f3a-ab66-e55138025933/play_720p.mp4",
       description: "Exclusive Chanel training film on skin care expertise, presented by Muriel for internal team education.",
     },
     {
       title: "TR Highlights 2021",
-      url: "https://videos.recordbox.me/chanel-tr-highlights-2021-short-2min-hd.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/1d6b9dd2-32b1-429d-8601-1b4cf903f98f/play_720p.mp4",
       description: "Exclusive short highlight reel from Chanel Travel Retail 2021, produced for internal review of the year's key moments.",
     },
     {
       title: "TR Learning Event 2024",
-      url: "https://videos.recordbox.me/chanel-tr-learning-event-2024-final-2.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/b9de969b-2414-4b1b-86a1-97a57f4b5336/play_720p.mp4",
       description: "Exclusive final cut of the Chanel Travel Retail Learning Event 2024, produced for internal training and reference.",
     },
     {
       title: "TR LS 2024",
-      url: "https://videos.recordbox.me/chanel-tr-ls-2024-revised.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/63d13e5a-469b-4df1-be3d-67345f139807/play_720p.mp4",
       description: "Exclusive revised recording from the Chanel Travel Retail LS 2024 session, produced for internal distribution.",
     },
     {
       title: "Travel Retail Kick Off Iftar",
-      url: "https://videos.recordbox.me/chanel-travel-retail-kick-off-iftar-v2.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/754037bf-5991-476b-82f4-36bc7a4db27b/play_720p.mp4",
       description: "Exclusive coverage of the Chanel Travel Retail Kick Off Iftar event, capturing the gathering for internal record.",
     },
     {
       title: "VIP Client Dinner",
-      url: "https://videos.recordbox.me/chanel-vip-client-dinner-f.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/9984cf61-d23a-41ae-8774-be101e044b76/play_720p.mp4",
       description: "Exclusive coverage of a Chanel VIP client dinner, produced as an internal record of the evening's proceedings.",
     },
     {
       title: "360 Atelier",
-      url: "https://videos.recordbox.me/channel-360-atelier.mp4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/98555c73-b0d8-4c1d-861f-08c80fd59c39/play_720p.mp4",
       description: "Exclusive 360-degree look inside the Chanel atelier, produced for internal training and brand education.",
     },
   ];
@@ -739,32 +744,15 @@
     return { short: cut + '…', needsMore: true };
   }
 
-  /* ── Lazy-load thumbnail videos only when they scroll into view ──
-     Prevents every card from opening a network connection at once,
-     which is what made playback slow on pages with many videos. ── */
-  var thumbObserver = null;
-  function initLazyThumbs() {
-    var thumbs = document.querySelectorAll('.lazy-thumb');
-    if (!('IntersectionObserver' in window)) {
-      Array.prototype.forEach.call(thumbs, function(v) {
-        v.src = v.getAttribute('data-src');
-        v.preload = 'metadata';
-      });
-      return;
-    }
-    if (!thumbObserver) {
-      thumbObserver = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-          if (entry.isIntersecting) {
-            var v = entry.target;
-            v.src = v.getAttribute('data-src');
-            v.preload = 'metadata';
-            thumbObserver.unobserve(v);
-          }
-        });
-      }, { rootMargin: '200px 0px' });
-    }
-    Array.prototype.forEach.call(thumbs, function(v) { thumbObserver.observe(v); });
+  /* Every row here is hosted on Bunny Stream, which pre-generates a
+     thumbnail.jpg per video — a plain lazy-loaded <img> replaces the old
+     video-frame technique (that IntersectionObserver only avoided opening
+     every card's connection at once; it didn't fix the deeper problem
+     that each connection was to a full, sometimes multi-GB video file
+     just to paint one frame). Native img lazy-loading needs no observer. */
+  function thumbUrl(v) {
+    var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(v.url);
+    return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/thumbnail.jpg' : '';
   }
 
   /* ── Build the video grid ─────────────────────────────────── */
@@ -800,7 +788,7 @@
 
       card.innerHTML =
         '<div class="thumb">' +
-          '<video data-src="' + escapeHtml(v.url) + '#t=0.5" class="lazy-thumb" preload="none" muted playsinline tabindex="-1"></video>' +
+          '<img src="' + escapeHtml(thumbUrl(v)) + '" alt="" loading="lazy" class="thumb-img" />' +
           '<div class="play-ico">' +
             '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>' +
           '</div>' +
@@ -816,8 +804,6 @@
 
       grid.appendChild(card);
     });
-
-    initLazyThumbs();
   }
 
   /* On mobile, selecting a video scrolls the (already inline, normal-flow)
