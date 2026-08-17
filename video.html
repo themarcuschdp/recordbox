@@ -965,7 +965,7 @@ function renderCatMenu(){
     closeCatMenu();
     renderCatMenu();
     renderGrid();
-    maybeAutoplayForDesktop();
+    syncPlayerToFilter();
   };
 
   CATS.forEach(c => {
@@ -1256,15 +1256,23 @@ document.getElementById('dock-close').addEventListener('click', (e) => {
   closePlayer();
 });
 
-function maybeAutoplayForDesktop(){
+/* Switching categories (or crossing the mobile/desktop breakpoint) used
+   to autoplay a replacement video when the one currently playing fell
+   outside the newly selected filter — so clicking, say, Personal while
+   a Corporate video was playing would silently start a different,
+   unrelated video instead of just showing the Personal gallery. Now it
+   closes the player instead: clicking a category tab always lands you
+   on a clean gallery view of that category, and playback is only ever
+   interrupted when the video you were watching genuinely isn't part of
+   what you just selected — if it's still in the new filter (e.g. you
+   re-select the same category, or the video is tagged into more than
+   one), it keeps playing uninterrupted. */
+function syncPlayerToFilter(){
   if (!isDesktop()) return;
   if (!currentUrl) return;
   const list = currentList();
   const stillInFilter = list.some(v => v.url === currentUrl);
-  if (!stillInFilter) {
-    if (list.length) playVideo(list[0]);
-    else closePlayer();
-  }
+  if (!stillInFilter) closePlayer();
 }
 
 const urlCategory = new URLSearchParams(window.location.search).get('category');
@@ -1415,7 +1423,7 @@ document.addEventListener('keydown', (e) => {
 renderCatMenu();
 renderGrid();
 renderCeoShorts();
-maybeAutoplayForDesktop();
+syncPlayerToFilter();
 
 if (!isDesktop()) {
   let pendingUrl;
@@ -1433,7 +1441,7 @@ if (!isDesktop()) {
 }
 
 window.addEventListener('resize', () => {
-  maybeAutoplayForDesktop();
+  syncPlayerToFilter();
 });
 </script>
 
