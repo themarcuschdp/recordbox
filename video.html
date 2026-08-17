@@ -482,8 +482,12 @@
      cards (5 visible at once on desktop, 3 on mobile — flex-basis below),
      not a wrapped grid, so it scales to any number of videos without
      needing pagination logic. Populated at render time from
-     VIDEOS.filter(v => v.vertical) — see renderCeoShorts(). */
-  .ceo-shorts{ margin-bottom: 28px; }
+     VIDEOS.filter(v => v.vertical) — see renderCeoShorts(). renderGrid()
+     moves this element into #grid itself, after the first row of regular
+     cards (see there for why) — grid-column: 1/-1 makes it span every
+     column at the current breakpoint instead of getting sized like a
+     single video card. */
+  .ceo-shorts{ grid-column: 1 / -1; margin: 6px 0 28px; }
   .ceo-shorts-header{
     display:flex;
     align-items:center;
@@ -1074,6 +1078,7 @@ function wireHoverPreview(imgEl){
 function renderGrid(){
   const grid = document.getElementById('grid');
   const emptyState = document.getElementById('empty-state');
+  const ceoShorts = document.getElementById('ceo-shorts');
   grid.innerHTML = '';
 
   const list = currentList();
@@ -1108,6 +1113,16 @@ function renderGrid(){
 
     grid.appendChild(card);
   });
+
+  /* CEO IN ACTION sits after the first row instead of leading the page,
+     so it doesn't read as if the whole catalog is CEO content — it's
+     one shelf among the videos, not the headline act. grid-column: 1/-1
+     (see CSS) makes it span the full row width and force a line break
+     regardless of the actual column count at the current breakpoint, so
+     "after 3 cards" only needs to approximate one row, not match it
+     exactly at every screen width. */
+  const afterIndex = Math.min(3, grid.children.length);
+  grid.insertBefore(ceoShorts, grid.children[afterIndex] || null);
 }
 
 /* On mobile, selecting a video does a real page refresh so the chosen
