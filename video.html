@@ -1172,7 +1172,7 @@ function renderGrid(){
       <div class="card-body">
         <div>
           <p class="card-title">${escapeHtml(v.title)}</p>
-          <p class="card-cat">${escapeHtml(v.category)}</p>
+          <p class="card-cat">${v.locked ? 'Exclusive' : escapeHtml(v.category)}</p>
         </div>
       </div>
     `;
