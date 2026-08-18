@@ -1,3 +1,28 @@
+/* Self-hosted, replacing the fonts.googleapis.com / fonts.gstatic.com round
+   trip. Google now serves each requested weight as an identical URL pointing
+   at one variable-font file — the 6 "different" @font-face blocks Google
+   returned for each family all shared one src, letting the browser pick the
+   weight from the font's own axis. Downloaded that one file per family
+   instead of the 6 duplicate declarations, and declared the weight as a
+   range so any value 200–900 resolves directly against it. Latin-only: the
+   site's text needs nothing outside the "latin" subset Google split out
+   (checked against every non-ASCII character actually in the markup). */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url('/assets/fonts/oswald-variable.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter Tight';
+  font-style: normal;
+  font-weight: 200 700;
+  font-display: swap;
+  src: url('/assets/fonts/inter-tight-variable.woff2') format('woff2');
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -2044,14 +2069,6 @@ textarea.w-input, textarea.w-select {
 
 .wf-layout-layout {
   display: grid;
-}
-
-@font-face {
-  font-family: Hubotsans Slnt Wdth Wght;
-  src: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/6515931475afc13560fa1329_HubotSans%5Bslnt%2Cwdth%2Cwght%5D.ttf") format("truetype");
-  font-weight: 200 900;
-  font-style: normal;
-  font-display: swap;
 }
 
 :root {
@@ -4698,6 +4715,15 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   height: auto;
 }
 
+/* The "Latest work" section (#work) has a bright orange background, unlike
+   every other section this icon appears in — at the icon's normal color
+   it was nearly invisible against it. The live IX2 interaction handled
+   this with a brightness filter that ramped with scroll position; kept
+   simple here as a flat boost instead, scoped to just this one instance. */
+#work .asterisk {
+  filter: brightness(200%);
+}
+
 .track {
   height: 500vh;
   padding-bottom: 50px;
@@ -4966,7 +4992,10 @@ body.portfolio #work .card-block-wrapper {
 }
 
 .start-icon {
-  background-image: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/6516a91a7d367d8cafc8fa0e_icons8-asterisk-192.png");
+  /* Same icon as heading-asterisk-icon.png (the export localized every other
+     use of this asterisk as an <img>; this one background-image reference
+     was the one spot still pointing at Webflow's asset CDN). */
+  background-image: url("/assets/images/heading-asterisk-icon.png");
   background-position: 50%;
   background-repeat: no-repeat;
   background-size: cover;
@@ -5033,16 +5062,6 @@ body.portfolio #work .card-block-wrapper {
   flex-flow: column;
   text-decoration: none;
   display: flex;
-}
-
-.photo-badge {
-  background-image: url("https://cdn.prod.website-files.com/6515931475afc13560fa12d6/690e3e8c4234afd8998647e1_unlock-2.jpg");
-  background-position: 50%;
-  background-repeat: no-repeat;
-  background-size: cover;
-  border-radius: 7px;
-  min-width: 140px;
-  min-height: 130px;
 }
 
 .badge-paragraph {
@@ -6093,6 +6112,9 @@ body.portfolio #work {
   pointer-events: none;
 }
 
+/* Hexagon preloader — index.html. exclusive.html renders the same markup
+   but reads these rules from its own copy in watch.css, so keep the two
+   in sync if you restyle the hexagon. */
 .rb-preloader {
   flex-direction: column;
   align-items: center;
@@ -6192,24 +6214,258 @@ body.portfolio #work {
   }
 }
 
-/* ===== Reusable RecordBox loader overlay (video.html, exclusive.html) ===== */
-.rb-loader-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 3000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--floral-white);
-  opacity: 1;
-  transition: opacity 0.4s ease;
-}
+/* The .rb-loader-overlay rules that used to live here moved to watch.css.
+   Only exclusive.html ever used them, and that page no longer loads this
+   stylesheet — it has no Webflow markup on it at all. */
 
-.rb-loader-overlay.rb-loader-hidden {
+/* ===== Scroll reveals, replacing Webflow's IX2 runtime =====
+   These two classes replace the "scroll into view" fade-up interaction
+   that used to be driven by jQuery + two Webflow chunks (~152KB gzip) via
+   data-w-id. Motion values were measured from the live IX2 animation
+   frame-by-frame rather than guessed, so the replacement matches exactly:
+   translateY(100px)/scale(0.9)→identity, opacity 0→1, ease-out, ~700ms.
+
+   Both classes are driven by the existing IntersectionObserver in the
+   inline script below (extended to include them), the same one already
+   used for .contact-form-animate/.team-photo-animate/.hero-video-reveal —
+   not a second observer. */
+.scroll-reveal {
   opacity: 0;
-  pointer-events: none;
+  transform: translateY(100px);
+  transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-html.skip-preloader .rb-loader-overlay {
-  display: none !important;
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-rise {
+  opacity: 0;
+  transform: translateY(28px) scale(0.9);
+  transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.scroll-reveal-rise.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal, .scroll-reveal-rise {
+    transition: none;
+  }
+}
+
+/* ===== Social icon hover, replacing its Webflow IX2 binding =====
+   Of the 16 .social-icon links on the page, only this one — the nav's X
+   link — actually had the hover interaction bound in the live site today
+   (checked empirically: hovering any of the other 15, including its own
+   three siblings inside the same nav wrapper div, does nothing — Webflow
+   interactions attach per data-w-id element instance, not by container or
+   class). Scoped via that link's own data-w-id, left in place for exactly
+   this purpose, rather than a class/container selector that would have
+   caught its three siblings too. See the housekeeping note in the audit
+   about turning this on everywhere as a deliberate follow-up. */
+a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .animation-image {
+  transform: scale(0.85);
+}
+
+a[data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a0"]:hover .social-circle {
+  transform: scale(1);
+}
+
+.social-circle {
+  transform: scale(0);
+  transition: transform 0.25s ease;
+}
+
+.animation-image {
+  transition: transform 0.25s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-circle, .animation-image {
+    transition: none;
+  }
+}
+
+/* ===== First-visit preloader hide, replacing its Webflow IX2 timeline =====
+   The preloader used to hide itself via a Webflow "page load" interaction
+   with no data-w-id on any element in .page-loading — the comment on that
+   markup already warned it "stalls forever" without that interaction, which
+   is exactly what happened once the Webflow scripts were removed: nothing
+   was left to ever hide the overlay on a first visit (repeat visits were
+   unaffected — those already skip straight past this via the .skip-preloader
+   rule in the inline <style> at the top of <head>).
+
+   Timing below was measured frame-by-frame from the live interaction, not
+   guessed: ~4s static hold, then the hexagon icon fades over ~300ms, a
+   ~200ms gap, then the background overlay slides up over ~500ms — matching
+   what was actually shipping. Driven by the script beside the other
+   preloader logic near the end of <body>. */
+.numbers.on-preloader {
+  transition: opacity 0.3s ease;
+}
+
+.numbers.on-preloader.pl-hide {
+  opacity: 0;
+}
+
+.loading-overlay {
+  transition: transform 0.5s ease;
+}
+
+.loading-overlay.pl-hide {
+  transform: translateY(-100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .numbers.on-preloader, .loading-overlay {
+    transition: none;
+  }
+}
+
+/* ===== Three more Webflow IX2 interactions, found only after the scripts
+   were actually deleted =====
+   All three target a descendant of the hover/scroll trigger rather than the
+   trigger element itself — Webflow lets one interaction drive a whole
+   subtree, not just the element carrying its data-w-id. The earlier
+   element-by-element check only ever inspected elements that directly carry
+   a data-w-id, so none of these three were caught by it; they were found by
+   comparing hover/scroll behavior against the pre-deletion code side by
+   side. Timing values below are measured the same way as everything else in
+   this file, not guessed. */
+
+/* Nav link underline. Width was never actually animated — .button-line-first
+   is already 100% of its parent via inset: auto 0% 0% — only height grows,
+   0 to 130px (100% of the 130px-tall link) over ~450-500ms ease-out. */
+.button-line-first {
+  transition: height 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.navigation-line:hover .button-line-first {
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button-line-first {
+    transition: none;
+  }
+}
+
+/* "Latest work" card image zoom on hover: scale 1 → 1.2 over ~450ms
+   ease-out. (.circle-button's own hover reveal was pure CSS already and
+   never broke — see body.portfolio #work .card-block-wrapper:hover
+   .circle-button above.) */
+.main-image {
+  transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.card-block-wrapper:hover .main-image {
+  transform: scale(1.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .main-image {
+    transition: none;
+  }
+}
+
+/* "Our work" category tiles (4 of them, one per category) fade + rise into
+   place as they scroll into view — translateY(-50px)→0, opacity 0→1. Same
+   family of entrance reveal as .scroll-reveal elsewhere in this file (same
+   easing, same ~700ms duration), just travelling from above instead of
+   below, so it gets its own class rather than overloading that one.
+   Triggered from a second, dedicated IntersectionObserver in index.html
+   that watches the stable .photo-animation container rather than this
+   element directly — see the comment above .overlay-reveal below for why. */
+.our-work-reveal {
+  opacity: 0;
+  transform: translateY(-50px);
+  transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.our-work-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .our-work-reveal {
+    transition: none;
+  }
+}
+
+/* "Let's talk" contact CTA ticker — a continuous, constant-velocity
+   horizontal marquee, not a scroll- or hover-triggered reveal, so it needs
+   no JS/observer at all. Measured at ~122px/s (30s per loop at this
+   content's width); the two .text-rotator-content divs in the markup are
+   an already-duplicated copy of the same content sitting side by side, so
+   animating each by its own -100% is exactly one copy-width and the loop
+   is seamless — done as a percentage so it stays correct at any viewport
+   width rather than a hardcoded pixel distance. */
+.text-rotator-content {
+  animation: text-rotator-scroll 30s linear infinite;
+}
+
+@keyframes text-rotator-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-rotator-content {
+    animation: none;
+  }
+}
+
+/* Header logo hover nudge: both stacked logo images shift up together by
+   55px (measured), not a crossfade — matches what the live interaction
+   actually did, not a guessed "swap" effect. */
+.agencx-logo {
+  transition: transform 0.3s ease;
+}
+
+.brand-logo:hover .agencx-logo {
+  transform: translateY(-55px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agencx-logo {
+    transition: none;
+  }
+}
+
+/* Wipe overlay for the "our work" tiles and the "about" section's camp-
+   workshop photo — .heading-overlay._2 sits over the image, starting at
+   translate(0%, 100%) (its existing static rule, off-screen below). This
+   drives it through .photo-animation's own scroll reveal: rises to fully
+   cover the image, then continues rising off the top, wiping the image
+   into view — measured on the live interaction as one continuous ~1s
+   transform, not two separate steps (the image reaching 100% opacity
+   partway through is coincidental to it being fully hidden behind the
+   overlay at that point, not a separate keyframe).
+
+   Not observed by its own box: this element's resting transform
+   (translate(0%, 100%)) shifts its actual bounding rect roughly its own
+   height below its sibling image, so under real continuous scrolling it
+   can cross a 20%-visible threshold noticeably later than the image does
+   — a visitor who stops scrolling in between would see the image revealed
+   with no overlay at all. index.html's second IntersectionObserver
+   watches the stable, untransformed .photo-animation container instead
+   and cascades .is-visible to both children together off that one
+   honest box. */
+.heading-overlay._2.overlay-reveal {
+  transition: transform 1s ease;
+}
+
+.heading-overlay._2.overlay-reveal.is-visible {
+  transform: translate(0%, -110%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading-overlay._2.overlay-reveal {
+    transition: none;
+  }
 }

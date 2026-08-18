@@ -22,13 +22,24 @@
         <meta content="summary_large_image" name="twitter:card" />
         <meta content="width=device-width, initial-scale=1" name="viewport" />
         <meta content="Webflow" name="generator" />
-        <link href="/assets/css/style.css?v=5" rel="stylesheet" type="text/css" />
-        <link href="https://fonts.googleapis.com" rel="preconnect" />
-        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous" />
-        <link
-            href="https://fonts.googleapis.com/css2?family=Oswald:wght@200;300;400;500;600;700&family=Inter+Tight:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-            rel="stylesheet"
-        />
+        <link href="/assets/css/style.css?v=10" rel="stylesheet" type="text/css" />
+        <!-- Every video on this page streams from media.recordbox.me. Warming
+             the connection here means the DNS + TLS handshake is already done
+             by the time the hero video starts requesting bytes. -->
+        <link href="https://media.recordbox.me" rel="preconnect" crossorigin="anonymous" />
+        <!-- Some Latest Work cards now stream from Bunny Stream's MP4 fallback
+             host instead. -->
+        <link href="https://vz-00d6bbee-dbe.b-cdn.net" rel="preconnect" crossorigin="anonymous" />
+        <!-- Oswald and Inter Tight are now self-hosted (see the @font-face
+             block at the top of style.css) rather than fetched from
+             fonts.googleapis.com/fonts.gstatic.com, which collapses two
+             third-party round trips — a render-blocking CSS request that
+             itself chained to a second origin for the font files — into
+             same-origin requests already covered by this deploy's normal
+             caching. Text renders in this typeface on first paint, so the
+             files are worth starting before the parser reaches style.css. -->
+        <link rel="preload" href="/assets/fonts/oswald-variable.woff2" as="font" type="font/woff2" crossorigin />
+        <link rel="preload" href="/assets/fonts/inter-tight-variable.woff2" as="font" type="font/woff2" crossorigin />
         <script type="text/javascript">
             !(function (o, c) {
                 var n = c.documentElement,
@@ -62,13 +73,20 @@
                on first-time visits. Default it visible so there's no gap to flash into. */
             .page-loading { display: flex; }
             html.skip-preloader .page-loading { display: none !important; }
-            /* The load interaction's timeline keeps running even while the overlay
-               above is hidden, so on repeat visits force the hero text straight to
-               its visible state instead of waiting on that hidden animation. */
-            html.skip-preloader [data-w-id="1bb98a3f-7440-0562-df9e-2f58af415199"],
-            html.skip-preloader [data-w-id="1bb98a3f-7440-0562-df9e-2f58af41519c"],
-            html.skip-preloader [data-w-id="1bb98a3f-7440-0562-df9e-2f58af4151a4"] {
+            /* Previously targeted the hero text's three data-w-id attributes directly;
+               those are gone now that the scroll-reveal system is vanilla JS/CSS
+               instead of Webflow IX2 (see style.css), so this targets .hero-reveal —
+               the same three elements — instead. Still needed: the reveal is driven by
+               an IntersectionObserver that only attaches after DOMContentLoaded, so on
+               a first-time visit the hero text is briefly at its pre-reveal opacity:0
+               until the observer fires (expected — that's what the preloader overlay
+               is covering). On a repeat visit the overlay is skipped instantly via the
+               rule above, which would expose that same brief blank window with nothing
+               left to hide it behind, so it's forced straight to visible here instead
+               of waiting on the observer. */
+            html.skip-preloader .hero-reveal {
                 opacity: 1 !important;
+                transform: none !important;
             }
         </style>
         <script>
@@ -226,23 +244,19 @@
                             <div>
                                 <div class="hero-title-flex">
                                     <h1
-                                        data-w-id="1bb98a3f-7440-0562-df9e-2f58af415199"
-                                        style="opacity: 0"
-                                        class="display-1"
+                                        class="display-1 scroll-reveal hero-reveal"
                                     >
                                         record<br />
                                     </h1>
                                     <h1
-                                        data-w-id="1bb98a3f-7440-0562-df9e-2f58af41519c"
-                                        style="opacity: 0"
-                                        class="display-1 with-line"
+                                        class="display-1 with-line scroll-reveal hero-reveal"
                                     >
                                         box<br />
                                     </h1>
                                 </div>
                                 <div class="margin-40px">
                                     <div class="we-are-grid">
-                                        <div data-w-id="1bb98a3f-7440-0562-df9e-2f58af4151a4" style="opacity: 0">
+                                        <div class="scroll-reveal hero-reveal">
                                             <p class="subhead">
                                                 Amplify your visual branding with Recordbox Agency dubai UAE.<strong
                                                     ><br
@@ -279,10 +293,9 @@
                                 src="/assets/images/social-icon-x.png"
                                 loading="lazy"
                                 width="20" height="20.0"
-                                data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a1"
                                 alt=""
                                 class="animation-image" />
-                            <div data-w-id="b09b395d-ba51-a39c-5eb8-55011a7619a2" class="social-circle"></div></a
+                            <div class="social-circle"></div></a
                         ><a href="https://twitter.com/" target="_blank" class="social-icon w-inline-block"
                             ><img
                                 src="/assets/images/social-icon-instagram.png"
@@ -335,25 +348,19 @@
                         <div>
                             <div class="number-grid">
                                 <div
-                                    data-w-id="0f2183aa-99c5-45ee-5356-1b2565cacb41"
-                                    style="opacity: 0"
-                                    class="number-wrapper"
+                                    class="number-wrapper scroll-reveal"
                                 >
                                     <h2 class="number-about" data-count-target="99" data-count-suffix="%">99%</h2>
                                     <div class="sub-text-about white">Client satisfaction</div>
                                 </div>
                                 <div
-                                    data-w-id="0f2183aa-99c5-45ee-5356-1b2565cacb46"
-                                    style="opacity: 0"
-                                    class="number-wrapper"
+                                    class="number-wrapper scroll-reveal"
                                 >
                                     <h2 class="number-about" data-count-target="13">13</h2>
                                     <div class="sub-text-about white">Years of experience</div>
                                 </div>
                                 <div
-                                    data-w-id="0f2183aa-99c5-45ee-5356-1b2565cacb4b"
-                                    style="opacity: 0"
-                                    class="number-wrapper"
+                                    class="number-wrapper scroll-reveal"
                                 >
                                     <h2 class="number-about" data-count-target="105">105</h2>
                                     <div class="sub-text-about white">Clients worldwide</div>
@@ -369,9 +376,7 @@
                         <div class="grid-2-columns">
                             <div id="w-node-_90da62b0-4cae-8014-b6c0-f55cb59deb8c-60fa12d5" class="about-flex">
                                 <div
-                                    data-w-id="90da62b0-4cae-8014-b6c0-f55cb59deb8d"
-                                    style="opacity: 0"
-                                    class="title-wrapper"
+                                    class="title-wrapper scroll-reveal"
                                 >
                                     <img
                                         src="/assets/images/heading-asterisk-icon.png"
@@ -382,12 +387,12 @@
                                     />
                                     <h2 class="top-text">about recordbox</h2>
                                 </div>
-                                <div data-w-id="90da62b0-4cae-8014-b6c0-f55cb59deb91" style="opacity: 0">
+                                <div class="scroll-reveal">
                                     <p class="title-2">
                                         RecordBox — CREATING EXCEPTIONAL VISUAL BRANDING. WE'RE PROUD CHAMPIONS OF EXCELLENCE IN EVERY PROJECT. EXPLORE OUR WORK FOR IN-DEPTH INSIGHTS INTO OUR ACCLAIMED PORTFOLIO.
                                     </p>
                                 </div>
-                                <div data-w-id="65d891ae-884a-f021-9df3-beef78db338f" style="opacity: 0">
+                                <div class="scroll-reveal">
                                     <div class="button-rounded pill-static">
                                         <div class="button-text-wrapper _20px">
                                             <div class="button-text small">View our work</div>
@@ -411,7 +416,7 @@
                                         playsinline
                                         preload="auto"
                                     ></video>
-                                    <div class="heading-overlay _2"></div>
+                                    <div class="heading-overlay _2 overlay-reveal"></div>
                                 </div>
                             </div>
                         </div>
@@ -424,9 +429,7 @@
                         <div class="wrapper">
                             <div class="container add-percent">
                                 <div
-                                    data-w-id="1fae626b-65fb-aeec-e274-a797c32897c1"
-                                    style="opacity: 0"
-                                    class="title-wrapper"
+                                    class="title-wrapper scroll-reveal"
                                 >
                                     <img
                                         src="/assets/images/heading-asterisk-icon.png"
@@ -487,13 +490,13 @@
                                     <div class="wrapper w-dyn-list">
                                         <div role="list" class="w-dyn-items">
                                             <div role="listitem" class="w-dyn-item">
-                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://media.recordbox.me/corporate/dior-golden-bc-2018-highlights-2.mp4" data-video-title="Dior Golden BC 2018 Highlights" onclick="openVideoModal(this)" style="cursor:pointer;">
+                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://vz-00d6bbee-dbe.b-cdn.net/e2ec87dd-968c-443e-80bc-34a518a5d123/play_720p.mp4" data-video-title="Dior Golden BC 2018 Highlights" onclick="openVideoModal(this)" style="cursor:pointer;">
                                                     <div class="card-wrapper">
                                                         <picture>
 <source type="image/webp" srcset="/assets/images/latest-work-dior-500w.webp 500w, /assets/images/latest-work-dior-800w.webp 800w, /assets/images/latest-work-dior-1000w.webp 1000w, /assets/images/latest-work-dior.webp 1199w" sizes="(max-width: 767px) 100vw, 33vw" />
 <img
                                                             alt=""
-                                                            loading="eager"
+                                                            loading="lazy"
                                                             sizes="(max-width: 767px) 100vw, 33vw"
                                                             src="/assets/images/latest-work-dior.jpg"
                                                             srcset="/assets/images/latest-work-dior-500w.jpg 500w, /assets/images/latest-work-dior-800w.jpg 800w, /assets/images/latest-work-dior-1000w.jpg 1000w, /assets/images/latest-work-dior.jpg 1199w"
@@ -576,13 +579,13 @@
                                     <div class="wrapper w-dyn-list">
                                         <div role="list" class="w-dyn-items">
                                             <div role="listitem" class="w-dyn-item">
-                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://media.recordbox.me/corporate/bambah-kids.mp4" data-video-title="Bambah Kids" onclick="openVideoModal(this)" style="cursor:pointer;">
+                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://vz-00d6bbee-dbe.b-cdn.net/82878fb3-109f-4a36-b46f-1185064da809/play_720p.mp4" data-video-title="Bambah Kids" onclick="openVideoModal(this)" style="cursor:pointer;">
                                                     <div class="card-wrapper">
                                                         <picture>
 <source type="image/webp" srcset="/assets/images/latest-work-bamba-500w.webp 500w, /assets/images/latest-work-bamba-800w.webp 800w, /assets/images/latest-work-bamba.webp 1000w" sizes="(max-width: 767px) 100vw, 33vw" />
 <img
                                                             alt=""
-                                                            loading="eager"
+                                                            loading="lazy"
                                                             sizes="(max-width: 767px) 100vw, 33vw"
                                                             src="/assets/images/latest-work-bamba.jpg"
                                                             srcset="/assets/images/latest-work-bamba-500w.jpg 500w, /assets/images/latest-work-bamba-800w.jpg 800w, /assets/images/latest-work-bamba.jpg 1000w"
@@ -621,7 +624,7 @@
                                     <div class="wrapper w-dyn-list">
                                         <div role="list" class="w-dyn-items">
                                             <div role="listitem" class="w-dyn-item">
-                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://media.recordbox.me/corporate/ica-gala-emirates-palace-abu-dhabi.mp4" data-video-title="ICA Gala – Emirates Palace Abu Dhabi" onclick="openVideoModal(this)" style="cursor:pointer;">
+                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://vz-00d6bbee-dbe.b-cdn.net/c39fba36-0676-4f91-ae04-93d31a5ee6b3/play_720p.mp4" data-video-title="ICA Gala – Emirates Palace Abu Dhabi" onclick="openVideoModal(this)" style="cursor:pointer;">
                                                     <div class="card-wrapper">
                                                         <video
                                                             class="main-image"
@@ -665,13 +668,13 @@
                                     <div class="wrapper w-dyn-list">
                                         <div role="list" class="w-dyn-items">
                                             <div role="listitem" class="w-dyn-item">
-                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://media.recordbox.me/corporate/maxs-abc-quality-uae-horizontal-full-hd.mp4" data-video-title="Max's ABC Quality UAE" onclick="openVideoModal(this)" style="cursor:pointer;">
+                                                <div class="card-block-wrapper w-inline-block" data-video-url="https://vz-00d6bbee-dbe.b-cdn.net/c803df70-7304-48eb-b462-168010813c48/play_720p.mp4" data-video-title="Max's ABC Quality UAE" onclick="openVideoModal(this)" style="cursor:pointer;">
                                                     <div class="card-wrapper">
                                                         <picture>
 <source type="image/webp" srcset="/assets/images/latest-work-maxs-500w.webp 500w, /assets/images/latest-work-maxs-800w.webp 800w, /assets/images/latest-work-maxs.webp 1000w" sizes="(max-width: 767px) 100vw, 33vw" />
 <img
                                                             alt=""
-                                                            loading="eager"
+                                                            loading="lazy"
                                                             sizes="(max-width: 767px) 100vw, 33vw"
                                                             src="/assets/images/latest-work-maxs.jpg"
                                                             srcset="/assets/images/latest-work-maxs-500w.jpg 500w, /assets/images/latest-work-maxs-800w.jpg 800w, /assets/images/latest-work-maxs.jpg 1000w"
@@ -716,9 +719,7 @@
                     <div class="container">
                         <div>
                             <div
-                                data-w-id="6d350b70-f039-45ec-c704-3ed656f5d614"
-                                style="opacity: 0"
-                                class="title-wrapper"
+                                class="title-wrapper scroll-reveal"
                             >
                                 <img
                                     src="/assets/images/heading-asterisk-icon.png"
@@ -739,12 +740,12 @@
                                                 <div data-w-id="bfc51ecc-081f-e614-a868-854e64d6fa7f" class="photo-animation">
                                                     <picture>
 <source type="image/webp" srcset="/assets/images/our-work-corporate-500w.webp 500w, /assets/images/our-work-corporate-800w.webp 800w, /assets/images/our-work-corporate-1000w.webp 1000w, /assets/images/our-work-corporate.webp 1080w" sizes="(max-width: 767px) 94vw, 666.5px" />
-<img loading="eager" width="666.5" height="488.77" src="/assets/images/our-work-corporate.jpg" alt=""
+<img loading="lazy" width="666.5" height="488.77" src="/assets/images/our-work-corporate.jpg" alt=""
                                                         sizes="(max-width: 767px) 94vw, 666.5px"
                                                         srcset="/assets/images/our-work-corporate-500w.jpg 500w, /assets/images/our-work-corporate-800w.jpg 800w, /assets/images/our-work-corporate-1000w.jpg 1000w, /assets/images/our-work-corporate.jpg 1080w"
-                                                        class="photo"/>
+                                                        class="photo our-work-reveal"/>
 </picture>
-                                                    <div class="heading-overlay _2"></div>
+                                                    <div class="heading-overlay _2 overlay-reveal"></div>
                                                 </div>
                                             </div>
                                             <div class="blog-content">
@@ -760,12 +761,12 @@
                                                 <div data-w-id="bfc51ecc-081f-e614-a868-854e64d6fa7f" class="photo-animation">
                                                     <picture>
 <source type="image/webp" srcset="/assets/images/our-work-personal-500w.webp 500w, /assets/images/our-work-personal-800w.webp 800w, /assets/images/our-work-personal-1000w.webp 1000w, /assets/images/our-work-personal.webp 1080w" sizes="(max-width: 767px) 94vw, 666.5px" />
-<img loading="eager" width="666.5" height="488.77" src="/assets/images/our-work-personal.jpg" alt=""
+<img loading="lazy" width="666.5" height="488.77" src="/assets/images/our-work-personal.jpg" alt=""
                                                         sizes="(max-width: 767px) 94vw, 666.5px"
                                                         srcset="/assets/images/our-work-personal-500w.jpg 500w, /assets/images/our-work-personal-800w.jpg 800w, /assets/images/our-work-personal-1000w.jpg 1000w, /assets/images/our-work-personal.jpg 1080w"
-                                                        class="photo"/>
+                                                        class="photo our-work-reveal"/>
 </picture>
-                                                    <div class="heading-overlay _2"></div>
+                                                    <div class="heading-overlay _2 overlay-reveal"></div>
                                                 </div>
                                             </div>
                                             <div class="blog-content">
@@ -781,12 +782,12 @@
                                                 <div data-w-id="bfc51ecc-081f-e614-a868-854e64d6fa7f" class="photo-animation">
                                                     <picture>
 <source type="image/webp" srcset="/assets/images/our-work-travel-500w.webp 500w, /assets/images/our-work-travel-800w.webp 800w, /assets/images/our-work-travel-1000w.webp 1000w, /assets/images/our-work-travel.webp 1080w" sizes="(max-width: 767px) 94vw, 666.5px" />
-<img loading="eager" width="666.5" height="488.77" src="/assets/images/our-work-travel.jpg" alt=""
+<img loading="lazy" width="666.5" height="488.77" src="/assets/images/our-work-travel.jpg" alt=""
                                                         sizes="(max-width: 767px) 94vw, 666.5px"
                                                         srcset="/assets/images/our-work-travel-500w.jpg 500w, /assets/images/our-work-travel-800w.jpg 800w, /assets/images/our-work-travel-1000w.jpg 1000w, /assets/images/our-work-travel.jpg 1080w"
-                                                        class="photo"/>
+                                                        class="photo our-work-reveal"/>
 </picture>
-                                                    <div class="heading-overlay _2"></div>
+                                                    <div class="heading-overlay _2 overlay-reveal"></div>
                                                 </div>
                                             </div>
                                             <div class="blog-content">
@@ -802,12 +803,12 @@
                                                 <div data-w-id="bfc51ecc-081f-e614-a868-854e64d6fa7f" class="photo-animation">
                                                     <picture>
 <source type="image/webp" srcset="/assets/images/our-work-weddings-500w.webp 500w, /assets/images/our-work-weddings-800w.webp 800w, /assets/images/our-work-weddings-1000w.webp 1000w, /assets/images/our-work-weddings.webp 1080w" sizes="(max-width: 767px) 94vw, 666.5px" />
-<img loading="eager" width="666.5" height="488.77" src="/assets/images/our-work-weddings.jpg" alt=""
+<img loading="lazy" width="666.5" height="488.77" src="/assets/images/our-work-weddings.jpg" alt=""
                                                         sizes="(max-width: 767px) 94vw, 666.5px"
                                                         srcset="/assets/images/our-work-weddings-500w.jpg 500w, /assets/images/our-work-weddings-800w.jpg 800w, /assets/images/our-work-weddings-1000w.jpg 1000w, /assets/images/our-work-weddings.jpg 1080w"
-                                                        class="photo"/>
+                                                        class="photo our-work-reveal"/>
 </picture>
-                                                    <div class="heading-overlay _2"></div>
+                                                    <div class="heading-overlay _2 overlay-reveal"></div>
                                                 </div>
                                             </div>
                                             <div class="blog-content">
@@ -843,9 +844,7 @@
                     <div class="container">
                         <div>
                             <div
-                                data-w-id="576131c7-499d-fba5-2780-602c8eed8435"
-                                style="opacity: 0"
-                                class="title-wrapper"
+                                class="title-wrapper scroll-reveal"
                             >
                                 <img
                                     src="/assets/images/heading-asterisk-icon.png"
@@ -858,9 +857,7 @@
                             </div>
                             <div class="margin-50px">
                                 <div
-                                    data-w-id="cd2859fb-962a-59f5-b871-25964cda681f"
-                                    style="opacity: 0"
-                                    class="logo-strip"
+                                    class="logo-strip scroll-reveal"
                                 >
                                     <img src="/assets/images/client-logo-1.svg" alt="" width="120" height="48.02" /><img
                                         src="/assets/images/client-logo-2.svg"
@@ -875,12 +872,12 @@
                             </div>
                         </div>
                         <div class="margin-60px">
-                            <p data-w-id="58b5d077-7672-2ead-1896-fb3e459e141b" style="opacity: 0" class="title-1">
+                            <p class="title-1 scroll-reveal">
                                 You get results, we get proof of it.
                             </p>
                             <div class="margin-60px">
                                 <div class="award-grid">
-                                    <div data-w-id="6a784763-2ab5-59d3-3c7b-ffdcfc68c90a" style="opacity: 0">
+                                    <div class="scroll-reveal">
                                         <div class="award-icon"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -912,7 +909,7 @@
                                         id="w-node-_5ed47188-d038-4ea9-c8d5-6f4b9a44f874-60fa12d5"
                                         class="line-hieght for-mobile hide"
                                     ></div>
-                                    <div data-w-id="6a784763-2ab5-59d3-3c7b-ffdcfc68c92b" style="opacity: 0">
+                                    <div class="scroll-reveal">
                                         <div class="award-icon _2"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -944,7 +941,7 @@
                                         id="w-node-b2ab17d7-b5a4-6f3c-8fd5-b483dea321b8-60fa12d5"
                                         class="line-hieght for-mobile hide"
                                     ></div>
-                                    <div data-w-id="6a784763-2ab5-59d3-3c7b-ffdcfc68c94e" style="opacity: 0">
+                                    <div class="scroll-reveal">
                                         <div class="award-icon _3"></div>
                                         <div class="margin-awards">
                                             <div class="award-flex">
@@ -992,7 +989,7 @@
                                             <div class="photo-line-animation team-photo-animate">
                                                 <picture>
 <source type="image/webp" srcset="/assets/images/team-paul-aggarao-500w.webp 500w, /assets/images/team-paul-aggarao-800w.webp 800w, /assets/images/team-paul-aggarao.webp 1000w" sizes="(max-width: 479px) 94vw, (max-width: 767px) 43vw, (max-width: 991px) 29vw, (max-width: 1439px) 28vw, 380px" />
-<img loading="eager" width="666.5" height="666.5"
+<img loading="lazy" width="666.5" height="666.5"
                                                     sizes="(max-width: 479px) 94vw, (max-width: 767px) 43vw, (max-width: 991px) 29vw, (max-width: 1439px) 28vw, 380px"
                                                     src="/assets/images/team-paul-aggarao.jpg" alt=""
                                                     srcset="/assets/images/team-paul-aggarao-500w.jpg 500w, /assets/images/team-paul-aggarao-800w.jpg 800w, /assets/images/team-paul-aggarao.jpg 1000w"/>
@@ -1019,7 +1016,7 @@
                                             <div data-w-id="a33f1a4a-696c-fb3b-a393-b412fd6c8d75" class="photo-line-animation">
                                                 <picture>
 <source type="image/webp" srcset="/assets/images/team-jane-doe-500w.webp 500w, /assets/images/team-jane-doe-800w.webp 800w, /assets/images/team-jane-doe.webp 1000w" sizes="(max-width: 479px) 94vw, (max-width: 767px) 43vw, (max-width: 991px) 29vw, (max-width: 1439px) 28vw, 380px" />
-<img loading="eager" width="666.5" height="666.5"
+<img loading="lazy" width="666.5" height="666.5"
                                                     sizes="(max-width: 479px) 94vw, (max-width: 767px) 43vw, (max-width: 991px) 29vw, (max-width: 1439px) 28vw, 380px"
                                                     src="/assets/images/team-jane-doe.jpg" alt=""
                                                     srcset="/assets/images/team-jane-doe-500w.jpg 500w, /assets/images/team-jane-doe-800w.jpg 800w, /assets/images/team-jane-doe.jpg 1000w"/>
@@ -1045,7 +1042,7 @@
                                         <div data-w-id="a33f1a4a-696c-fb3b-a393-b412fd6c8d8d" class="photo-line-animation team-photo-animate">
                                             <picture>
 <source type="image/webp" srcset="/assets/images/team-mac-dela-pena-500w.webp 500w, /assets/images/team-mac-dela-pena-800w.webp 800w, /assets/images/team-mac-dela-pena.webp 1000w" sizes="(max-width: 479px) 94vw, (max-width: 767px) 43vw, (max-width: 991px) 29vw, (max-width: 1439px) 28vw, 380px" />
-<img loading="eager" width="666.5" height="666.5"
+<img loading="lazy" width="666.5" height="666.5"
                                                 sizes="(max-width: 479px) 94vw, (max-width: 767px) 43vw, (max-width: 991px) 29vw, (max-width: 1439px) 28vw, 380px"
                                                 src="/assets/images/team-mac-dela-pena.jpg" alt=""
                                                 srcset="/assets/images/team-mac-dela-pena-500w.jpg 500w, /assets/images/team-mac-dela-pena-800w.jpg 800w, /assets/images/team-mac-dela-pena.jpg 1000w"/>
@@ -1266,9 +1263,8 @@
                     </div>
                     <div class="margin-50px">
                         <div class="footer-grid">
-                            <div
+                            <div class="scroll-reveal-rise"
                                 id="w-node-a48725d2-5e9e-2213-0f69-c7af29e3488c-29e34889"
-                                data-w-id="a48725d2-5e9e-2213-0f69-c7af29e3488c"
                             >
                                 <div class="footer-tag">
                                     <div class="flex-tag-footer white"><div class="footer-title-tag">vist us</div></div>
@@ -1309,7 +1305,7 @@
                         </div>
                     </div>
                     <div class="margin-70px">
-                        <div data-w-id="a48725d2-5e9e-2213-0f69-c7af29e348ba" class="copyright-flex">
+                        <div class="copyright-flex scroll-reveal-rise">
                             <p class="copyright">
                                 © 2026 All Rights Reserved RecordBox 
                             </p>
@@ -1347,33 +1343,38 @@
                 <div class="loading-overlay"></div>
             </div>
         </div>
-        <script
-            src="/assets/animate/jquery-3.5.1.min.dc5e7f18c8.js?site=6515931475afc13560fa12d6"
-            type="text/javascript"
-            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
-            crossorigin="anonymous"
-        ></script>
-        <script src="/assets/animate/webflow.schunk.6d83011aa4f34449.js" type="text/javascript"></script>
-        <script src="/assets/animate/webflow.schunk.0d62b8c91f71aed0.js" type="text/javascript"></script>
-        <script src="/assets/animate/webflow.2dcec2a9.c21eef37897ecb15.js" type="text/javascript"></script>
-        <script src="/assets/animate/webflow.8c73df52.4a4d1e588c070eff.js" type="text/javascript"></script>
-        <style>
-            .w-webflow-badge {
-                display: none !important;
-            }
-        </style>
+        <!-- jQuery and the four Webflow interaction chunks (~152KB gzip) used to
+             load here. Every element that depended on them — the 21 scroll
+             reveals, the 2 footer reveals, the nav toggle, the one social-icon
+             hover effect — has a vanilla JS/CSS replacement now (see style.css
+             and the scripts below), verified against load, scroll, hover, and
+             click with every remaining data-w-id element showing zero effect.
+             Deleting the scripts also retired the .w-webflow-badge CSS rule and
+             the MutationObserver that used to sit here removing that badge —
+             both existed only to hide something Webflow's own JS injected, so
+             neither has anything to do once that JS is gone. -->
         <script>
-            new MutationObserver(function (m) {
-                m.forEach(function (r) {
-                    r.addedNodes.forEach(function (n) {
-                        if (n.classList && n.classList.contains("w-webflow-badge")) n.remove();
-                    });
-                });
-            }).observe(document.body, { childList: true, subtree: true });
+            /* Replaces the Webflow "page load" interaction that used to hide
+               .page-loading — see the CSS comment above .numbers.on-preloader
+               in style.css for the measured timing this reproduces. Repeat
+               visits never reach this: html.skip-preloader (set by the inline
+               script in <head>) hides the whole overlay instantly via CSS, so
+               this only runs the full hold-fade-slide sequence on a first
+               visit. */
+            document.addEventListener('DOMContentLoaded', function () {
+                if (document.documentElement.classList.contains('skip-preloader')) return;
+                var pageLoading = document.querySelector('.page-loading');
+                var numbers = document.querySelector('.numbers.on-preloader');
+                var overlay = document.querySelector('.loading-overlay');
+                if (!pageLoading || !numbers || !overlay) return;
+                setTimeout(function () { numbers.classList.add('pl-hide'); }, 4000);
+                setTimeout(function () { overlay.classList.add('pl-hide'); }, 4500);
+                setTimeout(function () { pageLoading.style.display = 'none'; }, 5000);
+            });
         </script>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                var animatedElements = document.querySelectorAll('.contact-form-animate, .team-photo-animate, .hero-video-reveal');
+                var animatedElements = document.querySelectorAll('.contact-form-animate, .team-photo-animate, .hero-video-reveal, .scroll-reveal, .scroll-reveal-rise');
                 if (animatedElements.length) {
                     var observer = new IntersectionObserver(function(entries) {
                         entries.forEach(function(entry) {
@@ -1387,6 +1388,144 @@
                         observer.observe(element);
                     });
                 }
+
+                /* .our-work-reveal (the image) and .overlay-reveal (its sibling
+                   wipe overlay) both live inside a .photo-animation card, but
+                   can't each be observed by their own box: .overlay-reveal's
+                   resting transform (translate(0%, 100%), so it starts fully
+                   below the image) shifts its actual bounding box roughly its
+                   own height further down the page than its sibling's. Under
+                   an instant jump-scroll both still cross the 20% threshold
+                   close enough together to look synced in testing, but under
+                   real, continuous scrolling they can cross it hundreds of
+                   pixels apart — easily leaving the image revealed while the
+                   overlay's own trigger point never gets reached if a visitor
+                   stops scrolling in between. Observing the stable, untransformed
+                   .photo-animation container itself instead and cascading
+                   .is-visible to whichever of the two children it has removes
+                   the gap entirely — both trigger off one shared, honest box. */
+                var cards = document.querySelectorAll('.photo-animation');
+                var revealCards = Array.prototype.filter.call(cards, function (card) {
+                    return card.querySelector('.our-work-reveal, .overlay-reveal');
+                });
+                if (revealCards.length) {
+                    var cardObserver = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) {
+                                var img = entry.target.querySelector('.our-work-reveal');
+                                var overlay = entry.target.querySelector('.overlay-reveal');
+                                if (img) img.classList.add('is-visible');
+                                if (overlay) overlay.classList.add('is-visible');
+                                cardObserver.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.2 });
+                    revealCards.forEach(function (card) {
+                        cardObserver.observe(card);
+                    });
+                }
+            });
+        </script>
+        <script>
+            /* Replaces Webflow's navbar module for the mobile hamburger menu.
+               Mechanism confirmed by watching the live IX2-driven toggle:
+               clicking .menu-button adds .w--open to itself and adds an
+               empty data-nav-menu-open attribute to .nav-menu — the actual
+               show/hide styling is plain CSS already (the [data-nav-menu-open]
+               rule in style.css), so this only needs to toggle that state and
+               the matching ARIA attributes, not reimplement any presentation. */
+            document.addEventListener('DOMContentLoaded', function () {
+                var btn = document.querySelector('.menu-button.w-nav-button');
+                var menu = document.querySelector('.nav-menu.w-nav-menu');
+                if (!btn || !menu) return;
+
+                function closeMenu() {
+                    btn.classList.remove('w--open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    menu.removeAttribute('data-nav-menu-open');
+                }
+                function openMenu() {
+                    btn.classList.add('w--open');
+                    btn.setAttribute('aria-expanded', 'true');
+                    menu.setAttribute('data-nav-menu-open', '');
+                }
+                btn.addEventListener('click', function () {
+                    if (btn.classList.contains('w--open')) closeMenu();
+                    else openMenu();
+                });
+                // Matches the live site: picking a destination from the open
+                // mobile menu dismisses it instead of leaving it covering the
+                // page after the browser jumps to the target section.
+                Array.prototype.forEach.call(menu.querySelectorAll('a'), function (a) {
+                    a.addEventListener('click', closeMenu);
+                });
+            });
+        </script>
+        <script>
+            /* Replaces the Webflow IX2 "scroll" interaction driving the
+               "Latest work" section (#work). #work is 500vh tall; .sticky
+               inside it pins at top:0 for as long as the tall parent hasn't
+               finished scrolling past, and during that pin, .collection-list
+               (the row of cards) gets translated horizontally as a function
+               of scroll progress through the pin range — a standard
+               scroll-hijacked horizontal gallery.
+
+               Measuring the live interaction directly (not just reading the
+               CSS) showed raw scroll position doesn't map linearly to
+               translateX — the value visibly lags behind scroll and keeps
+               settling toward its target for a while after scrolling stops,
+               the same asymptotic-decay signature every other IX2 animation
+               in this file showed when sampled frame-by-frame. That's a
+               smoothed/lerped follower, not a direct 1:1 mapping, so it's
+               reproduced as one here: an rAF loop eases .collection-list's
+               actual position toward a target recomputed from scroll
+               position on every scroll/resize event, rather than setting
+               the transform directly from scroll position.
+
+               Disabled below 991px to match style.css's own mobile
+               breakpoint, where #work/.sticky/.collection-list/
+               .collection-card all get overridden back to a plain wrapping
+               grid (this is unrelated to anything IX2 ever drove, so it
+               needed no fix — just don't fight it here). */
+            document.addEventListener('DOMContentLoaded', function () {
+                var track = document.getElementById('work');
+                if (!track) return;
+                var sticky = track.querySelector('.sticky');
+                var wrapper = track.querySelector('.wrapper');
+                var list = track.querySelector('.collection-list');
+                if (!sticky || !wrapper || !list) return;
+
+                var MOBILE_BREAKPOINT = 991;
+                var targetX = 0;
+                var currentX = 0;
+                var rafId = null;
+
+                function computeTarget() {
+                    if (window.innerWidth <= MOBILE_BREAKPOINT) { targetX = 0; return; }
+                    var pinStart = track.offsetTop;
+                    var pinDistance = track.offsetHeight - sticky.offsetHeight;
+                    var maxTranslate = Math.max(0, list.scrollWidth - wrapper.getBoundingClientRect().width);
+                    var progress = pinDistance > 0 ? (window.scrollY - pinStart) / pinDistance : 0;
+                    progress = Math.max(0, Math.min(1, progress));
+                    targetX = -progress * maxTranslate;
+                }
+
+                function tick() {
+                    currentX += (targetX - currentX) * 0.09;
+                    if (Math.abs(targetX - currentX) < 0.05) currentX = targetX;
+                    if (window.innerWidth <= MOBILE_BREAKPOINT) {
+                        list.style.transform = '';
+                    } else {
+                        list.style.transform = 'translate3d(' + currentX.toFixed(2) + 'px, 0, 0)';
+                    }
+                    rafId = requestAnimationFrame(tick);
+                }
+
+                window.addEventListener('scroll', computeTarget, { passive: true });
+                window.addEventListener('resize', computeTarget);
+                computeTarget();
+                currentX = targetX;
+                tick();
             });
         </script>
         <script>
@@ -1543,13 +1682,42 @@
       </div>
     </div>
     <script>
+      /* Bunny-hosted cards also have an HLS manifest at the same guid
+         (see video.html/exclusive.html for the same pattern) — that's
+         what gets adaptive quality switching, since the play_720p.mp4
+         used elsewhere is one fixed resolution. Cards not yet migrated
+         to Bunny (still on dead media.recordbox.me URLs) have no HLS
+         manifest to point at and fall straight to their data-video-url. */
+      var modalHls = null;
+      function toHlsUrl(url) {
+        var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(url);
+        return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/playlist.m3u8' : null;
+      }
       function openVideoModal(el) {
         var url = el.getAttribute('data-video-url');
         var title = el.getAttribute('data-video-title') || '';
         var modal = document.getElementById('simple-video-modal');
         var video = document.getElementById('svm-video');
         document.getElementById('svm-title').textContent = title;
-        video.src = url;
+
+        if (modalHls) { modalHls.destroy(); modalHls = null; }
+        var hlsUrl = toHlsUrl(url);
+        if (hlsUrl && window.Hls && Hls.isSupported()) {
+          modalHls = new Hls();
+          modalHls.on(Hls.Events.ERROR, function (event, data) {
+            if (!data.fatal) return;
+            if (data.type === Hls.ErrorTypes.NETWORK_ERROR) modalHls.startLoad();
+            else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) modalHls.recoverMediaError();
+            else { modalHls.destroy(); modalHls = null; }
+          });
+          modalHls.loadSource(hlsUrl);
+          modalHls.attachMedia(video);
+        } else if (hlsUrl && video.canPlayType('application/vnd.apple.mpegurl')) {
+          video.src = hlsUrl;
+        } else {
+          video.src = url;
+        }
+
         modal.classList.add('open');
         document.body.style.overflow = 'hidden';
         video.play().catch(function () {});
@@ -1557,6 +1725,7 @@
       function closeVideoModal() {
         var modal = document.getElementById('simple-video-modal');
         var video = document.getElementById('svm-video');
+        if (modalHls) { modalHls.destroy(); modalHls = null; }
         video.pause();
         video.removeAttribute('src');
         video.load();
@@ -1565,8 +1734,25 @@
       }
       document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') closeVideoModal();
+
+        if (e.code === 'Space' || e.key === ' ') {
+          var tag = (e.target.tagName || '').toLowerCase();
+          if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+          var modal = document.getElementById('simple-video-modal');
+          if (modal.classList.contains('open')) {
+            e.preventDefault();
+            var video = document.getElementById('svm-video');
+            if (video.paused) video.play().catch(function () {});
+            else video.pause();
+          }
+        }
       });
     </script>
+    <!-- hls.js, self-hosted — see video.html for why (adaptive streaming,
+         no third-party UI). Only referenced from openVideoModal(), which
+         runs on click, so defer keeps it off the critical path. -->
+    <script src="/assets/js/hls.light.min.js" defer></script>
     <!-- Contact form submission (FormSubmit.co, no server required) -->
     <script>
       (function () {
