@@ -1629,8 +1629,8 @@ document.getElementById('lock-form').addEventListener('submit', (e) => {
     err.classList.remove('visible');
     btn.disabled = true;
     setUnlocked(true);
-    startGallery();
     showScreen('gallery-screen');
+    startGallery();
   } else {
     err.classList.add('visible');
     input.value = '';
@@ -1640,14 +1640,6 @@ document.getElementById('lock-form').addEventListener('submit', (e) => {
   }
 });
 
-/* ── Auto-lock when leaving the page ─────────────────────── */
-window.addEventListener('beforeunload', () => {
-  try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
-});
-window.addEventListener('pagehide', () => {
-  try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
-});
-
 window.addEventListener('resize', () => {
   syncPlayerToFilter();
   repositionCeoShorts();
@@ -1655,8 +1647,8 @@ window.addEventListener('resize', () => {
 
 /* ── Init ─────────────────────────────────────────────────── */
 if (isUnlocked()) {
-  startGallery();
   showScreen('gallery-screen');
+  startGallery();
 }
 </script>
 
