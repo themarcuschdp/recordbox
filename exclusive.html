@@ -1017,6 +1017,10 @@ VIDEOS.push(...finalVideos);
 
 const CATS = [
   { key: 'all',       label: 'All' },
+  { key: 'corporate', label: 'Corporate' },
+  { key: 'travel',    label: 'Travel' },
+  { key: 'wedding',   label: 'Wedding' },
+  { key: 'personal',  label: 'Personal' },
 ];
 
 /* ── Site password ──────────────────────────────────────── */
@@ -1088,6 +1092,15 @@ function renderCatMenu(){
   desktopNav.innerHTML = '';
 
   const onSelect = (key) => {
+    // exclusive.html only ever holds Exclusive-category videos — every
+    // other category's videos live in video.html instead. So only "all"
+    // (this page's own gallery) can be shown locally; every other tab
+    // hands off to video.html's filtered view rather than rendering an
+    // empty grid here.
+    if (key !== 'all') {
+      window.location.href = `video.html?category=${key}`;
+      return;
+    }
     activeFilter = key;
     closeCatMenu();
     renderCatMenu();
