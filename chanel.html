@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exclusive</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/assets/images/favicon-32x32.png" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://cdn.plyr.io" crossorigin>
+  <!-- Every playable video on this page streams from Bunny Stream's MP4
+       fallback host, so warm the connection before the grid starts
+       requesting them. -->
+  <link rel="preconnect" href="https://vz-00d6bbee-dbe.b-cdn.net" crossorigin>
+  <!-- Oswald and Inter Tight — same pairing as the rest of the site,
+       self-hosted (see watch.css) instead of fetched from
+       fonts.googleapis.com/fonts.gstatic.com. Preloaded because both
+       render text in the first paint. -->
+  <link rel="preload" href="/assets/fonts/oswald-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/assets/fonts/inter-tight-variable.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="stylesheet" href="assets/css/watch.css?v=4">
+  <!-- Plyr's stylesheet only matters once the player is instantiated, which
+       happens on first video click — load it without blocking first paint. -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" /></noscript>
+  <style>
+    /* ── Watch-style player ──────────────────────────────────
+       This block is a direct copy of video.html's equivalent CSS (same
+       .watch-layout/.watch-main/.watch-sticky/#player-dock/.grid/.card
+       structure), not an independently-maintained lookalike — this page
+       used to drift from video.html in small ways (a grid that applied
+       unconditionally instead of gated behind .has-player, a sidebar
+       restyle-on-play rule missing that same gate, mismatched sticky
+       offsets) and each drift was a real, reproduced bug. Keeping this
+       identical to video.html's is what makes that whole class of bug
+       impossible instead of something to keep re-discovering. Only the
+       category-tab/CEO-shorts/locked-card pieces are left out, since this
+       page has no categories and everything on it is already unlocked. */
+
+    .nav-search{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:0.5rem;
+      border:1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      background: transparent;
+      flex-shrink: 1;
+      min-width: 0;
+      margin-left: auto;
+      margin-right: 4px;
+      box-sizing: border-box;
+      overflow: hidden;
+      transition: width .25s ease, padding .25s ease;
+    }
+    .nav-search-toggle{
+      appearance:none;
+      border:none;
+      background:transparent;
+      padding:0;
+      margin:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      flex-shrink:0;
+    }
+    .nav-search svg{ width:14px; height:14px; color: var(--muted); flex-shrink:0; pointer-events:none; }
+    .nav-search input{
+      appearance:none;
+      border:none;
+      outline:none;
+      background:transparent;
+      color:#fff;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      width: 140px;
+      min-width: 0;
+      white-space: nowrap;
+      transition: width .25s ease, opacity .2s ease;
+    }
+    .nav-search input::placeholder{ color: rgba(255,255,255,0.55); }
+    @media (max-width: 1000px){
+      .nav-search{
+        width: 36.84px;
+        padding: 0.45rem;
+        gap:0;
+      }
+      .nav-search input{
+        width: 0;
+        opacity: 0;
+      }
+      .nav-search.open{
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        right: 16px;
+        transform: translateY(-50%);
+        height: auto;
+        width: auto;
+        padding: 0.45rem 0.9rem;
+        margin-right: 0;
+        background: rgba(22,20,18,0.98);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        z-index: 95;
+        gap: 0.6rem;
+      }
+      .nav-search.open input{
+        flex: 1;
+        width: auto;
+        opacity: 1;
+      }
+    }
+
+    .watch-layout{
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      display: block;
+    }
+    .watch-main{ }
+    .watch-sidebar{ margin-top: 22px; }
+
+    @media (min-width: 1000px){
+      .watch-main.has-player{
+        display: grid;
+        grid-template-columns: minmax(0,1fr) 380px;
+        gap: 28px;
+      }
+      .watch-main.has-player .watch-sidebar{ margin-top: 0; }
+    }
+
+    /* sticky wrapper (desktop only: video + meta stick together while
+       sidebar scrolls) — offset matches this page's own sticky
+       .site-header height, same way video.html's offset matches its own
+       header. */
+    .watch-sticky{ }
+    @media (min-width: 1000px){
+      .watch-sticky{
+        position: sticky;
+        top: 84px;
+        align-self: start;
+      }
+    }
+
+    /* player: on mobile it plays inline in normal document flow at the top of the page */
+    #player-dock{
+      display: none;
+      z-index: 3;
+      background: #000;
+      border-radius: 0;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    #player-dock.active{ display:block; }
+
+    /* mobile sticky mini-player: when the playing video scrolls out from the
+       top of the viewport, it docks under this page's sticky header. */
+    #player-dock.docked{
+      position: fixed;
+      top: 62px;
+      left: 0;
+      right: 0;
+      width: 100%;
+      z-index: 60;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+    }
+    .dock-close{
+      position:absolute;
+      top: 6px;
+      right: 6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      z-index: 5;
+      padding: 0;
+    }
+    .dock-close svg{ width:13px; height:13px; }
+    /* Plyr adds .plyr--hide-controls while idle; only show our close button
+       alongside Plyr's own controls (i.e. when that class is absent). */
+    #player-dock.docked:not(.hide-controls) .dock-close{ display:flex; }
+
+    .player-frame{
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      background:#000;
+      display:flex;
+      justify-content:center;
+    }
+    .player-frame video, .player-frame .plyr{
+      width: 100%;
+      height: 100%;
+    }
+    .plyr{
+      --plyr-color-main: var(--amber);
+    }
+
+    /* meta block under player */
+    .player-meta{
+      padding: 18px 2px 0;
+    }
+    #player-dock:not(.active) ~ .player-meta{ display: none; }
+    .player-title{
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 14px;
+      line-height: 1.3;
+    }
+    .channel-row{
+      display:flex;
+      align-items:center;
+      gap: 12px;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .channel-avatar{
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--amber);
+      color:#fff;
+      font-family: var(--font-display);
+      font-size: 15px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+    .channel-name{
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .channel-count{
+      font-size: 12.5px;
+      color: var(--muted);
+      margin: 2px 0 0;
+    }
+    .player-desc{
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--muted);
+      max-width: 720px;
+    }
+    .player-desc.hidden{ display:none; }
+    .player-desc .readmore-btn{
+      background:none;border:none;color: var(--amber);
+      font-size: 13.5px; font-weight:700; cursor:pointer; padding:0; margin-left:4px;
+      font-family:inherit;
+    }
+
+    .empty-player{
+      display:none;
+      align-items:center;
+      justify-content:center;
+      aspect-ratio: 16/9;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .empty-player.show{ display:flex; }
+
+    /* ---------- grid / sidebar list (shared component) ---------- */
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 22px 18px;
+    }
+    @media (min-width: 1000px) and (max-width: 2200px){
+      .grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    .card{
+      cursor:pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 0;
+      overflow:hidden;
+      transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+      -webkit-animation: fadeUp 0.4s ease both;
+      animation: fadeUp 0.4s ease both;
+    }
+    .card:hover{
+      border-color: var(--amber-dim);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+    }
+    .card.playing{ border-color: var(--amber); }
+
+    @keyframes fadeUp{
+      from{ opacity:0; transform: translateY(12px); }
+      to{ opacity:1; transform: translateY(0); }
+    }
+
+    /* thumbnail: Bunny Stream's pre-generated thumbnail.jpg, lazy-loaded
+       natively via <img>. */
+    .thumb{
+      position:relative;
+      aspect-ratio: 16/9;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+    .thumb img.thumb-img{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      pointer-events:none;
+      transition: transform .4s ease;
+    }
+    .card:hover .thumb img.thumb-img{ transform: scale(1.05); }
+
+    .thumb::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background: linear-gradient(to top, rgba(22,20,18,0.7) 0%, rgba(22,20,18,0.15) 55%, transparent 100%);
+      pointer-events:none;
+      z-index:1;
+    }
+
+    .thumb .play-ico{
+      position:absolute;
+      top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      width: 42px; height:42px;
+      border-radius:50%;
+      border: 1.5px solid rgba(255,255,255,0.55);
+      background: rgba(0,0,0,0.45);
+      display:flex;align-items:center;justify-content:center;
+      transition: border-color .2s ease, transform .2s ease;
+      flex-shrink:0;
+      z-index:2;
+    }
+    .thumb .play-ico svg{ width:14px; height:14px; margin-left:2px; fill:#fff; }
+    .card:hover .play-ico{ border-color: var(--amber); transform: translate(-50%,-50%) scale(1.08); }
+
+    .card-body{
+      padding: 12px 12px 14px;
+      display:flex;
+      gap: 10px;
+    }
+    .card-title{
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.3;
+      margin: 0;
+      color: var(--text);
+    }
+
+    /* desktop sidebar: cards become a horizontal list (only once a video is
+       playing — gated behind .has-player, same as video.html). */
+    @media (min-width: 1000px){
+      .has-player .watch-sidebar .grid{
+        display:flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .has-player .watch-sidebar .card{
+        display:flex;
+        flex-direction:row;
+        gap: 10px;
+        background: transparent;
+        border: none;
+      }
+      .has-player .watch-sidebar .card:hover{ transform:none; border-color: transparent; background: var(--surface); box-shadow:none; }
+      .has-player .watch-sidebar .card.playing{ background: var(--surface); border-color: transparent; }
+      .has-player .watch-sidebar .thumb{
+        width: 168px;
+        flex-shrink: 0;
+      }
+      .has-player .watch-sidebar .thumb .play-ico{ width:32px; height:32px; }
+      .has-player .watch-sidebar .thumb .play-ico svg{ width:11px; height:11px; }
+      .has-player .watch-sidebar .card-body{
+        padding: 2px 4px;
+        flex: 1;
+        min-width: 0;
+      }
+      .has-player .watch-sidebar .card-title{
+        font-size: 12.5px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+    }
+
+    button:focus-visible, .card:focus-visible, a:focus-visible{
+      outline: 2px solid var(--amber);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      #player-dock, .card, .thumb video{ transition: none !important; animation: none !important; }
+    }
+
+    @media (max-width: 600px){
+      .watch-layout{ padding: 16px; }
+      .grid{ grid-template-columns: 1fr; margin: 0 -16px; }
+      .grid .card{ border-left: none; border-right: none; }
+    }
+  </style>
+</head>
+<body class="chanel">
+
+<!-- ═══════════════════════════════════════════════════════════
+     CONFIGURATION — edit these values
+═══════════════════════════════════════════════════════════ -->
+<script>
+  /* ── Site password ──────────────────────────────────────── */
+  const SITE_PASSWORD = "1234";
+
+  /* ── Page title shown in the header & browser tab ──────── */
+  const SITE_TITLE = "Exclusive";
+
+  /* ── Videos ───────────────────────────────────────────────
+     url:         direct video URL (mp4, mov, etc.)
+     title:       shown below the card and in the player
+     description: optional subtitle shown under the player
+  ─────────────────────────────────────────────────────────── */
+  const VIDEOS = [
+    {
+      title: "31 Le Rouge Masterclass",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/7353947c-2551-4a56-b8e4-4079822e038d/play_720p.mp4",
+      description: "Exclusive Chanel masterclass covering 31 Le Rouge — a private training film produced for internal use, capturing the craft and detail behind the collection.",
+    },
+    {
+      title: "Academy Novelty",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/d85f5329-01ec-4bbd-a852-1f6f647b5b4a/play_720p.mp4",
+      description: "Exclusive Chanel Academy session introducing the latest novelty, presented by Soukaina for internal training and brand education.",
+    },
+    {
+      title: "Beaut Seminar",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/10214005-2dad-43c5-a972-e0998ea874a3/play_720p.mp4",
+      description: "Exclusive recap of the 2023 Chanel Beauté seminar — an internal record of the sessions, presenters, and key training moments.",
+    },
+    {
+      title: "Bootcamp Highlights",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/e220c8d1-6f5f-44aa-ae04-bc8ac5cba71e/play_720p.mp4",
+      description: "Exclusive highlight reel from the Chanel bootcamp — a condensed look at the training program's most memorable moments.",
+    },
+    {
+      title: "Christmas Training",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/7336ccff-f888-4767-a10a-f24a5f2cc115/play_720p.mp4",
+      description: "Exclusive Chanel training film built around the Christmas collection, produced for internal briefing and team preparation.",
+    },
+    {
+      title: "Client Experience Manager",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/9b01be80-8097-46a1-8fa4-da7c6a8f7044/play_720p.mp4",
+      description: "Exclusive Chanel feature on the Client Experience Manager role, with Jenny walking through the responsibilities and standards behind the position.",
+    },
+    {
+      title: "COC Getaway",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/471f7302-9ae8-4451-a407-14087a797be8/play_720p.mp4",
+      description: "Exclusive recap film of the Chanel COC Getaway — an internal record of the retreat's highlights and team moments.",
+    },
+    {
+      title: "Dubai Mall Podium",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/4282c62c-87be-41b8-b2b4-8dd1b2c8728e/play_720p.mp4",
+      description: "Exclusive coverage of the Chanel podium activation at Dubai Mall, capturing the installation and guest experience on site.",
+    },
+    {
+      title: "F&B Convention 2023",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/c09b280e-7b43-49cc-8ff6-210e48dd3f8e/play_720p.mp4",
+      description: "Exclusive session recording from the 2023 Chanel Fragrance & Beauty Convention, produced for internal reference.",
+    },
+    {
+      title: "F&B Convention Inspired by Coco S1",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/06ced5cd-3a52-4b84-b500-35cf2c9a3c81/play_720p.mp4",
+      description: "Exclusive session from the Chanel Fragrance & Beauty Convention themed 'Inspired by Coco', part one of the internal training series.",
+    },
+    {
+      title: "F&B Convention Inspired by Coco S2",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/0cff863a-1a5d-49d9-a1e4-0a6250ae9c3d/play_720p.mp4",
+      description: "Exclusive session from the Chanel Fragrance & Beauty Convention themed 'Inspired by Coco', part two of the internal training series.",
+    },
+    {
+      title: "F&B Convention Inspired by Coco Session 1",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/cf1853b8-0161-4a1f-a76e-011707432cba/play_720p.mp4",
+      description: "Exclusive final cut of Session 1 from the 'Inspired by Coco' Chanel Fragrance & Beauty Convention, produced for internal distribution.",
+    },
+    {
+      title: "Fascia Seminar",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ce069e04-097d-4eb3-a044-87ca468975fe/play_720p.mp4",
+      description: "Exclusive recording of the Chanel Fascia seminar, documenting the training content for internal use.",
+    },
+    {
+      title: "Fashion Days",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/094193bc-f631-4c68-a769-9cb488abd19f/play_720p.mp4",
+      description: "Exclusive recap of Chanel Fashion Days, revised June 2023 — an internal record of the event's presentations and highlights.",
+    },
+    {
+      title: "FB Convention S2",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/55f1ed1d-1adc-4b62-b381-66cecfc1cc57/play_720p.mp4",
+      description: "Exclusive Session 2 recording from a Chanel Fragrance & Beauty Convention, produced for internal reference.",
+    },
+    {
+      title: "FB Convention S3",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/be740e4f-9641-487f-a1dd-9f8fb4010651/play_720p.mp4",
+      description: "Exclusive Session 3 recording from a Chanel Fragrance & Beauty Convention, produced for internal reference.",
+    },
+    {
+      title: "FB Convention S4",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/595328a5-5f23-4af9-a4ac-77d05b92f41c/play_720p.mp4",
+      description: "Exclusive Session 4 recording from a Chanel Fragrance & Beauty Convention, produced for internal reference.",
+    },
+    {
+      title: "InChanel Launch",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/85e61a8a-ba49-4415-b28b-aac02a0c74d1/play_720p.mp4",
+      description: "Exclusive final cut of the InChanel platform launch film, produced for internal rollout and team briefing.",
+    },
+    {
+      title: "Les Beiges Academy",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/c0cdbf9f-df86-4f96-83e9-bf35cfb14a16/play_720p.mp4",
+      description: "Exclusive Chanel Academy training session dedicated to Les Beiges, covering technique and product knowledge for internal use.",
+    },
+    {
+      title: "Lesage Savoir-Faire",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/a1b96263-61ba-4988-8be6-9ca3515f5268/play_720p.mp4",
+      description: "Exclusive feature on Lesage savoir-faire, showcasing the maison's embroidery craftsmanship for internal Chanel audiences.",
+    },
+    {
+      title: "Message Mode",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/87c077c3-b901-4c67-acc4-3f7c349e094f/play_720p.mp4",
+      description: "Exclusive Chanel internal film on Message Mode, produced for team briefing and brand communication training.",
+    },
+    {
+      title: "No.1 Podiums",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/9ebdc68f-02bc-4115-bdd5-3c615f7add11/play_720p.mp4",
+      description: "Exclusive coverage of the Chanel No.1 podium activations, capturing the installation and in-store experience.",
+    },
+    {
+      title: "PR Recap 2025",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ae2d0a50-073f-4d6b-abf6-03316dcf771c/play_720p.mp4",
+      description: "Exclusive final recap of Chanel PR activity for 2025, compiled for internal review of the year's coverage and events.",
+    },
+    {
+      title: "Skin Care Experts",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ba8bd121-1f47-4ddc-b904-7453da5deda7/play_720p.mp4",
+      description: "Exclusive Chanel training film on skin care expertise, presented by Muriel for internal team education.",
+    },
+    {
+      title: "Skin Care Experts",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/0f91b657-80d8-4f3a-ab66-e55138025933/play_720p.mp4",
+      description: "Exclusive Chanel training film on skin care expertise, presented by Muriel for internal team education.",
+    },
+    {
+      title: "TR Highlights 2021",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/1d6b9dd2-32b1-429d-8601-1b4cf903f98f/play_720p.mp4",
+      description: "Exclusive short highlight reel from Chanel Travel Retail 2021, produced for internal review of the year's key moments.",
+    },
+    {
+      title: "TR Learning Event 2024",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/b9de969b-2414-4b1b-86a1-97a57f4b5336/play_720p.mp4",
+      description: "Exclusive final cut of the Chanel Travel Retail Learning Event 2024, produced for internal training and reference.",
+    },
+    {
+      title: "TR LS 2024",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/63d13e5a-469b-4df1-be3d-67345f139807/play_720p.mp4",
+      description: "Exclusive revised recording from the Chanel Travel Retail LS 2024 session, produced for internal distribution.",
+    },
+    {
+      title: "Travel Retail Kick Off Iftar",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/754037bf-5991-476b-82f4-36bc7a4db27b/play_720p.mp4",
+      description: "Exclusive coverage of the Chanel Travel Retail Kick Off Iftar event, capturing the gathering for internal record.",
+    },
+    {
+      title: "VIP Client Dinner",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/9984cf61-d23a-41ae-8774-be101e044b76/play_720p.mp4",
+      description: "Exclusive coverage of a Chanel VIP client dinner, produced as an internal record of the evening's proceedings.",
+    },
+    {
+      title: "360 Atelier",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/98555c73-b0d8-4c1d-861f-08c80fd59c39/play_720p.mp4",
+      description: "Exclusive 360-degree look inside the Chanel atelier, produced for internal training and brand education.",
+    },
+    {
+      title: "CCM Intro",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/cf1a23cb-8666-44c4-8f5e-e00792f8595e/play_720p.mp4",
+      description: "Exclusive introduction segment from a Chanel CCM session recorded July 8, produced for internal reference.",
+    },
+    {
+      title: "CCM – Muriel",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/83f060f0-9813-41aa-8e18-335e796c3f0e/play_720p.mp4",
+      description: "Exclusive Chanel CCM session segment presented by Muriel, recorded July 8 for internal reference.",
+    },
+    {
+      title: "CCM – Criz Game",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/2d8213e0-185c-4c5c-9046-7e86e0b1c528/play_720p.mp4",
+      description: "Exclusive Chanel CCM session segment covering the Criz game activity, recorded July 8 for internal reference.",
+    },
+    {
+      title: "CCM – Tanya",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/a0629a68-b5f8-4112-90f4-02e64022f798/play_720p.mp4",
+      description: "Exclusive Chanel CCM session segment presented by Tanya, an audio-corrected re-export produced for internal reference.",
+    },
+    {
+      title: "Beauty Recap 2026",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/0302c021-2aad-4de1-9323-08de8c128663/play_720p.mp4",
+      description: "Exclusive recap film of Chanel Beauté activity for 2026, produced for internal review of the year's coverage.",
+    },
+    {
+      title: "F&B Convention Oman",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ab54eb4a-b3d4-47e7-82bf-2e4096c68246/play_720p.mp4",
+      description: "Exclusive session recording from the Chanel Fragrance & Beauty Convention in Oman, produced for internal reference.",
+    },
+    {
+      title: "Makeup Seminar (Criz & Khaled)",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/c34f31ab-c391-499f-a7ab-53dd41dd6285/play_720p.mp4",
+      description: "Exclusive recording of the Chanel makeup seminar held May 14–15, presented by Criz and Khaled for internal training.",
+    },
+    {
+      title: "Skin Care Seminar",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/2ecfd02b-5c92-41a1-a1b1-8a0e0c027e1a/play_720p.mp4",
+      description: "Exclusive recording of a Chanel skin care seminar, documenting the training content for internal use.",
+    },
+    {
+      title: "Christmas Tree – AUH Airport",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/cf03d64a-29aa-4b40-b1bb-55fe0680f0c5/play_720p.mp4",
+      description: "Exclusive coverage of the Chanel Christmas tree installation at Abu Dhabi Airport, captured for internal record.",
+    },
+    {
+      title: "Boutique Org 2026 (Part 1)",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/88a9b770-ebfe-4f8c-955a-22e56fd69290/play_720p.mp4",
+      description: "Exclusive Chanel boutique organization film for 2026, part one, produced for internal training and reference.",
+    },
+    {
+      title: "Boutique Org 2026 (Part 2)",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/af0bd695-f12c-4329-bc5b-1ee53620d75e/play_720p.mp4",
+      description: "Exclusive Chanel boutique organization film for 2026, part two, produced for internal training and reference.",
+    },
+    {
+      title: "Doha Winter Tale",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/ca31bf9f-9664-4dc1-8431-752eb6800b89/play_720p.mp4",
+      description: "Exclusive Chanel \"Winter Tale\" event coverage from Doha, Qatar, captured as an internal record of the activation.",
+    },
+    {
+      title: "Training Manager",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/a3ff30d7-1b08-48dd-8afe-806e57e48d4f/play_720p.mp4",
+      description: "Exclusive Chanel internal film introducing the Training Manager role, produced for internal briefing.",
+    },
+    {
+      title: "Galleria Mall Boutique Reopening",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/4db302fa-e617-4a1d-acad-9cdcddb18577/play_720p.mp4",
+      description: "Exclusive coverage of the Chanel Fragrance & Beauty boutique reopening at The Galleria Mall, captured as an internal record of the event.",
+    },
+    {
+      title: "Overview Reel",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/10ddc9fd-dbe1-41c5-87fe-332fd8f1ff76/play_480p.mp4",
+      description: "Exclusive Chanel overview reel, produced for internal reference.",
+    },
+    {
+      title: "Academy Session",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/a0c5fb2f-51b4-40a1-92ca-4b75b37bf19c/play_720p.mp4",
+      description: "Exclusive Chanel Academy training session, produced for internal reference.",
+    },
+    {
+      title: "Academy Makeup Tutorial",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/90bcb098-5bfc-43ed-a8ec-6a52b09edf3c/play_720p.mp4",
+      description: "Exclusive Chanel Academy makeup tutorial, produced for internal training.",
+    },
+    {
+      title: "Academy Session – Jenny",
+      url: "https://vz-00d6bbee-dbe.b-cdn.net/d92f8100-17cc-4b31-8456-ac635ebc62ac/play_720p.mp4",
+      description: "Exclusive Chanel Academy session presented by Jenny, produced for internal training.",
+    },
+  ];
+</script>
+<!-- ═══════════════════════════════════════════════════════════ -->
+
+
+<!-- Lock Screen -->
+<div class="screen active" id="lock-screen">
+  <div class="lock-card">
+
+    <div class="lock-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+           viewBox="0 0 24 24">
+        <rect width="18" height="11" x="3" y="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+
+    <div>
+      <div class="lock-title" id="lock-title">Exclusive</div>
+      <div class="lock-subtitle">Enter password to access the collection</div>
+    </div>
+
+    <form class="lock-form" id="lock-form" autocomplete="off" novalidate>
+      <div class="field-wrap">
+        <input type="password" id="password-input" placeholder="Password"
+               autocomplete="current-password" autofocus />
+      </div>
+      <button type="submit" class="btn-primary" id="unlock-btn">Unlock</button>
+      <div class="error-msg" id="error-msg">Incorrect password. Try again.</div>
+    </form>
+
+  </div>
+</div>
+
+<!-- Gallery Screen -->
+<div class="screen" id="gallery-screen">
+
+  <header class="site-header">
+    <span class="site-name" id="header-title">Exclusive</span>
+    <div class="nav-search" id="nav-search">
+      <input type="text" id="nav-search-input" placeholder="Search videos" aria-label="Search videos" />
+      <button type="button" class="nav-search-toggle" id="nav-search-toggle" aria-label="Toggle search">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
+    <button class="lock-btn" id="lock-btn" title="Home">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+           viewBox="0 0 24 24">
+        <path d="M3 11.5 12 4l9 7.5"/>
+        <path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9.5"/>
+      </svg>
+      Home
+    </button>
+  </header>
+
+  <div class="watch-layout">
+    <div class="watch-main">
+      <div class="watch-sticky">
+        <div id="dock-sentinel"></div>
+        <div id="player-dock">
+          <button type="button" class="dock-close" id="dock-close" aria-label="Close player">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <div class="player-frame">
+            <video id="dock-video" playsinline controls></video>
+          </div>
+        </div>
+        <div class="empty-player" id="empty-player">Select a video to play</div>
+
+        <div class="player-meta">
+          <p class="player-title" id="dock-title"></p>
+          <div class="channel-row">
+            <div class="channel-avatar" id="dock-badge"></div>
+            <div>
+              <p class="channel-name" id="channel-name"></p>
+              <p class="channel-count" id="channel-count"></p>
+            </div>
+          </div>
+          <p class="player-desc" id="dock-desc"></p>
+        </div>
+      </div>
+
+      <aside class="watch-sidebar">
+        <div class="grid" id="grid"></div>
+      </aside>
+    </div>
+  </div>
+
+</div>
+
+
+<script>
+  /* ── Apply config ─────────────────────────────────────────── */
+  document.title = SITE_TITLE;
+  document.getElementById('lock-title').textContent = SITE_TITLE;
+  document.getElementById('header-title').textContent = SITE_TITLE;
+  document.getElementById('dock-badge').textContent = SITE_TITLE.charAt(0);
+  document.getElementById('channel-name').textContent = SITE_TITLE;
+  document.getElementById('channel-count').textContent = VIDEOS.length + ' videos';
+
+  /* ── Session (sessionStorage so it resets when tab closes) ── */
+  const SESSION_KEY = '__screening_room_auth__';
+
+  function isUnlocked() {
+    try { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+    catch (e) { return false; }
+  }
+
+  function setUnlocked(val) {
+    try {
+      if (val) sessionStorage.setItem(SESSION_KEY, '1');
+      else sessionStorage.removeItem(SESSION_KEY);
+    } catch (e) { /* Safari private mode */ }
+  }
+
+  /* ── Screen transitions ───────────────────────────────────── */
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(el) {
+      el.classList.remove('active');
+    });
+    var target = document.getElementById(id);
+    if (target) target.classList.add('active');
+  }
+
+  /* ── Watch-style player state (same behavior as video.html) ── */
+  const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
+  let player = null;
+  let hls = null;
+  let currentUrl = null;
+  let searchQuery = '';
+
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function truncate(str, n) {
+    if (str.length <= n) return { short: str, needsMore: false };
+    var cut = str.slice(0, n);
+    cut = cut.slice(0, cut.lastIndexOf(' '));
+    return { short: cut + '…', needsMore: true };
+  }
+
+  /* Every row here is hosted on Bunny Stream, which pre-generates a
+     thumbnail.jpg per video — a plain lazy-loaded <img> replaces the old
+     video-frame technique. */
+  function thumbUrl(v) {
+    var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(v.url);
+    return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/thumbnail.jpg' : '';
+  }
+
+  /* Bunny also auto-generates a short animated preview.webp per video
+     (same guid, alongside thumbnail.jpg) — wires that into a hover
+     effect. Gated to devices that actually support hover (a touch tap
+     can fire a synthetic mouseenter right before navigating away,
+     wasting a multi-MB download on exactly the connections where it
+     matters most), never preloaded, and only committed after a
+     throwaway Image() finishes loading and the mouse is still over the
+     card. */
+  var supportsHoverPreview = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  function wireHoverPreview(imgEl) {
+    if (!supportsHoverPreview) return;
+    var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(imgEl.src);
+    if (!m) return;
+
+    var staticSrc = imgEl.src;
+    var previewSrc = 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/preview.webp';
+    var hovering = false;
+    var preview = null;
+
+    // The thumbnail <img> itself is pointer-events:none (so clicks pass
+    // through to the card underneath) — it never receives mouseenter at
+    // all, so the listener has to live on the actual hoverable container.
+    var container = imgEl.closest('.thumb') || imgEl.parentElement;
+    container.addEventListener('mouseenter', function() {
+      hovering = true;
+      if (preview) { imgEl.src = previewSrc; return; }
+      preview = new Image();
+      preview.onload = function() { if (hovering) imgEl.src = previewSrc; };
+      preview.src = previewSrc;
+    });
+    container.addEventListener('mouseleave', function() {
+      hovering = false;
+      imgEl.src = staticSrc;
+    });
+  }
+
+  /* ── Build the video grid ─────────────────────────────────── */
+  function currentList() {
+    if (!searchQuery) return VIDEOS;
+    return VIDEOS.filter(function(v) { return v.title.toLowerCase().indexOf(searchQuery) !== -1; });
+  }
+
+  function buildGallery() {
+    var grid = document.getElementById('grid');
+    grid.innerHTML = '';
+
+    var list = currentList();
+
+    if (!list.length) {
+      grid.innerHTML =
+        '<div class="empty-state">' +
+          '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24">' +
+            '<rect x="2" y="7" width="20" height="14" rx="2"/>' +
+            '<path d="M16 3l-4 4-4-4"/>' +
+          '</svg>' +
+          '<p>' + (VIDEOS.length ? 'No videos match your search.' : 'No videos yet.') + '</p>' +
+        '</div>';
+      return;
+    }
+
+    list.forEach(function(v) {
+      var card = document.createElement('div');
+      card.className = 'card' + (v.url === currentUrl ? ' playing' : '');
+      card.tabIndex = 0;
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', 'Play ' + v.title);
+
+      card.innerHTML =
+        '<div class="thumb">' +
+          '<img src="' + escapeHtml(thumbUrl(v)) + '" alt="" loading="lazy" class="thumb-img" />' +
+          '<div class="play-ico">' +
+            '<svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-body">' +
+          '<p class="card-title">' + escapeHtml(v.title) + '</p>' +
+        '</div>';
+
+      card.addEventListener('click', function() { selectVideo(v); });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectVideo(v); }
+      });
+      wireHoverPreview(card.querySelector('.thumb-img'));
+
+      grid.appendChild(card);
+    });
+  }
+
+  /* On mobile, selecting a video scrolls the (already inline, normal-flow)
+     player into view at the top instead of relying on the sticky/fixed
+     desktop behavior. Unlike video.html this doesn't reload the page —
+     a reload would trip the auto-lock-on-leave listener below and log the
+     user straight back out. */
+  function selectVideo(v) {
+    playVideo(v);
+    if (!isDesktop()) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  /* Every row on this page is Bunny-hosted, so every one also has an HLS
+     manifest at the same guid (different path than the play_720p.mp4
+     fallback stored in v.url) — that's what gets adaptive quality
+     switching, since a single MP4 is always one fixed resolution.
+     hls.js (self-hosted at assets/js/hls.light.min.js) handles it for
+     Chrome/Firefox/Edge; Safari plays HLS natively so it skips hls.js
+     entirely; anything without either support falls back to v.url. */
+  function toHlsUrl(url) {
+    var m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(url);
+    return m ? 'https://vz-00d6bbee-dbe.b-cdn.net/' + m[1] + '/playlist.m3u8' : null;
+  }
+
+  function loadSource(videoEl, v) {
+    if (hls) { hls.destroy(); hls = null; }
+
+    var hlsUrl = toHlsUrl(v.url);
+
+    if (hlsUrl && window.Hls && Hls.isSupported()) {
+      hls = new Hls();
+      hls.on(Hls.Events.ERROR, function(event, data) {
+        if (!data.fatal) return;
+        if (data.type === Hls.ErrorTypes.NETWORK_ERROR) hls.startLoad();
+        else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) hls.recoverMediaError();
+        else { hls.destroy(); hls = null; }
+      });
+      hls.loadSource(hlsUrl);
+      hls.attachMedia(videoEl);
+    } else if (hlsUrl && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+      videoEl.src = hlsUrl;
+      videoEl.load();
+    } else {
+      videoEl.src = v.url;
+      videoEl.load();
+    }
+  }
+
+  function playVideo(v) {
+    currentUrl = v.url;
+
+    var dock = document.getElementById('player-dock');
+    var videoEl = document.getElementById('dock-video');
+    var emptyPlayer = document.getElementById('empty-player');
+
+    document.querySelector('.watch-main').classList.add('has-player');
+    dock.classList.add('active');
+    emptyPlayer.classList.remove('show');
+
+    if (!player) {
+      player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
+      player.once('ready', function() {
+        var plyrEl = dock.querySelector('.plyr');
+        if (!plyrEl) return;
+        var sync = function() { dock.classList.toggle('hide-controls', plyrEl.classList.contains('plyr--hide-controls')); };
+        sync();
+        new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
+      });
+    }
+    loadSource(videoEl, v);
+    player.once('canplay', function() {
+      player.play().catch(function(err) { console.warn('Playback blocked:', err); });
+    });
+    player.once('error', function(e) {
+      console.error('Plyr/video error for', v.url, e);
+    });
+
+    document.getElementById('dock-title').textContent = v.title;
+
+    var descEl = document.getElementById('dock-desc');
+    if (v.description) {
+      descEl.classList.remove('hidden');
+      var t = truncate(v.description, 220);
+      if (t.needsMore) {
+        descEl.innerHTML = '<span id="dock-desc-text">' + escapeHtml(t.short) + '</span><button class="readmore-btn" id="dock-readmore">Read more</button>';
+        document.getElementById('dock-readmore').addEventListener('click', function() {
+          var textEl = document.getElementById('dock-desc-text');
+          if (this.textContent === 'Read more') {
+            textEl.textContent = v.description;
+            this.textContent = 'Read less';
+          } else {
+            textEl.textContent = t.short;
+            this.textContent = 'Read more';
+          }
+        });
+      } else {
+        descEl.textContent = v.description;
+      }
+    } else {
+      descEl.classList.add('hidden');
+      descEl.textContent = '';
+    }
+
+    buildGallery();
+  }
+
+  function closePlayer() {
+    currentUrl = null;
+    var dock = document.getElementById('player-dock');
+    if (player) { player.pause(); }
+    dock.classList.remove('active');
+    dock.classList.remove('docked');
+    document.querySelector('.watch-main').classList.remove('has-player');
+    buildGallery();
+  }
+
+  /* ── Mobile sticky mini-player: once the playing video scrolls out past
+     the top of the viewport, dock it as a small fixed player under the
+     header. Undocks automatically once scrolled back to its original spot. ── */
+  var dockObserver = null;
+  function initDockObserver() {
+    var dock = document.getElementById('player-dock');
+    var sentinel = document.getElementById('dock-sentinel');
+    if (!('IntersectionObserver' in window)) return;
+    if (!dockObserver) {
+      dockObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (isDesktop() || !dock.classList.contains('active')) {
+            dock.classList.remove('docked');
+            return;
+          }
+          dock.classList.toggle('docked', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+        });
+      }, { threshold: 0 });
+      dockObserver.observe(sentinel);
+    }
+  }
+
+  /* ── Lightbox close/open wiring is now the sticky player above ── */
+  document.getElementById('dock-close').addEventListener('click', function(e) {
+    e.stopPropagation();
+    closePlayer();
+  });
+
+  /* ── Auth ─────────────────────────────────────────────────── */
+  document.getElementById('lock-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var input = document.getElementById('password-input');
+    var err   = document.getElementById('error-msg');
+    var btn   = document.getElementById('unlock-btn');
+
+    if (input.value === SITE_PASSWORD) {
+      err.classList.remove('visible');
+      btn.disabled = true;
+      setUnlocked(true);
+      buildGallery();
+      initDockObserver();
+      showScreen('gallery-screen');
+    } else {
+      err.classList.add('visible');
+      input.value = '';
+      input.focus();
+      input.style.borderColor = '#e06060';
+      setTimeout(function() { input.style.borderColor = ''; }, 600);
+    }
+  });
+
+  var navSearch = document.getElementById('nav-search');
+  var navSearchInput = document.getElementById('nav-search-input');
+  var isMobileSearch = function() { return window.matchMedia('(max-width: 1000px)').matches; };
+
+  navSearchInput.addEventListener('input', function(e) {
+    searchQuery = e.target.value.trim().toLowerCase();
+    buildGallery();
+  });
+
+  document.getElementById('nav-search-toggle').addEventListener('click', function() {
+    if (!isMobileSearch()) { navSearchInput.focus(); return; }
+    if (!navSearch.classList.contains('open')) {
+      navSearch.classList.add('open');
+      navSearchInput.focus();
+    } else {
+      navSearch.classList.remove('open');
+      navSearchInput.blur();
+    }
+  });
+
+  navSearchInput.addEventListener('blur', function() {
+    if (isMobileSearch() && !navSearchInput.value.trim()) navSearch.classList.remove('open');
+  });
+
+  navSearchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      navSearchInput.value = '';
+      searchQuery = '';
+      buildGallery();
+      if (isMobileSearch()) navSearch.classList.remove('open');
+      navSearchInput.blur();
+    }
+  });
+
+  document.getElementById('lock-btn').addEventListener('click', function() {
+    setUnlocked(false);
+    closePlayer();
+    window.location.href = (function() {
+      var params = new URLSearchParams(window.location.search);
+      return params.get('from') === 'works' ? 'index.html#news' : 'index.html';
+    })();
+  });
+
+  /* ── Auto-lock when leaving the page ─────────────────────── */
+  window.addEventListener('beforeunload', function() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  });
+  window.addEventListener('pagehide', function() {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.code !== 'Space' && e.key !== ' ') return;
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+    if (player && document.getElementById('player-dock').classList.contains('active')) {
+      e.preventDefault();
+      player.togglePlay();
+    }
+  });
+
+  /* ── Init ─────────────────────────────────────────────────── */
+  if (isUnlocked()) {
+    buildGallery();
+    initDockObserver();
+    showScreen('gallery-screen');
+  }
+</script>
+<!-- Plyr is only referenced from playVideo(), which runs on click, so it
+     never needs to block parsing. defer keeps it out of the critical path
+     while still guaranteeing it has executed before any user interaction. -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js" defer></script>
+<!-- hls.js, self-hosted (see toHlsUrl()/loadSource() above) — the "light"
+     build, since this site has no need for alternate-audio tracks,
+     subtitles, DRM, or the other features it strips out. Same
+     defer-until-needed reasoning as Plyr above. -->
+<script src="/assets/js/hls.light.min.js" defer></script>
+</body>
+</html>
