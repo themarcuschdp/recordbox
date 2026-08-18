@@ -1288,24 +1288,11 @@ function playVideo(v){
   dock.classList.add('active');
   emptyPlayer.classList.remove('show');
 
-  if (!player) {
-    player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
-    player.once('ready', () => {
-      const plyrEl = dock.querySelector('.plyr');
-      if (!plyrEl) return;
-      const sync = () => dock.classList.toggle('hide-controls', plyrEl.classList.contains('plyr--hide-controls'));
-      sync();
-      new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
-    });
-  }
-  loadSource(videoEl, v);
-  player.once('canplay', () => {
-    player.play().catch(err => console.warn('Playback blocked:', err));
-  });
-  player.once('error', (e) => {
-    console.error('Plyr/video error for', v.url, e);
-  });
-
+  // Set metadata before touching Plyr: on mobile, selectVideo()'s
+  // location.reload() means this can run before the deferred Plyr
+  // <script> has executed yet, and "Plyr is not defined" would otherwise
+  // abort the rest of this function — silently leaving the title and
+  // description blank — before it ever reaches these lines.
   document.getElementById('dock-title').textContent = v.title;
   document.getElementById('dock-badge').textContent = v.letter;
   document.getElementById('channel-name').textContent = v.category;
@@ -1336,7 +1323,35 @@ function playVideo(v){
     descEl.textContent = v.desc;
   }
 
+  setupPlayer(videoEl, dock, v);
+
   renderGrid();
+}
+
+function setupPlayer(videoEl, dock, v){
+  if (typeof Plyr === 'undefined') {
+    // Same race as above: retry once every deferred script has run and
+    // the page has fully loaded, instead of throwing.
+    window.addEventListener('load', () => setupPlayer(videoEl, dock, v), { once: true });
+    return;
+  }
+  if (!player) {
+    player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
+    player.once('ready', () => {
+      const plyrEl = dock.querySelector('.plyr');
+      if (!plyrEl) return;
+      const sync = () => dock.classList.toggle('hide-controls', plyrEl.classList.contains('plyr--hide-controls'));
+      sync();
+      new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+  loadSource(videoEl, v);
+  player.once('canplay', () => {
+    player.play().catch(err => console.warn('Playback blocked:', err));
+  });
+  player.once('error', (e) => {
+    console.error('Plyr/video error for', v.url, e);
+  });
 }
 
 function closePlayer(){
