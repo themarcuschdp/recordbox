@@ -53,6 +53,11 @@ browsers/edge will keep serving the stale version for a year.
    says otherwise — other open PRs may be unfinished/untested work from a
    different session. If asked to "merge all," flag anything that isn't
    yours before doing it.
+6. **When telling the user about a PR, always name the branch**, not just
+   the PR number — e.g. "PR #40 (`add-claude-md`): https://..." rather than
+   just "PR #40". The user cross-references work against Cloudflare Pages'
+   deploy list, which is keyed by branch name, not PR number, so the number
+   alone isn't enough for them to find the right preview.
 
 ## Verifying changes before shipping
 
