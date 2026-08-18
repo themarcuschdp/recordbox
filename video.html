@@ -913,6 +913,23 @@
           </button>
         </div>
       </div>
+      <!-- Second CEO in Action occurrence, repeated 5 rows further down
+           the grid — see repositionCeoShorts(), which places both. -->
+      <div class="ceo-shorts" id="ceo-shorts-2" style="display:none;">
+        <div class="ceo-shorts-header">
+          <img src="/assets/images/favicon-32x32.png" alt="" />
+          <span>CEO in Action</span>
+        </div>
+        <div class="ceo-shorts-wrap">
+          <button type="button" class="shorts-arrow prev" id="shorts-prev-2" aria-label="Scroll left">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <div class="ceo-shorts-row" id="ceo-shorts-row-2"></div>
+          <button type="button" class="shorts-arrow next" id="shorts-next-2" aria-label="Scroll right">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
+        </div>
+      </div>
       <div class="grid" id="grid"></div>
       <div class="empty-state" id="empty-state" style="display:none;">No videos in this category yet.</div>
     </aside>
@@ -1165,6 +1182,7 @@ function renderGrid(){
   const grid = document.getElementById('grid');
   const emptyState = document.getElementById('empty-state');
   const ceoShorts = document.getElementById('ceo-shorts');
+  const ceoShorts2 = document.getElementById('ceo-shorts-2');
   grid.innerHTML = '';
 
   const list = currentList();
@@ -1204,37 +1222,41 @@ function renderGrid(){
     grid.appendChild(card);
   });
 
-  // Passing the reference grabbed above the innerHTML wipe (not letting
-  // repositionCeoShorts() re-query it) matters here: once grid.innerHTML
-  // ran, ceo-shorts (if it was already inside #grid from a previous
-  // render) is disconnected from the document, and a fresh
-  // document.getElementById('ceo-shorts') can no longer find it —
-  // getElementById only searches the connected tree. Grabbing it first
-  // keeps a live reference across the wipe regardless.
-  repositionCeoShorts(ceoShorts);
+  // Passing the references grabbed above the innerHTML wipe (not letting
+  // repositionCeoShorts() re-query them) matters here: once grid.innerHTML
+  // ran, ceo-shorts/ceo-shorts-2 (if they were already inside #grid from
+  // a previous render) are disconnected from the document, and a fresh
+  // document.getElementById(...) can no longer find them — getElementById
+  // only searches the connected tree. Grabbing them first keeps live
+  // references across the wipe regardless.
+  repositionCeoShorts(ceoShorts, ceoShorts2);
 }
 
-/* CEO IN ACTION belongs after row 2 specifically — so it doesn't read
-   as if the whole catalog is CEO content, but also doesn't drift onto
-   the wrong row on mobile's single-column grid, which a hardcoded card
-   count would do. Reads the grid's actual computed column count (1 on
-   mobile, 3 in the 1000-2200px range, whatever auto-fill produces
-   outside that) so "after two rows" is exact at every breakpoint, not
-   just the one it happened to be tested at. Re-run on resize too (called
-   with no argument there — see below for why that's fine), since
-   crossing the mobile/desktop breakpoint changes the column count
-   without necessarily triggering a category-switch re-render. */
-function repositionCeoShorts(ceoShorts){
+/* CEO IN ACTION belongs after row 2, then repeats once more after row 7
+   (5 rows later) — so it doesn't read as if the whole catalog is CEO
+   content, but also doesn't drift onto the wrong row on mobile's
+   single-column grid, which a hardcoded card count would do. Reads the
+   grid's actual computed column count (1 on mobile, 3 in the
+   1000-2200px range, whatever auto-fill produces outside that) so "after
+   N rows" is exact at every breakpoint, not just the one it happened to
+   be tested at. Re-run on resize too (called with no arguments there —
+   see below for why that's fine), since crossing the mobile/desktop
+   breakpoint changes the column count without necessarily triggering a
+   category-switch re-render. */
+function repositionCeoShorts(ceoShorts, ceoShorts2){
   const grid = document.getElementById('grid');
-  // Only the renderGrid() caller needs to pass an explicit reference
+  // Only the renderGrid() caller needs to pass explicit references
   // (grabbed before its innerHTML wipe, per above). The resize handler
-  // calls this with no argument and no wipe has happened, so ceo-shorts
-  // is still connected and a plain lookup is fine.
+  // calls this with no arguments and no wipe has happened, so both panels
+  // are still connected and a plain lookup is fine.
   if (!ceoShorts) ceoShorts = document.getElementById('ceo-shorts');
-  const cards = Array.from(grid.children).filter(el => el !== ceoShorts);
+  if (!ceoShorts2) ceoShorts2 = document.getElementById('ceo-shorts-2');
+  const cards = Array.from(grid.children).filter(el => el !== ceoShorts && el !== ceoShorts2);
   const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
   const afterIndex = Math.min(cols * 2, cards.length);
+  const afterIndex2 = Math.min(cols * 7, cards.length);
   grid.insertBefore(ceoShorts, cards[afterIndex] || null);
+  grid.insertBefore(ceoShorts2, cards[afterIndex2] || null);
 }
 
 /* On mobile, selecting a video does a real page refresh so the chosen
@@ -1450,10 +1472,11 @@ function shortThumbUrl(v){
   return m ? `https://vz-00d6bbee-dbe.b-cdn.net/${m[1]}/thumbnail.jpg` : '';
 }
 
-function renderCeoShorts(){
-  const panel = document.getElementById('ceo-shorts');
-  const row = document.getElementById('ceo-shorts-row');
-  const shorts = VIDEOS.filter(v => v.vertical);
+// Fills one CEO-in-Action panel (there are two identical occurrences in
+// the grid — see repositionCeoShorts()) with the same shorts content.
+function fillCeoShortsPanel(panelId, rowId, shorts){
+  const panel = document.getElementById(panelId);
+  const row = document.getElementById(rowId);
   if (!shorts.length) { panel.style.display = 'none'; return; }
 
   panel.style.display = '';
@@ -1476,14 +1499,23 @@ function renderCeoShorts(){
   });
 }
 
-document.getElementById('shorts-prev').addEventListener('click', () => {
-  const row = document.getElementById('ceo-shorts-row');
-  row.scrollBy({ left: -row.clientWidth * 0.9, behavior: 'smooth' });
-});
-document.getElementById('shorts-next').addEventListener('click', () => {
-  const row = document.getElementById('ceo-shorts-row');
-  row.scrollBy({ left: row.clientWidth * 0.9, behavior: 'smooth' });
-});
+function renderCeoShorts(){
+  const shorts = VIDEOS.filter(v => v.vertical);
+  fillCeoShortsPanel('ceo-shorts', 'ceo-shorts-row', shorts);
+  fillCeoShortsPanel('ceo-shorts-2', 'ceo-shorts-row-2', shorts);
+}
+
+[['shorts-prev', 'shorts-next', 'ceo-shorts-row'], ['shorts-prev-2', 'shorts-next-2', 'ceo-shorts-row-2']]
+  .forEach(([prevId, nextId, rowId]) => {
+    document.getElementById(prevId).addEventListener('click', () => {
+      const row = document.getElementById(rowId);
+      row.scrollBy({ left: -row.clientWidth * 0.9, behavior: 'smooth' });
+    });
+    document.getElementById(nextId).addEventListener('click', () => {
+      const row = document.getElementById(rowId);
+      row.scrollBy({ left: row.clientWidth * 0.9, behavior: 'smooth' });
+    });
+  });
 
 /* Separate player/hls instance from the main dock above — a 9:16 clip in
    the dock's 16:9-styled control bar would look wrong, so this is its
