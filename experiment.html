@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Watch — recordbox</title>
+<link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<link rel="icon" href="/assets/images/favicon-32x32.png" type="image/png" sizes="32x32" />
+<link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.plyr.io" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css?v=5">
+<link rel="stylesheet" href="assets/css/watch.css?v=1">
+<link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+<style>
+  /* This page reuses the design tokens (--bg, --surface, --amber, --font-display,
+     --font-body, etc.) defined in assets/css/watch.css (split out of style.css's
+     former "CHANEL PRIVATE PAGE STYLES" section) so the look stays in sync with
+     exclusive.html automatically. */
+
+  *{ box-sizing: border-box; }
+  html,body.watch{ margin:0; padding:0; }
+  body.watch{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,h2,h3{
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  a{ color: inherit; }
+  button{ font-family: inherit; }
+
+  /* ---------- top bar ---------- */
+  header.site-top{
+    position: sticky;
+    top: 0;
+    z-index: 70;
+    background: rgba(22,20,18,0.92);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-top-inner{
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display:flex;
+    align-items:center;
+    gap: 18px;
+    position: relative;
+  }
+
+  .hamburger{
+    appearance:none;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+    transition: background .15s ease;
+  }
+  .hamburger:hover, .hamburger.open{ background: var(--surface-2); }
+  .hamburger svg{ width:20px; height:20px; }
+
+  .brand{
+    font-family: var(--font-display);
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .brand span{ color: var(--amber); }
+  .brand-logo-img{ height: 40px; width: auto; display: block; flex-shrink: 0; }
+
+  .count-tag{
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  .back-btn{
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    flex-shrink: 0;
+  }
+  .back-btn:hover{ color: var(--text); border-color: var(--muted); }
+  .back-btn svg{ width:13px; height:13px; }
+
+  .nav-search{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0.5rem;
+    border:1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.45rem 0.9rem;
+    background: transparent;
+    flex-shrink: 1;
+    min-width: 0;
+    margin-right: 4px;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: width .25s ease, padding .25s ease;
+  }
+  .nav-search-toggle{
+    appearance:none;
+    border:none;
+    background:transparent;
+    padding:0;
+    margin:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .nav-search svg{ width:14px; height:14px; color: var(--muted); flex-shrink:0; pointer-events:none; }
+  .nav-search input{
+    appearance:none;
+    border:none;
+    outline:none;
+    background:transparent;
+    color:#fff;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    width: 140px;
+    min-width: 0;
+    white-space: nowrap;
+    transition: width .25s ease, opacity .2s ease;
+  }
+  .nav-search input::placeholder{ color: rgba(255,255,255,0.55); }
+  @media (max-width: 1000px){
+    .nav-search{
+      width: 36.84px;
+      padding: 0.45rem;
+      gap:0;
+    }
+    .nav-search input{
+      width: 0;
+      opacity: 0;
+    }
+    .nav-search.open{
+      position: absolute;
+      top: 50%;
+      left: 16px;
+      right: 16px;
+      transform: translateY(-50%);
+      height: auto;
+      width: auto;
+      padding: 0.45rem 0.9rem;
+      margin-right: 0;
+      background: rgba(22,20,18,0.98);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      z-index: 95;
+      gap: 0.6rem;
+    }
+    .nav-search.open input{
+      flex: 1;
+      width: auto;
+      opacity: 1;
+    }
+  }
+
+  /* desktop-only category buttons, placed after the logo — styled like
+     the .back-btn "Home" button above (same look, different position) */
+  .cat-nav-desktop{ display:none; }
+  @media (min-width: 1000px){
+    .hamburger{ display:none; }
+    .cat-nav-desktop{
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap: 8px;
+    }
+  }
+  .cat-nav-desktop .cat-btn{
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+    padding:0.45rem 0.85rem;
+    background:transparent;
+    border:1px solid var(--border);
+    border-radius:6px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size:0.8rem;
+    font-weight:700;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    text-decoration:none;
+    cursor:pointer;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  }
+  .cat-nav-desktop .cat-btn:hover{ color: var(--text); border-color: var(--muted); }
+  .cat-nav-desktop .cat-btn.active{ color:#fff; background: var(--amber); border-color: var(--amber); }
+  .cat-nav-desktop .cat-btn svg{ width:13px; height:13px; flex-shrink:0; }
+
+  /* category dropdown menu, opened via hamburger (mobile only) */
+  .cat-menu{
+    position:absolute;
+    top: calc(100% + 6px);
+    left: 24px;
+    z-index: 80;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    min-width: 200px;
+    padding: 6px;
+    display:none;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+  }
+  .cat-menu.open{ display:block; }
+  .cat-menu .tab{
+    width:100%;
+    text-align:left;
+    appearance:none;
+    border:none;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 12px;
+    cursor:pointer;
+    border-radius: 6px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    transition: color .15s ease, background .15s ease;
+  }
+  .cat-menu .tab:hover{ color: var(--text); background: rgba(255,255,255,0.04); }
+  .cat-menu .tab.active{ color:#fff; background: var(--amber); }
+  .cat-menu .tab .tab-count{ opacity:.7; font-weight:500; margin-left:8px; }
+
+  /* ---------- watch layout ----------
+     .watch-sidebar lives INSIDE .watch-main (not as its sibling) so that on
+     mobile .watch-main's height includes the full video grid, giving
+     .watch-sticky real scrollable room to actually stick within. On desktop,
+     .watch-main becomes the two-column grid, with .watch-sticky and
+     .watch-sidebar as its row items (grid stretches .watch-sticky's row to
+     match the taller sidebar, same effect). ---------- */
+  .watch-layout{
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 24px;
+    display: block;
+  }
+  .watch-main{ }
+  .watch-sidebar{ margin-top: 22px; }
+
+  @media (min-width: 1000px){
+    .watch-main.has-player{
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 380px;
+      gap: 28px;
+    }
+    .watch-main.has-player .watch-sidebar{ margin-top: 0; }
+  }
+
+  /* ---------- sticky wrapper (desktop only: video + meta stick together while
+     sidebar scrolls) ---------- */
+  .watch-sticky{ }
+  @media (min-width: 1000px){
+    .watch-sticky{
+      position: sticky;
+      top: 78px;
+      align-self: start;
+    }
+  }
+
+  /* ---------- player ----------
+     On mobile the video plays inline in normal document flow (not sticky/
+     fixed) at the top of the page. ---------- */
+  #player-dock{
+    display: none;
+    z-index: 3;
+    background: #000;
+    border-radius: 0;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  #player-dock.active{ display:block; }
+
+  /* ---------- mobile sticky mini-player ----------
+     When the playing video scrolls out from the top of the viewport on
+     mobile, it docks as a small fixed player under the sticky header. ---------- */
+  #player-dock.docked{
+    position: fixed;
+    top: 62px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 60;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.55);
+  }
+  .dock-close{
+    position:absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.55);
+    color: #fff;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index: 5;
+    padding: 0;
+  }
+  .dock-close svg{ width:13px; height:13px; }
+  /* Plyr adds .plyr--hide-controls while idle; only show our close button
+     alongside Plyr's own controls (i.e. when that class is absent). */
+  #player-dock.docked:not(.hide-controls) .dock-close{ display:flex; }
+
+  .player-frame{
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background:#000;
+    display:flex;
+    justify-content:center;
+  }
+  .player-frame video, .player-frame .plyr{
+    width: 100%;
+    height: 100%;
+  }
+  .plyr{
+    --plyr-color-main: var(--amber);
+  }
+
+
+  /* ---------- meta block under player ---------- */
+  .player-meta{
+    padding: 18px 2px 0;
+  }
+  #player-dock:not(.active) ~ .player-meta{ display: none; }
+  .player-title{
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 14px;
+    line-height: 1.3;
+  }
+  .channel-row{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .channel-row.clickable{
+    cursor: pointer;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    width: 100%;
+    font: inherit;
+    color: inherit;
+  }
+  .channel-row.clickable:hover .channel-name{ color: var(--amber); }
+  .channel-avatar{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--amber);
+    color:#fff;
+    font-family: var(--font-display);
+    font-size: 15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .channel-name{
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+  }
+  .channel-count{
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 2px 0 0;
+  }
+  .player-desc{
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 720px;
+  }
+  .player-desc .readmore-btn{
+    background:none;border:none;color: var(--amber);
+    font-size: 13.5px; font-weight:700; cursor:pointer; padding:0; margin-left:4px;
+    font-family:inherit;
+  }
+
+  .empty-player{
+    display:none;
+    align-items:center;
+    justify-content:center;
+    aspect-ratio: 16/9;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    font-size: 13px;
+    border-radius: 0;
+  }
+  .empty-player.show{ display:flex; }
+
+  /* ---------- badge (per-card letter avatar) ---------- */
+  .badge{
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--amber);
+    color: #fff;
+    font-family: var(--font-display);
+    font-size: 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+
+  /* ---------- grid / sidebar list (shared component) ---------- */
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 22px 18px;
+  }
+  @media (min-width: 1000px) and (max-width: 2200px){
+    .grid{ grid-template-columns: repeat(3, 1fr); }
+  }
+  .card{
+    cursor:pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 0;
+    overflow:hidden;
+    transition: border-color .2s ease, transform .2s ease, box-shadow .2s ease;
+    -webkit-animation: fadeUp 0.4s ease both;
+    animation: fadeUp 0.4s ease both;
+  }
+  .card:hover{
+    border-color: var(--amber-dim);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+  }
+  .card.playing{ border-color: var(--amber); }
+
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translateY(12px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* thumbnail: a muted, lazily-loaded video frame (same technique as chanel.html) */
+  .thumb{
+    position:relative;
+    aspect-ratio: 16/9;
+    background: var(--surface-2);
+    overflow: hidden;
+  }
+  .thumb video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    pointer-events:none;
+    opacity: 0;
+    transition: transform .4s ease, opacity .4s ease;
+  }
+  .thumb video.loaded{ opacity: 1; }
+  .card:hover .thumb video{ transform: scale(1.05); }
+
+  .thumb::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    background: linear-gradient(to top, rgba(22,20,18,0.7) 0%, rgba(22,20,18,0.15) 55%, transparent 100%);
+    pointer-events:none;
+    z-index:1;
+  }
+
+  .thumb .play-ico{
+    position:absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    width: 42px; height:42px;
+    border-radius:50%;
+    border: 1.5px solid rgba(255,255,255,0.55);
+    background: rgba(0,0,0,0.45);
+    display:flex;align-items:center;justify-content:center;
+    transition: border-color .2s ease, transform .2s ease;
+    flex-shrink:0;
+    z-index:2;
+  }
+  .thumb .play-ico svg{ width:14px; height:14px; margin-left:2px; fill:#fff; }
+  .card:hover .play-ico{ border-color: var(--amber); transform: translate(-50%,-50%) scale(1.08); }
+
+  .card-body{
+    padding: 12px 12px 14px;
+    display:flex;
+    gap: 10px;
+  }
+  .card-body .badge{ width:24px; height:24px; font-size:10.5px; }
+  .card-title{
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin: 0 0 4px;
+    color: var(--text);
+  }
+  .card-cat{
+    font-size: 10.5px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  /* desktop sidebar: cards become a horizontal list (only once a video is playing) */
+  @media (min-width: 1000px){
+    .has-player .watch-sidebar .grid{
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .has-player .watch-sidebar .card{
+      display:flex;
+      flex-direction:row;
+      gap: 10px;
+      background: transparent;
+      border: none;
+    }
+    .has-player .watch-sidebar .card:hover{ transform:none; border-color: transparent; background: var(--surface); box-shadow:none; }
+    .has-player .watch-sidebar .card.playing{ background: var(--surface); border-color: transparent; }
+    .has-player .watch-sidebar .thumb{
+      width: 168px;
+      flex-shrink: 0;
+      border-radius: 0;
+    }
+    .has-player .watch-sidebar .thumb .play-ico{ width:32px; height:32px; }
+    .has-player .watch-sidebar .thumb .play-ico svg{ width:11px; height:11px; }
+    .has-player .watch-sidebar .card-body{
+      padding: 2px 4px;
+      flex: 1;
+      min-width: 0;
+    }
+    .has-player .watch-sidebar .card-title{
+      font-size: 12.5px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  .empty-state{
+    text-align:center;
+    padding: 60px 20px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  /* focus visibility */
+  button:focus-visible, .card:focus-visible, a:focus-visible{
+    outline: 2px solid var(--amber);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+  }
+
+  @media (max-width: 600px){
+    .watch-layout{ padding: 16px; }
+    .site-top-inner{ padding: 12px 16px; gap: 10px; }
+    .brand-logo-img{ height: 30px; }
+    .nav-search{ flex-shrink: 0; }
+    .grid{ grid-template-columns: 1fr; margin: 0 -16px; }
+    .grid .card{ border-left: none; border-right: none; }
+  }
+</style>
+</head>
+<body class="watch">
+
+<header class="site-top">
+  <div class="site-top-inner">
+    <button class="hamburger" id="hamburger" aria-label="Browse categories" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <a href="index.html" class="brand"><img src="assets/images/site-logo.png" alt="recordbox" class="brand-logo-img" /></a>
+    <nav class="cat-nav-desktop" id="cat-nav-desktop" aria-label="Browse categories"></nav>
+    <div class="nav-search" id="nav-search" style="margin-left:auto;">
+      <input type="text" id="nav-search-input" placeholder="Search videos" aria-label="Search videos" />
+      <button type="button" class="nav-search-toggle" id="nav-search-toggle" aria-label="Toggle search">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </button>
+    </div>
+    <a href="index.html" class="back-btn">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 9.5V20a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9.5"/></svg>
+      Home
+    </a>
+
+    <nav class="cat-menu" id="cat-menu"></nav>
+  </div>
+</header>
+
+<div class="watch-layout">
+  <div class="watch-main">
+    <div class="watch-sticky">
+      <div id="dock-sentinel"></div>
+      <div id="player-dock">
+        <button type="button" class="dock-close" id="dock-close" aria-label="Close player">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="player-frame">
+          <video id="dock-video" playsinline controls></video>
+        </div>
+      </div>
+      <div class="empty-player" id="empty-player">Select a video to play</div>
+
+      <div class="player-meta">
+        <p class="player-title" id="dock-title"></p>
+        <button type="button" class="channel-row clickable" id="channel-row">
+          <div class="channel-avatar" id="dock-badge">C</div>
+          <div>
+            <p class="channel-name" id="channel-name">recordbox</p>
+            <p class="channel-count" id="channel-count"></p>
+          </div>
+        </button>
+        <p class="player-desc" id="dock-desc"></p>
+      </div>
+    </div>
+
+    <aside class="watch-sidebar">
+      <div class="grid" id="grid"></div>
+      <div class="empty-state" id="empty-state" style="display:none;">No videos in this category yet.</div>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+<script>
+const VIDEOS = [{"url": "https://media.recordbox.me/corporate/alfa-laval-year-end-party-2021-highlights.mp4", "category": "corporate", "letter": "C", "title": "Alfa Laval Year End Party 2021 Highlights", "desc": "Corporate highlight reel capturing Alfa Laval Year End Party 2021 Highlights for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/bambah-60-sec-arabic-subtitles.mp4", "category": "corporate", "letter": "C", "title": "Bambah 60 Sec Arabic Subtitles", "desc": "Corporate highlight reel capturing Bambah 60 Sec Arabic Subtitles for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/bambah-kids.mp4", "category": "corporate", "letter": "C", "title": "Bambah Kids", "desc": "Corporate highlight reel capturing Bambah Kids for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/dior-golden-bc-2018-highlights-2.mp4", "category": "corporate", "letter": "C", "title": "Dior Golden BC 2018 Highlights 2", "desc": "Corporate highlight reel capturing Dior Golden BC 2018 Highlights 2 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/dior-golden-bc-2018-highlights.mp4", "category": "corporate", "letter": "C", "title": "Dior Golden BC 2018 Highlights", "desc": "Corporate highlight reel capturing Dior Golden BC 2018 Highlights for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/dior-golden-stars-2020.mp4", "category": "corporate", "letter": "C", "title": "Dior Golden Stars 2020", "desc": "Corporate highlight reel capturing Dior Golden Stars 2020 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/dwc.mp4", "category": "corporate", "letter": "C", "title": "Dwc", "desc": "Corporate highlight reel capturing Dwc for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/eotf-guest-touch-points-interaction.mp4", "category": "corporate", "letter": "C", "title": "Eotf Guest Touch Points Interaction", "desc": "Corporate highlight reel capturing Eotf Guest Touch Points Interaction for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/fly-dubai.mp4", "category": "corporate", "letter": "C", "title": "Fly Dubai", "desc": "Corporate highlight reel capturing Fly Dubai for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/goverrnment-of-ras-al-kaimah.mp4", "category": "corporate", "letter": "C", "title": "Goverrnment Of Ras Al Kaimah", "desc": "Corporate highlight reel capturing Goverrnment Of Ras Al Kaimah for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/healthbay-yeah-end-event-2017.mp4", "category": "corporate", "letter": "C", "title": "Healthbay Year End Event 2017", "desc": "Corporate highlight reel capturing Healthbay Year End Event 2017 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/ica-gala-emirates-palace-abu-dhabi.mp4", "category": "corporate", "letter": "C", "title": "ICA Gala Emirates Palace Abu Dhabi", "desc": "Corporate highlight reel capturing ICA Gala Emirates Palace Abu Dhabi for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/linkmedia-family-day.mp4", "category": "corporate", "letter": "C", "title": "Linkmedia Family Day", "desc": "Corporate highlight reel capturing Linkmedia Family Day for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/made-2019-nikon-z6-by-paul-aggarao-z6.mp4", "category": "corporate", "letter": "C", "title": "Made 2019 Nikon Z6 By Paul Aggarao Z6", "desc": "Corporate highlight reel capturing Made 2019 Nikon Z6 By Paul Aggarao Z6 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/make-up-for-ever-hd-skin-video-fnl.mp4", "category": "corporate", "letter": "C", "title": "Make Up For Ever HD Skin Video FNL", "desc": "Corporate highlight reel capturing Make Up For Ever HD Skin Video FNL for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/makeup-forever-sephora.mp4", "category": "corporate", "letter": "C", "title": "Makeup Forever Sephora", "desc": "Corporate highlight reel capturing Makeup Forever Sephora for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/maxs-abc-quality-uae-horizontal-full-hd.mp4", "category": "corporate", "letter": "C", "title": "Maxs ABC Quality UAE Horizontal Full HD", "desc": "Corporate highlight reel capturing Maxs ABC Quality UAE Horizontal Full HD for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mc-donalds-opening.mp4", "category": "corporate", "letter": "C", "title": "Mc Donalds Opening", "desc": "Corporate highlight reel capturing Mc Donalds Opening for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdo-crocs-activation.mp4", "category": "corporate", "letter": "C", "title": "Mcdo Crocs Activation", "desc": "Corporate highlight reel capturing Mcdo Crocs Activation for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdo-madinat-zayed-grand-opening-v2-excite.mp4", "category": "corporate", "letter": "C", "title": "Mcdo Madinat Zayed Grand Opening V2 Excite", "desc": "Corporate highlight reel capturing Mcdo Madinat Zayed Grand Opening V2 Excite for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdo-nomination-for-dubai-airport-excellence-pc.mp4", "category": "corporate", "letter": "C", "title": "Mcdo Nomination For Dubai Airport Excellence PC", "desc": "Corporate highlight reel capturing Mcdo Nomination For Dubai Airport Excellence PC for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdonalds-30th-anniversary-bob-2024.mp4", "category": "corporate", "letter": "C", "title": "Mcdonalds 30th Anniversary Bob 2024", "desc": "Corporate highlight reel capturing Mcdonalds 30th Anniversary Bob 2024 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdonalds-al-ain-opening-highlights.mp4", "category": "corporate", "letter": "C", "title": "Mcdonalds Al Ain Opening Highlights", "desc": "Corporate highlight reel capturing Mcdonalds Al Ain Opening Highlights for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdonalds-bob-25th-anniv-2019.mp4", "category": "corporate", "letter": "C", "title": "Mcdonalds Bob 25th Anniv 2019", "desc": "Corporate highlight reel capturing Mcdonalds Bob 25th Anniv 2019 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdonalds-ronald-tv-bubble-soccer-rtv-s2e1.mp4", "category": "corporate", "letter": "C", "title": "Mcdonalds Ronald TV Bubble Soccer RTV S2E1", "desc": "Corporate highlight reel capturing Mcdonalds Ronald TV Bubble Soccer RTV S2E1 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mcdonalds-sports-city-highlights-video.mp4", "category": "corporate", "letter": "C", "title": "Mcdonalds Sports City Highlights Video", "desc": "Corporate highlight reel capturing Mcdonalds Sports City Highlights Video for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/meta2032-idl-highlights-video.mp4", "category": "corporate", "letter": "C", "title": "Meta2032 IDL Highlights Video", "desc": "Corporate highlight reel capturing Meta2032 IDL Highlights Video for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mma-fitness-center-full.mp4", "category": "corporate", "letter": "C", "title": "MMA Fitness Center Full", "desc": "Corporate highlight reel capturing MMA Fitness Center Full for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mma-fitness-centre-charity-fights.mp4", "category": "corporate", "letter": "C", "title": "MMA Fitness Centre Charity Fights", "desc": "Corporate highlight reel capturing MMA Fitness Centre Charity Fights for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mmi-angostura-cocktail-comp-2025.mp4", "category": "corporate", "letter": "C", "title": "Mmi Angostura Cocktail Comp 2025", "desc": "Corporate highlight reel capturing Mmi Angostura Cocktail Comp 2025 for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/mmi-nikka-comp-recordbox.mp4", "category": "corporate", "letter": "C", "title": "Mmi Nikka Comp Recordbox", "desc": "Corporate highlight reel capturing Mmi Nikka Comp Recordbox for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/novo-cinemas-promo.mp4", "category": "corporate", "letter": "C", "title": "Novo Cinemas Promo", "desc": "Corporate highlight reel capturing Novo Cinemas Promo for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/rakia-interview-videos.mp4", "category": "corporate", "letter": "C", "title": "Rakia Interview Videos", "desc": "Corporate highlight reel capturing Rakia Interview Videos for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/sephora-rouge-artist.mp4", "category": "corporate", "letter": "C", "title": "Sephora Rouge Artist", "desc": "Corporate highlight reel capturing Sephora Rouge Artist for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/transgulf-ready-mix-2018-highlights.mp4", "category": "corporate", "letter": "C", "title": "Transgulf Ready Mix 2018 Highlights", "desc": "Corporate highlight reel capturing Transgulf Ready Mix 2018 Highlights for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/transgulf-technopark.mp4", "category": "corporate", "letter": "C", "title": "Transgulf Technopark", "desc": "Corporate highlight reel capturing Transgulf Technopark for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/corporate/xfit-by-fitness-first.mp4", "category": "corporate", "letter": "C", "title": "Xfit By Fitness First", "desc": "Corporate highlight reel capturing Xfit By Fitness First for recordbox's event coverage — key moments, brand presence, and guest energy edited into a polished recap."}, {"url": "https://media.recordbox.me/personal/86-desert-cobra-clip.mp4", "category": "personal", "letter": "P", "title": "86 Desert Cobra Clip", "desc": "Behind-the-scenes personal project: 86 Desert Cobra Clip. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/desert-cobra-sandbox-films.mp4", "category": "personal", "letter": "P", "title": "Desert Cobra Sandbox Films", "desc": "Behind-the-scenes personal project: Desert Cobra Sandbox Films. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/desert-shoot.mp4", "category": "personal", "letter": "P", "title": "Desert Shoot", "desc": "Behind-the-scenes personal project: Desert Shoot. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/dubai-museum-timelapse.mp4", "category": "personal", "letter": "P", "title": "Dubai Museum Timelapse", "desc": "Behind-the-scenes personal project: Dubai Museum Timelapse. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/food-video-shoot.mp4", "category": "personal", "letter": "P", "title": "Food Video Shoot", "desc": "Behind-the-scenes personal project: Food Video Shoot. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/food-videoshoot-setup.mp4", "category": "personal", "letter": "P", "title": "Food Videoshoot Setup", "desc": "Behind-the-scenes personal project: Food Videoshoot Setup. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/gear-setup.mp4", "category": "personal", "letter": "P", "title": "Gear Setup", "desc": "Behind-the-scenes personal project: Gear Setup. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/made-2019-nikon-z6-by-paul-aggarao-z6.mp4", "category": "personal", "letter": "P", "title": "Made 2019 Nikon Z6 By Paul Aggarao Z6", "desc": "Behind-the-scenes personal project: Made 2019 Nikon Z6 By Paul Aggarao Z6. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/mcdonald's-time-lapse.mp4", "category": "personal", "letter": "P", "title": "Mcdonald's Time Lapse", "desc": "Behind-the-scenes personal project: Mcdonald's Time Lapse. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/mcdonalds-time-lapse.mp4", "category": "personal", "letter": "P", "title": "Mcdonalds Time Lapse", "desc": "Behind-the-scenes personal project: Mcdonalds Time Lapse. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/paul-aggarao-2.mp4", "category": "personal", "letter": "P", "title": "Paul Aggarao 2", "desc": "Behind-the-scenes personal project: Paul Aggarao 2. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/paul-aggarao-dubai-rain.mp4", "category": "personal", "letter": "P", "title": "Paul Aggarao Dubai Rain", "desc": "Behind-the-scenes personal project: Paul Aggarao Dubai Rain. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/personal/rig-attachement-set-up.mp4", "category": "personal", "letter": "P", "title": "Rig Attachement Set Up", "desc": "Behind-the-scenes personal project: Rig Attachement Set Up. Part of recordbox's ongoing exploration of gear, technique, and self-directed shoots."}, {"url": "https://media.recordbox.me/travel/las-vegas-clip.mp4", "category": "travel", "letter": "T", "title": "Las Vegas Clip", "desc": "Travel clip from Las Vegas Clip — location-driven visual storytelling shot on the road."}, {"url": "https://media.recordbox.me/travel/sri-lanka-clip.mp4", "category": "travel", "letter": "T", "title": "Sri Lanka Clip", "desc": "Travel clip from Sri Lanka Clip — location-driven visual storytelling shot on the road."}, {"url": "https://media.recordbox.me/weddings/amani-abdulraman-2-10-2024.mp4", "category": "wedding", "letter": "W", "title": "Amani Abdulraman 2 10 2024", "desc": "Wedding film moment from Amani Abdulraman 2 10 2024 — ceremony and celebration captured in recordbox's signature cinematic style."}, {"url": "https://media.recordbox.me/weddings/mohammad-and-farah-wedding.mp4", "category": "wedding", "letter": "W", "title": "Mohammad And Farah Wedding", "desc": "Wedding film moment from Mohammad And Farah Wedding — ceremony and celebration captured in recordbox's signature cinematic style."}, {"url": "https://media.recordbox.me/weddings/mohammed-dina-wedding.mp4", "category": "wedding", "letter": "W", "title": "Mohammed Dina Wedding", "desc": "Wedding film moment from Mohammed Dina Wedding — ceremony and celebration captured in recordbox's signature cinematic style."}, {"url": "https://media.recordbox.me/weddings/wedddging-clip-2.mp4", "category": "wedding", "letter": "W", "title": "Wedddging Clip 2", "desc": "Wedding film moment from Wedddging Clip 2 — ceremony and celebration captured in recordbox's signature cinematic style."}, {"url": "https://media.recordbox.me/weddings/wedding-clip-2.mp4", "category": "wedding", "letter": "W", "title": "Wedding Clip 2", "desc": "Wedding film moment from Wedding Clip 2 — ceremony and celebration captured in recordbox's signature cinematic style."}, {"url": "https://media.recordbox.me/weddings/wedding-clip.mp4", "category": "wedding", "letter": "W", "title": "Wedding Clip", "desc": "Wedding film moment from Wedding Clip — ceremony and celebration captured in recordbox's signature cinematic style."}, {"url": "https://media.recordbox.me/weddings/wedding-ring-clip.mp4", "category": "wedding", "letter": "W", "title": "Wedding Ring Clip", "desc": "Wedding film moment from Wedding Ring Clip — ceremony and celebration captured in recordbox's signature cinematic style."}];
+
+for (let i = VIDEOS.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [VIDEOS[i], VIDEOS[j]] = [VIDEOS[j], VIDEOS[i]];
+}
+
+
+const CATS = [
+  { key: 'all',       label: 'All' },
+  { key: 'corporate', label: 'Corporate' },
+  { key: 'travel',    label: 'Travel' },
+  { key: 'wedding',   label: 'Wedding' },
+  { key: 'personal',  label: 'Personal' },
+];
+
+const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
+
+let activeFilter = 'all';
+let searchQuery = '';
+let player = null;
+let currentUrl = null;
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function truncate(str, n){
+  if (str.length <= n) return { short: str, needsMore: false };
+  let cut = str.slice(0, n);
+  cut = cut.slice(0, cut.lastIndexOf(' '));
+  return { short: cut + '…', needsMore: true };
+}
+
+function currentList(){
+  let list = activeFilter === 'all' ? VIDEOS : VIDEOS.filter(v => v.category === activeFilter);
+  if (searchQuery) list = list.filter(v => v.title.toLowerCase().includes(searchQuery));
+  return list;
+}
+
+function renderCatMenu(){
+  const menu = document.getElementById('cat-menu');
+  const desktopNav = document.getElementById('cat-nav-desktop');
+  menu.innerHTML = '';
+  desktopNav.innerHTML = '';
+
+  const onSelect = (key) => {
+    activeFilter = key;
+    closeCatMenu();
+    renderCatMenu();
+    renderGrid();
+    maybeAutoplayForDesktop();
+  };
+
+  CATS.forEach(c => {
+    const tab = document.createElement('button');
+    tab.className = 'tab' + (c.key === activeFilter ? ' active' : '');
+    tab.textContent = c.label;
+    tab.addEventListener('click', () => onSelect(c.key));
+    menu.appendChild(tab);
+
+    const navBtn = document.createElement('button');
+    navBtn.type = 'button';
+    navBtn.className = 'cat-btn' + (c.key === activeFilter ? ' active' : '');
+    navBtn.textContent = c.label;
+    navBtn.addEventListener('click', () => onSelect(c.key));
+    desktopNav.appendChild(navBtn);
+  });
+
+  const exclusiveIcon = `<svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" style="flex-shrink:0;"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>`;
+
+  const exclusiveLink = document.createElement('a');
+  exclusiveLink.className = 'tab';
+  exclusiveLink.href = 'exclusive.html';
+  exclusiveLink.innerHTML = exclusiveIcon.replace('flex-shrink:0;', 'flex-shrink:0;margin-right:8px;') + 'Exclusive';
+  exclusiveLink.style.justifyContent = 'flex-start';
+  menu.appendChild(exclusiveLink);
+
+  const exclusiveNavLink = document.createElement('a');
+  exclusiveNavLink.className = 'cat-btn';
+  exclusiveNavLink.href = 'exclusive.html';
+  exclusiveNavLink.innerHTML = exclusiveIcon + 'Exclusive';
+  desktopNav.appendChild(exclusiveNavLink);
+}
+
+function openCatMenu(){
+  document.getElementById('cat-menu').classList.add('open');
+  document.getElementById('hamburger').classList.add('open');
+  document.getElementById('hamburger').setAttribute('aria-expanded','true');
+}
+function closeCatMenu(){
+  document.getElementById('cat-menu').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('hamburger').setAttribute('aria-expanded','false');
+}
+document.getElementById('hamburger').addEventListener('click', (e) => {
+  e.stopPropagation();
+  const open = document.getElementById('cat-menu').classList.contains('open');
+  if (open) closeCatMenu(); else openCatMenu();
+});
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('cat-menu');
+  if (!menu.contains(e.target)) closeCatMenu();
+});
+
+/* ── Lazy-load thumbnail video frames only when they scroll into view
+   (same technique as chanel.html) — keeps 70+ cards from opening
+   70+ network connections at once. ── */
+let thumbObserver = null;
+function initLazyThumbs(){
+  const thumbs = document.querySelectorAll('.lazy-thumb');
+  if (!('IntersectionObserver' in window)) {
+    thumbs.forEach(v => {
+      v.src = v.getAttribute('data-src');
+      v.preload = 'metadata';
+      v.addEventListener('loadeddata', () => v.classList.add('loaded'), { once: true });
+    });
+    return;
+  }
+  if (!thumbObserver) {
+    thumbObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const v = entry.target;
+          v.src = v.getAttribute('data-src');
+          v.preload = 'metadata';
+          v.addEventListener('loadeddata', () => v.classList.add('loaded'), { once: true });
+          thumbObserver.unobserve(v);
+        }
+      });
+    }, { rootMargin: '200px 0px' });
+  }
+  thumbs.forEach(v => thumbObserver.observe(v));
+}
+
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  const emptyState = document.getElementById('empty-state');
+  grid.innerHTML = '';
+
+  const list = currentList();
+  emptyState.style.display = list.length ? 'none' : 'block';
+
+  list.forEach(v => {
+    const card = document.createElement('div');
+    card.className = 'card' + (v.url === currentUrl ? ' playing' : '');
+    card.tabIndex = 0;
+    card.setAttribute('role','button');
+    card.setAttribute('aria-label', `Play ${v.title}`);
+
+    card.innerHTML = `
+      <div class="thumb">
+        <video data-src="${escapeHtml(v.url)}#t=0.5" class="lazy-thumb" preload="none" muted playsinline tabindex="-1"></video>
+      </div>
+      <div class="card-body">
+        <div>
+          <p class="card-title">${escapeHtml(v.title)}</p>
+          <p class="card-cat">${escapeHtml(v.category)}</p>
+        </div>
+      </div>
+    `;
+
+    card.addEventListener('click', () => selectVideo(v));
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); selectVideo(v); }
+    });
+
+    grid.appendChild(card);
+  });
+
+  initLazyThumbs();
+}
+
+/* On mobile, selecting a video does a real page refresh so the chosen
+   video renders at the top of the page (normal flow, not sticky/fixed)
+   with its details right below it. */
+function selectVideo(v){
+  if (isDesktop()) { playVideo(v); return; }
+  try { sessionStorage.setItem('rb-selected-video', v.url); } catch(e) {}
+  location.reload();
+}
+
+function playVideo(v){
+  currentUrl = v.url;
+
+  const dock = document.getElementById('player-dock');
+  const videoEl = document.getElementById('dock-video');
+  const emptyPlayer = document.getElementById('empty-player');
+
+  document.querySelector('.watch-main').classList.add('has-player');
+  dock.classList.add('active');
+  emptyPlayer.classList.remove('show');
+
+  if (!player) {
+    player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
+    player.once('ready', () => {
+      const plyrEl = dock.querySelector('.plyr');
+      if (!plyrEl) return;
+      const sync = () => dock.classList.toggle('hide-controls', plyrEl.classList.contains('plyr--hide-controls'));
+      sync();
+      new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+  player.source = {
+    type: 'video',
+    sources: [{ src: v.url, type: 'video/mp4' }],
+  };
+  player.once('canplay', () => {
+    player.play().catch(err => console.warn('Playback blocked:', err));
+  });
+  player.on('error', (e) => {
+    console.error('Plyr/video error for', v.url, e);
+  });
+
+  document.getElementById('dock-title').textContent = v.title;
+  document.getElementById('dock-badge').textContent = v.letter;
+  document.getElementById('channel-name').textContent = v.category;
+  const catCount = VIDEOS.filter(x => x.category === v.category).length;
+  document.getElementById('channel-count').textContent = `${catCount} videos`;
+  document.getElementById('channel-row').onclick = () => {
+    activeFilter = v.category;
+    closeCatMenu();
+    renderCatMenu();
+    renderGrid();
+  };
+
+  const descEl = document.getElementById('dock-desc');
+  const { short, needsMore } = truncate(v.desc, 220);
+  if (needsMore){
+    descEl.innerHTML = `<span id="dock-desc-text">${escapeHtml(short)}</span><button class="readmore-btn" id="dock-readmore">Read more</button>`;
+    document.getElementById('dock-readmore').addEventListener('click', function(){
+      const textEl = document.getElementById('dock-desc-text');
+      if (this.textContent === 'Read more'){
+        textEl.textContent = v.desc;
+        this.textContent = 'Read less';
+      } else {
+        textEl.textContent = short;
+        this.textContent = 'Read more';
+      }
+    });
+  } else {
+    descEl.textContent = v.desc;
+  }
+
+  renderGrid();
+}
+
+function closePlayer(){
+  currentUrl = null;
+  const dock = document.getElementById('player-dock');
+  if (player) { player.pause(); }
+  dock.classList.remove('active');
+  dock.classList.remove('docked');
+  document.querySelector('.watch-main').classList.remove('has-player');
+  renderGrid();
+}
+
+/* ── Mobile sticky mini-player: once the playing video scrolls out past
+   the top of the viewport, dock it as a small fixed player under the
+   header. Undocks automatically once scrolled back to its original spot. ── */
+let dockObserver = null;
+function initDockObserver(){
+  const dock = document.getElementById('player-dock');
+  const sentinel = document.getElementById('dock-sentinel');
+  if (!('IntersectionObserver' in window)) return;
+  if (!dockObserver) {
+    dockObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (isDesktop() || !dock.classList.contains('active')) {
+          dock.classList.remove('docked');
+          return;
+        }
+        dock.classList.toggle('docked', !entry.isIntersecting && entry.boundingClientRect.top < 0);
+      });
+    }, { threshold: 0 });
+    dockObserver.observe(sentinel);
+  }
+}
+initDockObserver();
+
+document.getElementById('dock-close').addEventListener('click', (e) => {
+  e.stopPropagation();
+  closePlayer();
+});
+
+function maybeAutoplayForDesktop(){
+  if (!isDesktop()) return;
+  if (!currentUrl) return;
+  const list = currentList();
+  const stillInFilter = list.some(v => v.url === currentUrl);
+  if (!stillInFilter) {
+    if (list.length) playVideo(list[0]);
+    else closePlayer();
+  }
+}
+
+const urlCategory = new URLSearchParams(window.location.search).get('category');
+if (urlCategory && CATS.some(c => c.key === urlCategory)) {
+  activeFilter = urlCategory;
+}
+
+const navSearch = document.getElementById('nav-search');
+const navSearchInput = document.getElementById('nav-search-input');
+const isMobileSearch = () => window.matchMedia('(max-width: 1000px)').matches;
+
+navSearchInput.addEventListener('input', (e) => {
+  searchQuery = e.target.value.trim().toLowerCase();
+  renderGrid();
+});
+
+document.getElementById('nav-search-toggle').addEventListener('click', () => {
+  if (!isMobileSearch()) { navSearchInput.focus(); return; }
+  if (!navSearch.classList.contains('open')) {
+    navSearch.classList.add('open');
+    navSearchInput.focus();
+  } else {
+    navSearch.classList.remove('open');
+    navSearchInput.blur();
+  }
+});
+
+navSearchInput.addEventListener('blur', () => {
+  if (isMobileSearch() && !navSearchInput.value.trim()) navSearch.classList.remove('open');
+});
+
+navSearchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    navSearchInput.value = '';
+    searchQuery = '';
+    renderGrid();
+    if (isMobileSearch()) navSearch.classList.remove('open');
+    navSearchInput.blur();
+  }
+});
+
+renderCatMenu();
+renderGrid();
+maybeAutoplayForDesktop();
+
+if (!isDesktop()) {
+  let pendingUrl;
+  try {
+    pendingUrl = sessionStorage.getItem('rb-selected-video');
+    sessionStorage.removeItem('rb-selected-video');
+  } catch(e) {}
+  if (pendingUrl) {
+    const pendingVideo = VIDEOS.find(v => v.url === pendingUrl);
+    if (pendingVideo) {
+      playVideo(pendingVideo);
+      window.scrollTo(0, 0);
+    }
+  }
+}
+
+window.addEventListener('resize', () => {
+  maybeAutoplayForDesktop();
+});
+</script>
+
+</body>
+</html>
