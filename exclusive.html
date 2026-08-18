@@ -821,6 +821,21 @@
     font-size: 14px;
   }
 
+  .lock-links{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color: var(--muted);
+  }
+  .lock-links a{
+    color: var(--muted);
+    text-decoration:none;
+    transition: color .2s ease;
+  }
+  .lock-links a:hover{ color: var(--text); }
+  .lock-links-sep{ opacity:.5; }
+
   /* focus visibility */
   button:focus-visible, .card:focus-visible, a:focus-visible{
     outline: 2px solid var(--amber);
@@ -869,6 +884,14 @@
       <button type="submit" class="btn-primary" id="unlock-btn">Unlock</button>
       <div class="error-msg" id="error-msg">Incorrect password. Try again.</div>
     </form>
+
+    <div class="lock-links">
+      <a href="#" id="lock-go-back">Go Back</a>
+      <span class="lock-links-sep">·</span>
+      <a href="video.html" id="lock-gallery">Gallery</a>
+      <span class="lock-links-sep">·</span>
+      <a href="index.html" id="lock-home">Home</a>
+    </div>
 
   </div>
 </div>
@@ -1657,6 +1680,26 @@ document.getElementById('lock-form').addEventListener('submit', (e) => {
     setTimeout(() => { input.style.borderColor = ''; }, 600);
   }
 });
+
+document.getElementById('lock-go-back').addEventListener('click', (e) => {
+  e.preventDefault();
+  if (history.length > 1) history.back();
+  else window.location.href = 'index.html';
+});
+
+/* ── Auto-lock when leaving the page ─────────────────────── */
+// selectVideo()'s mobile path does its own location.reload() (storing
+// rb-selected-video first) to resume playback at the top of the page —
+// that's an intentional same-page reload, not the user leaving, so skip
+// the auto-lock in that one case. Any other unload (closing the tab,
+// following a link elsewhere) really is leaving, so lock up behind them.
+function autoLockOnLeave(){
+  try {
+    if (!sessionStorage.getItem('rb-selected-video')) sessionStorage.removeItem(SESSION_KEY);
+  } catch (e) {}
+}
+window.addEventListener('beforeunload', autoLockOnLeave);
+window.addEventListener('pagehide', autoLockOnLeave);
 
 window.addEventListener('resize', () => {
   syncPlayerToFilter();
