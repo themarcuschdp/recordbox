@@ -1340,6 +1340,22 @@ function loadSource(videoEl, v){
   if (hls) { hls.destroy(); hls = null; }
 
   const hlsUrl = toHlsUrl(v.url);
+  const nativeHls = !!(hlsUrl && videoEl.canPlayType('application/vnd.apple.mpegurl'));
+
+  if (hlsUrl && !nativeHls && typeof Hls === 'undefined') {
+    // hls.light.min.js is its own deferred <script> — same race as Plyr
+    // above, most likely on mobile's resume-after-reload path. Waiting
+    // here (rather than silently falling through to the plain MP4 below)
+    // is what actually gets adaptive bitrate switching, so large files
+    // don't have to buffer the whole fixed-resolution file before they
+    // can start playing. Safari has native HLS support (nativeHls, above)
+    // and never needs hls.js, so it skips this wait entirely.
+    const hlsScript = document.querySelector('script[src*="hls.light"]');
+    const retry = () => loadSource(videoEl, v);
+    if (hlsScript) hlsScript.addEventListener('load', retry, { once: true });
+    else window.addEventListener('load', retry, { once: true });
+    return;
+  }
 
   if (hlsUrl && window.Hls && Hls.isSupported()) {
     hls = new Hls();
@@ -1351,7 +1367,7 @@ function loadSource(videoEl, v){
     });
     hls.loadSource(hlsUrl);
     hls.attachMedia(videoEl);
-  } else if (hlsUrl && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+  } else if (nativeHls) {
     videoEl.src = hlsUrl;
     videoEl.load();
   } else {
@@ -1371,24 +1387,11 @@ function playVideo(v){
   dock.classList.add('active');
   emptyPlayer.classList.remove('show');
 
-  if (!player) {
-    player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
-    player.once('ready', () => {
-      const plyrEl = dock.querySelector('.plyr');
-      if (!plyrEl) return;
-      const sync = () => dock.classList.toggle('hide-controls', plyrEl.classList.contains('plyr--hide-controls'));
-      sync();
-      new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
-    });
-  }
-  loadSource(videoEl, v);
-  player.once('canplay', () => {
-    player.play().catch(err => console.warn('Playback blocked:', err));
-  });
-  player.once('error', (e) => {
-    console.error('Plyr/video error for', v.url, e);
-  });
-
+  // Set metadata before touching Plyr: on mobile, selectVideo()'s
+  // location.reload() means this can run before the deferred Plyr
+  // <script> has executed yet, and "Plyr is not defined" would otherwise
+  // abort the rest of this function — silently leaving the title and
+  // description blank — before it ever reaches these lines.
   document.getElementById('dock-title').textContent = v.title;
   document.getElementById('dock-badge').textContent = v.letter;
   document.getElementById('channel-name').textContent = v.category;
@@ -1419,7 +1422,40 @@ function playVideo(v){
     descEl.textContent = v.desc;
   }
 
+  setupPlayer(videoEl, dock, v);
+
   renderGrid();
+}
+
+function setupPlayer(videoEl, dock, v){
+  if (typeof Plyr === 'undefined') {
+    // Same race as above: retry as soon as the Plyr <script> itself has
+    // loaded, rather than window's 'load' event, which waits on every
+    // resource on the page (thumbnails, fonts, the CEO-shorts row, …)
+    // and would otherwise needlessly delay when playback can start.
+    const plyrScript = document.querySelector('script[src*="plyr"]');
+    const retry = () => setupPlayer(videoEl, dock, v);
+    if (plyrScript) plyrScript.addEventListener('load', retry, { once: true });
+    else window.addEventListener('load', retry, { once: true });
+    return;
+  }
+  if (!player) {
+    player = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
+    player.once('ready', () => {
+      const plyrEl = dock.querySelector('.plyr');
+      if (!plyrEl) return;
+      const sync = () => dock.classList.toggle('hide-controls', plyrEl.classList.contains('plyr--hide-controls'));
+      sync();
+      new MutationObserver(sync).observe(plyrEl, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+  loadSource(videoEl, v);
+  player.once('canplay', () => {
+    player.play().catch(err => console.warn('Playback blocked:', err));
+  });
+  player.once('error', (e) => {
+    console.error('Plyr/video error for', v.url, e);
+  });
 }
 
 function closePlayer(){
