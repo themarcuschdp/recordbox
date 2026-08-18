@@ -423,9 +423,6 @@
      CONFIGURATION — edit these values
 ═══════════════════════════════════════════════════════════ -->
 <script>
-  /* ── Site password ──────────────────────────────────────── */
-  const SITE_PASSWORD = "1234";
-
   /* ── Page title shown in the header & browser tab ──────── */
   const SITE_TITLE = "Exclusive";
 
@@ -685,38 +682,8 @@
 <!-- ═══════════════════════════════════════════════════════════ -->
 
 
-<!-- Lock Screen -->
-<div class="screen active" id="lock-screen">
-  <div class="lock-card">
-
-    <div class="lock-icon">
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-           viewBox="0 0 24 24">
-        <rect width="18" height="11" x="3" y="11" rx="2"/>
-        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-      </svg>
-    </div>
-
-    <div>
-      <div class="lock-title" id="lock-title">Exclusive</div>
-      <div class="lock-subtitle">Enter password to access the collection</div>
-    </div>
-
-    <form class="lock-form" id="lock-form" autocomplete="off" novalidate>
-      <div class="field-wrap">
-        <input type="password" id="password-input" placeholder="Password"
-               autocomplete="current-password" autofocus />
-      </div>
-      <button type="submit" class="btn-primary" id="unlock-btn">Unlock</button>
-      <div class="error-msg" id="error-msg">Incorrect password. Try again.</div>
-    </form>
-
-  </div>
-</div>
-
 <!-- Gallery Screen -->
-<div class="screen" id="gallery-screen">
+<div class="screen active" id="gallery-screen">
 
   <header class="site-header">
     <span class="site-name" id="header-title">Exclusive</span>
@@ -776,35 +743,10 @@
 <script>
   /* ── Apply config ─────────────────────────────────────────── */
   document.title = SITE_TITLE;
-  document.getElementById('lock-title').textContent = SITE_TITLE;
   document.getElementById('header-title').textContent = SITE_TITLE;
   document.getElementById('dock-badge').textContent = SITE_TITLE.charAt(0);
   document.getElementById('channel-name').textContent = SITE_TITLE;
   document.getElementById('channel-count').textContent = VIDEOS.length + ' videos';
-
-  /* ── Session (sessionStorage so it resets when tab closes) ── */
-  const SESSION_KEY = '__screening_room_auth__';
-
-  function isUnlocked() {
-    try { return sessionStorage.getItem(SESSION_KEY) === '1'; }
-    catch (e) { return false; }
-  }
-
-  function setUnlocked(val) {
-    try {
-      if (val) sessionStorage.setItem(SESSION_KEY, '1');
-      else sessionStorage.removeItem(SESSION_KEY);
-    } catch (e) { /* Safari private mode */ }
-  }
-
-  /* ── Screen transitions ───────────────────────────────────── */
-  function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(function(el) {
-      el.classList.remove('active');
-    });
-    var target = document.getElementById(id);
-    if (target) target.classList.add('active');
-  }
 
   /* ── Watch-style player state (same behavior as video.html) ── */
   const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
@@ -1065,29 +1007,6 @@
     closePlayer();
   });
 
-  /* ── Auth ─────────────────────────────────────────────────── */
-  document.getElementById('lock-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    var input = document.getElementById('password-input');
-    var err   = document.getElementById('error-msg');
-    var btn   = document.getElementById('unlock-btn');
-
-    if (input.value === SITE_PASSWORD) {
-      err.classList.remove('visible');
-      btn.disabled = true;
-      setUnlocked(true);
-      buildGallery();
-      initDockObserver();
-      showScreen('gallery-screen');
-    } else {
-      err.classList.add('visible');
-      input.value = '';
-      input.focus();
-      input.style.borderColor = '#e06060';
-      setTimeout(function() { input.style.borderColor = ''; }, 600);
-    }
-  });
-
   var navSearch = document.getElementById('nav-search');
   var navSearchInput = document.getElementById('nav-search-input');
   var isMobileSearch = function() { return window.matchMedia('(max-width: 1000px)').matches; };
@@ -1123,20 +1042,11 @@
   });
 
   document.getElementById('lock-btn').addEventListener('click', function() {
-    setUnlocked(false);
     closePlayer();
     window.location.href = (function() {
       var params = new URLSearchParams(window.location.search);
       return params.get('from') === 'works' ? 'index.html#news' : 'index.html';
     })();
-  });
-
-  /* ── Auto-lock when leaving the page ─────────────────────── */
-  window.addEventListener('beforeunload', function() {
-    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
-  });
-  window.addEventListener('pagehide', function() {
-    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
   });
 
   document.addEventListener('keydown', function(e) {
@@ -1151,11 +1061,8 @@
   });
 
   /* ── Init ─────────────────────────────────────────────────── */
-  if (isUnlocked()) {
-    buildGallery();
-    initDockObserver();
-    showScreen('gallery-screen');
-  }
+  buildGallery();
+  initDockObserver();
 </script>
 <!-- Plyr is only referenced from playVideo(), which runs on click, so it
      never needs to block parsing. defer keeps it out of the critical path

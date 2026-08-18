@@ -842,6 +842,39 @@
 </head>
 <body class="watch">
 
+<!-- Lock Screen -->
+<div class="screen active" id="lock-screen">
+  <div class="lock-card">
+
+    <div class="lock-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+           viewBox="0 0 24 24">
+        <rect width="18" height="11" x="3" y="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+
+    <div>
+      <div class="lock-title" id="lock-title">Exclusive</div>
+      <div class="lock-subtitle">Enter password to access the collection</div>
+    </div>
+
+    <form class="lock-form" id="lock-form" autocomplete="off" novalidate>
+      <div class="field-wrap">
+        <input type="password" id="password-input" placeholder="Password"
+               autocomplete="current-password" autofocus />
+      </div>
+      <button type="submit" class="btn-primary" id="unlock-btn">Unlock</button>
+      <div class="error-msg" id="error-msg">Incorrect password. Try again.</div>
+    </form>
+
+  </div>
+</div>
+
+<!-- Gallery Screen -->
+<div class="screen" id="gallery-screen">
+
 <header class="site-top">
   <div class="site-top-inner">
     <button class="hamburger" id="hamburger" aria-label="Browse categories" aria-expanded="false">
@@ -920,6 +953,8 @@
   </div>
 </div>
 
+</div>
+
 <!-- Plyr is only referenced from playVideo(), which runs on click, so it
      never needs to block parsing. defer keeps it out of the critical path
      while still guaranteeing it has executed before any user interaction. -->
@@ -982,6 +1017,31 @@ VIDEOS.push(...finalVideos);
 const CATS = [
   { key: 'all',       label: 'All' },
 ];
+
+/* ── Site password ──────────────────────────────────────── */
+const SITE_PASSWORD = "1234";
+
+/* ── Session (sessionStorage so it resets when tab closes) ── */
+const SESSION_KEY = '__exclusive_auth__';
+
+function isUnlocked() {
+  try { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+  catch (e) { return false; }
+}
+
+function setUnlocked(val) {
+  try {
+    if (val) sessionStorage.setItem(SESSION_KEY, '1');
+    else sessionStorage.removeItem(SESSION_KEY);
+  } catch (e) { /* Safari private mode */ }
+}
+
+/* ── Screen transitions ───────────────────────────────────── */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) target.classList.add('active');
+}
 
 const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
 
@@ -1535,30 +1595,68 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-renderCatMenu();
-renderGrid();
-renderCeoShorts();
-syncPlayerToFilter();
+function startGallery() {
+  renderCatMenu();
+  renderGrid();
+  renderCeoShorts();
+  syncPlayerToFilter();
 
-if (!isDesktop()) {
-  let pendingUrl;
-  try {
-    pendingUrl = sessionStorage.getItem('rb-selected-video');
-    sessionStorage.removeItem('rb-selected-video');
-  } catch(e) {}
-  if (pendingUrl) {
-    const pendingVideo = VIDEOS.find(v => v.url === pendingUrl);
-    if (pendingVideo) {
-      playVideo(pendingVideo);
-      window.scrollTo(0, 0);
+  if (!isDesktop()) {
+    let pendingUrl;
+    try {
+      pendingUrl = sessionStorage.getItem('rb-selected-video');
+      sessionStorage.removeItem('rb-selected-video');
+    } catch(e) {}
+    if (pendingUrl) {
+      const pendingVideo = VIDEOS.find(v => v.url === pendingUrl);
+      if (pendingVideo) {
+        playVideo(pendingVideo);
+        window.scrollTo(0, 0);
+      }
     }
   }
 }
+
+/* ── Auth ─────────────────────────────────────────────────── */
+document.getElementById('lock-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const input = document.getElementById('password-input');
+  const err = document.getElementById('error-msg');
+  const btn = document.getElementById('unlock-btn');
+
+  if (input.value === SITE_PASSWORD) {
+    err.classList.remove('visible');
+    btn.disabled = true;
+    setUnlocked(true);
+    startGallery();
+    showScreen('gallery-screen');
+  } else {
+    err.classList.add('visible');
+    input.value = '';
+    input.focus();
+    input.style.borderColor = '#e06060';
+    setTimeout(() => { input.style.borderColor = ''; }, 600);
+  }
+});
+
+/* ── Auto-lock when leaving the page ─────────────────────── */
+window.addEventListener('beforeunload', () => {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+});
+window.addEventListener('pagehide', () => {
+  try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+});
 
 window.addEventListener('resize', () => {
   syncPlayerToFilter();
   repositionCeoShorts();
 });
+
+/* ── Init ─────────────────────────────────────────────────── */
+if (isUnlocked()) {
+  startGallery();
+  showScreen('gallery-screen');
+}
 </script>
 
 </body>
