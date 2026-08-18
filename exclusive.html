@@ -1413,9 +1413,14 @@ function playVideo(v){
 
 function setupPlayer(videoEl, dock, v){
   if (typeof Plyr === 'undefined') {
-    // Same race as above: retry once every deferred script has run and
-    // the page has fully loaded, instead of throwing.
-    window.addEventListener('load', () => setupPlayer(videoEl, dock, v), { once: true });
+    // Same race as above: retry as soon as the Plyr <script> itself has
+    // loaded, rather than window's 'load' event, which waits on every
+    // resource on the page (thumbnails, fonts, the CEO-shorts row, …)
+    // and would otherwise needlessly delay when playback can start.
+    const plyrScript = document.querySelector('script[src*="plyr"]');
+    const retry = () => setupPlayer(videoEl, dock, v);
+    if (plyrScript) plyrScript.addEventListener('load', retry, { once: true });
+    else window.addEventListener('load', retry, { once: true });
     return;
   }
   if (!player) {
