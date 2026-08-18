@@ -1021,6 +1021,7 @@ const CATS = [
   { key: 'travel',    label: 'Travel' },
   { key: 'wedding',   label: 'Wedding' },
   { key: 'personal',  label: 'Personal' },
+  { key: 'exclusive', label: 'Exclusive' },
 ];
 
 /* ── Site password ──────────────────────────────────────── */
@@ -1050,7 +1051,7 @@ function showScreen(id) {
 
 const isDesktop = () => window.matchMedia('(min-width: 1000px)').matches;
 
-let activeFilter = 'all';
+let activeFilter = 'exclusive';
 let searchQuery = '';
 let player = null;
 let hls = null;
@@ -1093,11 +1094,15 @@ function renderCatMenu(){
 
   const onSelect = (key) => {
     // exclusive.html only ever holds Exclusive-category videos — every
-    // other category's videos live in video.html instead. So only "all"
-    // (this page's own gallery) can be shown locally; every other tab
-    // hands off to video.html's filtered view rather than rendering an
-    // empty grid here.
-    if (key !== 'all') {
+    // other category's videos live in video.html instead. So only
+    // "exclusive" (this page's own gallery) can be shown locally; "all"
+    // hands off to video.html unfiltered, and every other tab hands off
+    // to video.html's filtered view for that category.
+    if (key === 'all') {
+      window.location.href = 'video.html';
+      return;
+    }
+    if (key !== 'exclusive') {
       window.location.href = `video.html?category=${key}`;
       return;
     }
