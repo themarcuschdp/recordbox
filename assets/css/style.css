@@ -4889,7 +4889,7 @@ body.portfolio #work .card-block-wrapper {
   .logo-marquee {
     flex-direction: row;
     gap: 20px;
-    height: 320px;
+    height: 480px;
   }
   .logo-marquee-row {
     flex: 1;
