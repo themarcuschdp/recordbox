@@ -61,6 +61,19 @@
         </script>
         <style>
             html { scroll-behavior: smooth; }
+            /* CSS-drawn triangle replacing heading-asterisk-icon.png. Sizing
+               (width: 22px, 20px on mobile) now lives in style.css under the
+               renamed .heading-triangle rule — this just carves the shape
+               out of the box that rule sizes, via aspect-ratio + clip-path,
+               so it scales correctly at both breakpoints without any fixed
+               pixel values duplicated here. No image request at all, which
+               is lighter than swapping in a new PNG. */
+            .heading-triangle {
+                display: inline-block;
+                aspect-ratio: 1 / 1.15;
+                background: #ff3c00;
+                clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+            }
             /* style.css defaults .page-loading to display:none and only shows it once
                Webflow's JS (loaded at the end of body) initializes, which is later than
                first paint — causing a flash of page content before the preloader appears
@@ -378,13 +391,7 @@
                                     style="opacity: 0"
                                     class="title-wrapper"
                                 >
-                                    <img
-                                        src="/assets/images/heading-asterisk-icon.png"
-                                        loading="lazy"
-                                        width="45" height="45.0"
-                                        alt=""
-                                        class="asterisk"
-                                    />
+                                    <div class="heading-triangle"></div>
                                     <h2 class="top-text">about recordbox</h2>
                                 </div>
                                 <div data-w-id="90da62b0-4cae-8014-b6c0-f55cb59deb91" style="opacity: 0">
@@ -433,13 +440,7 @@
                                     style="opacity: 0"
                                     class="title-wrapper"
                                 >
-                                    <img
-                                        src="/assets/images/heading-asterisk-icon.png"
-                                        loading="lazy"
-                                        width="45" height="45.0"
-                                        alt=""
-                                        class="asterisk"
-                                    />
+                                    <div class="heading-triangle"></div>
                                     <h2 class="top-text">Latest work</h2>
                                 </div>
                             </div>
@@ -725,13 +726,7 @@
                                 style="opacity: 0"
                                 class="title-wrapper"
                             >
-                                <img
-                                    src="/assets/images/heading-asterisk-icon.png"
-                                    loading="lazy"
-                                    width="45" height="45.0"
-                                    alt=""
-                                    class="asterisk"
-                                />
+                                <div class="heading-triangle"></div>
                                 <h2 class="top-text">Our Works</h2>
                             </div>
                         </div>
@@ -852,13 +847,7 @@
                                 style="opacity: 0"
                                 class="title-wrapper"
                             >
-                                <img
-                                    src="/assets/images/heading-asterisk-icon.png"
-                                    loading="lazy"
-                                    width="45" height="45.0"
-                                    alt=""
-                                    class="asterisk"
-                                />
+                                <div class="heading-triangle"></div>
                                 <h2 class="top-text">We are fortunate to collaborate with premier brands</h2>
                             </div>
                             <div class="margin-50px">
@@ -973,13 +962,7 @@
                             </div>
                         </div>
                         <div class="margin-50px title-wrapper">
-                            <img
-                                src="/assets/images/heading-asterisk-icon.png"
-                                loading="lazy"
-                                width="45" height="45.0"
-                                alt=""
-                                class="asterisk"
-                            />
+                            <div class="heading-triangle"></div>
                             <h2 class="top-text">Your brand is safe with us</h2>
                         </div>
                         <div class="margin-120px">
