@@ -4694,7 +4694,7 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   transform: translate3d(0, 0, 0);
 }
 
-.asterisk {
+.heading-triangle {
   width: 22px;
   height: auto;
 }
@@ -5645,7 +5645,7 @@ body.portfolio #work .card-block-wrapper {
     font-size: 15px;
   }
 
-  .asterisk {
+  .heading-triangle {
     width: 20px;
     height: auto;
   }
