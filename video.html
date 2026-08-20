@@ -1620,7 +1620,7 @@ function openShort(v){
   const spinner = document.getElementById('shorts-spinner');
 
   if (v.image) {
-    if (shortsPlayer) shortsPlayer.pause();
+    if (shortsPlayer) { shortsPlayer.destroy(); shortsPlayer = null; }
     if (shortsHls) { shortsHls.destroy(); shortsHls = null; }
     videoEl.removeAttribute('src');
     videoEl.style.display = 'none';
@@ -1646,9 +1646,13 @@ function openShort(v){
   imageEl.removeAttribute('src');
   videoEl.style.display = '';
 
-  if (!shortsPlayer) {
-    shortsPlayer = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
-  }
+  // Reusing one Plyr instance across videos left its "ended" overlay
+  // (poster/replay UI) from the previous video stuck on top of whatever
+  // opened next — setting videoEl.src directly doesn't clear Plyr's own
+  // internal state. Destroying and recreating it fresh on every open
+  // guarantees no leftover UI carries over.
+  if (shortsPlayer) { shortsPlayer.destroy(); shortsPlayer = null; }
+  shortsPlayer = new Plyr(videoEl, { autoplay: true, clickToPlay: true });
   loadShortSource(videoEl, v);
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -1663,7 +1667,7 @@ function closeShort(){
   const imageEl = document.getElementById('shorts-image');
   const spinner = document.getElementById('shorts-spinner');
   if (shortsHls) { shortsHls.destroy(); shortsHls = null; }
-  if (shortsPlayer) shortsPlayer.pause();
+  if (shortsPlayer) { shortsPlayer.destroy(); shortsPlayer = null; }
   videoEl.removeAttribute('src');
   videoEl.load();
   imageEl.onload = imageEl.onerror = null;
