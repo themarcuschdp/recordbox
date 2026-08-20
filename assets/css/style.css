@@ -4530,7 +4530,7 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   grid-column-gap: 0px;
   grid-row-gap: 16px;
   grid-template-rows: auto;
-  grid-template-columns: minmax(200px, .5fr) 1.5fr minmax(200px, .5fr);
+  grid-template-columns: minmax(200px, .44fr) 1.56fr minmax(200px, .5fr);
   grid-auto-columns: 1fr;
   align-items: stretch;
   max-width: 100%;
