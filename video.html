@@ -616,6 +616,23 @@
     width:100%; height:100%;
     object-fit: contain;
     background:#000;
+    transition: opacity 0.2s ease;
+  }
+  .shorts-spinner{
+    position:absolute;
+    top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    width:40px; height:40px;
+    border-radius:50%;
+    border:3px solid rgba(255,255,255,0.25);
+    border-top-color:#fff;
+    animation: shortsSpin 0.8s linear infinite;
+    display:none;
+    pointer-events:none;
+  }
+  .shorts-spinner.show{ display:block; }
+  @keyframes shortsSpin{
+    to{ transform: translate(-50%,-50%) rotate(360deg); }
   }
   .shorts-close{
     position:absolute;
@@ -931,6 +948,7 @@
     <button type="button" class="shorts-close" id="shorts-close" aria-label="Close">&times;</button>
     <video id="shorts-video" playsinline controls></video>
     <img id="shorts-image" alt="" style="display:none;" />
+    <div class="shorts-spinner" id="shorts-spinner"></div>
   </div>
 </div>
 
@@ -1599,12 +1617,19 @@ function openShort(v){
   const modal = document.getElementById('shorts-modal');
   const videoEl = document.getElementById('shorts-video');
   const imageEl = document.getElementById('shorts-image');
+  const spinner = document.getElementById('shorts-spinner');
 
   if (v.image) {
     if (shortsPlayer) shortsPlayer.pause();
     if (shortsHls) { shortsHls.destroy(); shortsHls = null; }
     videoEl.removeAttribute('src');
     videoEl.style.display = 'none';
+    spinner.classList.add('show');
+    imageEl.style.opacity = '0';
+    imageEl.onload = imageEl.onerror = () => {
+      spinner.classList.remove('show');
+      imageEl.style.opacity = '1';
+    };
     // 1600w comfortably covers even the largest phone screen at full-
     // bleed; the raw originals run well beyond that and were the actual
     // cause of slow loads, not the Worker itself.
@@ -1616,6 +1641,7 @@ function openShort(v){
     return;
   }
 
+  spinner.classList.remove('show');
   imageEl.style.display = 'none';
   imageEl.removeAttribute('src');
   videoEl.style.display = '';
@@ -1635,11 +1661,14 @@ function closeShort(){
   const modal = document.getElementById('shorts-modal');
   const videoEl = document.getElementById('shorts-video');
   const imageEl = document.getElementById('shorts-image');
+  const spinner = document.getElementById('shorts-spinner');
   if (shortsHls) { shortsHls.destroy(); shortsHls = null; }
   if (shortsPlayer) shortsPlayer.pause();
   videoEl.removeAttribute('src');
   videoEl.load();
+  imageEl.onload = imageEl.onerror = null;
   imageEl.removeAttribute('src');
+  spinner.classList.remove('show');
   modal.classList.remove('open');
   document.body.style.overflow = '';
 }
