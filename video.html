@@ -1195,7 +1195,16 @@ function renderGrid(){
     // Locked cards (gated client content) never play inline here — they
     // exist so the catalog isn't hiding that this work exists, but the
     // content itself only lives behind exclusive.html's password gate.
-    const activate = () => v.locked ? (window.location.href = 'exclusive.html') : selectVideo(v);
+    // Stash which one was clicked so exclusive.html can jump straight to
+    // it once the password is entered, instead of landing on the gallery.
+    const activate = () => {
+      if (v.locked) {
+        try { sessionStorage.setItem('rb-pending-locked-video', v.url); } catch(e) {}
+        window.location.href = 'exclusive.html';
+      } else {
+        selectVideo(v);
+      }
+    };
     card.addEventListener('click', activate);
     card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }

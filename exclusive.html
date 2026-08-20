@@ -1718,6 +1718,20 @@ function startGallery() {
   }
 }
 
+/* If the user arrived here via a locked card on video.html, that page
+   stashed which video they wanted before redirecting. Once unlocked,
+   jump straight to it instead of leaving them on the plain gallery. */
+function playPendingLockedVideo(){
+  let pendingUrl;
+  try {
+    pendingUrl = sessionStorage.getItem('rb-pending-locked-video');
+    sessionStorage.removeItem('rb-pending-locked-video');
+  } catch(e) {}
+  if (!pendingUrl) return;
+  const pendingVideo = VIDEOS.find(v => v.url === pendingUrl);
+  if (pendingVideo) selectVideo(pendingVideo);
+}
+
 /* ── Auth ─────────────────────────────────────────────────── */
 document.getElementById('lock-form').addEventListener('submit', (e) => {
   e.preventDefault();
@@ -1731,6 +1745,7 @@ document.getElementById('lock-form').addEventListener('submit', (e) => {
     setUnlocked(true);
     showScreen('gallery-screen');
     startGallery();
+    playPendingLockedVideo();
   } else {
     err.classList.add('visible');
     input.value = '';
@@ -1769,6 +1784,7 @@ window.addEventListener('resize', () => {
 if (isUnlocked()) {
   showScreen('gallery-screen');
   startGallery();
+  playPendingLockedVideo();
 }
 </script>
 
