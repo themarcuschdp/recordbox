@@ -1510,7 +1510,11 @@ navSearchInput.addEventListener('keydown', (e) => {
    entries with image: true and url pointing straight at the Bunny
    Storage image (no Bunny Stream video ID to derive a thumbnail from). */
 function shortThumbUrl(v){
-  if (v.image) return v.url;
+  // Photos are served through the Cloudflare Worker in front of R2, which
+  // resizes on ?width= — request a small thumbnail here, not the full
+  // original (some source photos are several MB / thousands of px wide,
+  // which was making the shelf painfully slow on a slow connection).
+  if (v.image) return `${v.url}?width=400`;
   const m = /vz-00d6bbee-dbe\.b-cdn\.net\/([a-f0-9-]+)\//.exec(v.url);
   return m ? `https://vz-00d6bbee-dbe.b-cdn.net/${m[1]}/thumbnail.jpg` : '';
 }
@@ -1601,7 +1605,10 @@ function openShort(v){
     if (shortsHls) { shortsHls.destroy(); shortsHls = null; }
     videoEl.removeAttribute('src');
     videoEl.style.display = 'none';
-    imageEl.src = v.url;
+    // 1600w comfortably covers even the largest phone screen at full-
+    // bleed; the raw originals run well beyond that and were the actual
+    // cause of slow loads, not the Worker itself.
+    imageEl.src = `${v.url}?width=1600`;
     imageEl.alt = v.title || '';
     imageEl.style.display = '';
     modal.classList.add('open');
