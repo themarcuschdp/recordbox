@@ -4543,7 +4543,7 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   border-style: none none solid;
   border-width: 2px;
   border-color: #fe0000 black var(--orange) #fe0000;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   display: flex;
 }
