@@ -1596,24 +1596,27 @@
         top: -42px;
         right: 0;
         background: transparent;
-        border: 1px solid #ff3c00;
+        border: none;
         color: #ff3c00;
         width: 34px;
         height: 34px;
-        border-radius: 50%;
         cursor: pointer;
-        font-size: 18px;
-        line-height: 1;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      #simple-video-modal .svm-close:hover {
-        background: #ff3c00;
-        color: #161412;
+      #simple-video-modal .svm-close svg {
+        width: 100%;
+        height: 100%;
       }
     </style>
     <div id="simple-video-modal">
       <div class="svm-backdrop" onclick="closeVideoModal()"></div>
       <div class="svm-content">
-        <button class="svm-close" onclick="closeVideoModal()" aria-label="Close">&times;</button>
+        <button class="svm-close" onclick="closeVideoModal()" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8.3 8.3L15.7 15.7M15.7 8.3L8.3 15.7"/></svg>
+        </button>
         <video id="svm-video" controls playsinline></video>
         <div class="svm-title" id="svm-title"></div>
       </div>
