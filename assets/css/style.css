@@ -4537,17 +4537,6 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   margin-left: auto;
   margin-right: auto;
   display: grid;
-  position: relative; /* anchor for the centered logo below */
-}
-
-/* Pin these to their original columns so removing the logo from grid
-   flow (below) doesn't cause them to shift left and change width. */
-.nav-menu {
-  grid-column: 2;
-}
-
-.button-nav {
-  grid-column: 3;
 }
 
 .logo-wrapper-line {
@@ -4557,11 +4546,6 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   justify-content: center;
   align-items: center;
   display: flex;
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
 }
 
 .agencx-logo {
