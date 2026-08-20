@@ -3259,6 +3259,7 @@ figcaption {
   z-index: 1;
   margin-top: 0;
   margin-bottom: 0;
+  padding-top: 50px;
   font-size: 30px;
   font-weight: 600;
   line-height: 1.2;
