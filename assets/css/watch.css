@@ -82,6 +82,14 @@
       display: inline-block;
     }
 
+    /* .player-title is a <p> with no other class-based color rule, so
+       without this it would inherit the orange from the base `p` rule
+       above. Scoped here rather than changing that base rule, since
+       .channel-name relies on the same fallback and should stay orange. */
+    .player-title {
+      color: var(--text);
+    }
+
 
     /* ─── Design Tokens ─────────────────────────────────────── */
     :root {
