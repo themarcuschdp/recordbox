@@ -541,12 +541,6 @@
     transition: transform .3s ease;
   }
   .short-card:hover img{ transform: scale(1.05); }
-  .short-card::after{
-    content:'';
-    position:absolute; inset:0;
-    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 45%, transparent 70%);
-    pointer-events:none;
-  }
   .short-card .short-title{
     position:absolute; left:8px; right:8px; bottom:8px;
     color:#fff;
@@ -735,15 +729,6 @@
     color: var(--muted);
   }
   .card.locked:hover .thumb-locked svg{ color: var(--amber); }
-
-  .thumb::after{
-    content:'';
-    position:absolute;
-    inset:0;
-    background: linear-gradient(to top, rgba(22,20,18,0.7) 0%, rgba(22,20,18,0.15) 55%, transparent 100%);
-    pointer-events:none;
-    z-index:1;
-  }
 
   .thumb .play-ico{
     position:absolute;
