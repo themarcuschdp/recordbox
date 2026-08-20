@@ -4545,7 +4545,7 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
   border-color: #fe0000 black var(--orange) #fe0000;
   justify-content: flex-start;
   align-items: center;
-  padding-left: 50px;
+  padding-left: 30px;
   display: flex;
 }
 
