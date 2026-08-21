@@ -4728,6 +4728,7 @@ a[href="exclusive.html"].button-rounded:hover .button-text {
 
 .collection-list {
   margin-top: 40px;
+  margin-left: -5vw;
   display: flex;
 }
 
@@ -5420,6 +5421,7 @@ body.portfolio #work .card-block-wrapper {
 
   .collection-list {
     flex-wrap: wrap;
+    margin-left: -3vw;
   }
 
   .collection-card {
