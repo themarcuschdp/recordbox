@@ -4133,6 +4133,11 @@ figcaption {
   margin-bottom: 0;
 }
 
+.footer-back-home {
+  margin-top: 14px;
+  display: inline-block;
+}
+
 .visit-grid {
   grid-column-gap: 30px;
   grid-row-gap: 30px;
