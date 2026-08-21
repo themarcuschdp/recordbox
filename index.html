@@ -1407,15 +1407,6 @@
             document.addEventListener('DOMContentLoaded', function() {
                 var backToTop = document.getElementById('back-to-top');
                 if (backToTop) {
-                    var toggleVisibility = function() {
-                        if (window.scrollY > 600) {
-                            backToTop.classList.add('show');
-                        } else {
-                            backToTop.classList.remove('show');
-                        }
-                    };
-                    toggleVisibility();
-                    window.addEventListener('scroll', toggleVisibility, { passive: true });
                     backToTop.addEventListener('click', function() {
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     });
