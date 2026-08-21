@@ -501,6 +501,14 @@
     margin-bottom: 14px;
   }
   .ceo-shorts-header img{ width: 22px; height: 22px; flex-shrink:0; }
+  .ceo-triangle{
+    display:inline-block;
+    width: 18px;
+    aspect-ratio: 1 / 1.15;
+    background: var(--orange);
+    clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+    flex-shrink:0;
+  }
   .ceo-shorts-header span{
     font-family: var(--font-display);
     font-size: 15px;
@@ -597,8 +605,31 @@
     width: 100%;
     height: 100%;
   }
+  /* .shorts-media is the actual video/photo box. On mobile it fills the
+     screen (title/description overlay on top of it, centered at the
+     bottom, since there's no surrounding space to place them outside
+     of). On desktop .shorts-modal-inner becomes a grid so .shorts-meta
+     and .shorts-nav sit in the dark space beside/below .shorts-media
+     instead of overlapping the video/photo itself. */
+  .shorts-media{
+    position:relative;
+    width:100%;
+    height:100%;
+  }
   @media (min-width: 1000px){
     .shorts-modal-inner{
+      display:grid;
+      grid-template-columns: auto 56px;
+      grid-template-rows: auto auto;
+      column-gap: 16px;
+      row-gap: 14px;
+      width: auto;
+      height: auto;
+      align-items:start;
+    }
+    .shorts-media{
+      grid-column:1;
+      grid-row:1;
       width: auto;
       height: 90vh;
       aspect-ratio: 9 / 16;
@@ -607,14 +638,14 @@
       box-shadow: 0 20px 60px rgba(0,0,0,0.6);
     }
   }
-  .shorts-modal-inner video{
+  .shorts-media video{
     width:100%; height:100%;
     object-fit: contain;
     background:#000;
   }
-  .shorts-modal-inner img#shorts-image{
+  .shorts-media img#shorts-image{
     width:100%; height:100%;
-    object-fit: contain;
+    object-fit: cover;
     background:#000;
     transition: opacity 0.2s ease;
   }
@@ -647,8 +678,78 @@
     display:flex; align-items:center; justify-content:center;
   }
   .shorts-close svg{ width:100%; height:100%; }
-  .shorts-modal-inner .plyr{ width:100%; height:100%; }
-  .shorts-modal-inner .plyr video{ object-fit: contain; }
+  .shorts-media .plyr{ width:100%; height:100%; }
+  .shorts-media .plyr video{ object-fit: contain; }
+  /* Mobile: title + description overlay the bottom of the video/photo,
+     centered, since the player is edge-to-edge with no space outside
+     it. Desktop overrides this to sit below .shorts-media instead. */
+  .shorts-meta{
+    position:absolute;
+    left:50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    width: 88%;
+    z-index:1;
+    text-align:center;
+    pointer-events:none;
+  }
+  .shorts-title{
+    margin:0 0 4px;
+    color:#fff;
+    font-size:15px;
+    font-weight:700;
+    line-height:1.3;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .shorts-desc{
+    margin:0;
+    color: rgba(255,255,255,0.8);
+    font-size:13px;
+    font-weight:400;
+    line-height:1.4;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .shorts-nav{ display:none; }
+  @media (min-width: 1000px){
+    .shorts-meta{
+      grid-column:1;
+      grid-row:2;
+      position:static;
+      transform:none;
+      width:auto;
+      max-width: calc(90vh * 9 / 16);
+      text-align:left;
+      pointer-events:auto;
+    }
+    .shorts-title, .shorts-desc{ text-shadow:none; }
+    .shorts-nav{
+      grid-column:2;
+      grid-row: 1 / span 2;
+      align-self:center;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .shorts-nav-btn{
+      width:44px; height:44px;
+      border-radius:50%;
+      border:none;
+      background: rgba(30,30,30,0.65);
+      color:#fff;
+      cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .shorts-nav-btn svg{ width:20px; height:20px; }
+    .shorts-nav-btn:disabled{ opacity:0.3; cursor:default; }
+  }
 
   @media (prefers-reduced-motion: reduce){
     .short-card{ animation: none; }
@@ -906,7 +1007,7 @@
     <aside class="watch-sidebar">
       <div class="ceo-shorts" id="ceo-shorts" style="display:none;">
         <div class="ceo-shorts-header">
-          <img src="/assets/images/favicon-32x32.png" alt="" />
+          <div class="ceo-triangle"></div>
           <span>CEO in Action</span>
         </div>
         <div class="ceo-shorts-wrap">
@@ -923,7 +1024,7 @@
            the grid — see repositionCeoShorts(), which places both. -->
       <div class="ceo-shorts" id="ceo-shorts-2" style="display:none;">
         <div class="ceo-shorts-header">
-          <img src="/assets/images/favicon-32x32.png" alt="" />
+          <div class="ceo-triangle"></div>
           <span>CEO in Action</span>
         </div>
         <div class="ceo-shorts-wrap">
@@ -944,12 +1045,26 @@
 
 <div id="shorts-modal">
   <div class="shorts-modal-inner">
-    <button type="button" class="shorts-close" id="shorts-close" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8.3 8.3L15.7 15.7M15.7 8.3L8.3 15.7"/></svg>
-    </button>
-    <video id="shorts-video" playsinline controls></video>
-    <img id="shorts-image" alt="" style="display:none;" />
-    <div class="shorts-spinner" id="shorts-spinner"></div>
+    <div class="shorts-media">
+      <button type="button" class="shorts-close" id="shorts-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8.3 8.3L15.7 15.7M15.7 8.3L8.3 15.7"/></svg>
+      </button>
+      <video id="shorts-video" playsinline controls></video>
+      <img id="shorts-image" alt="" style="display:none;" />
+      <div class="shorts-spinner" id="shorts-spinner"></div>
+    </div>
+    <div class="shorts-meta">
+      <p class="shorts-title" id="shorts-title"></p>
+      <p class="shorts-desc" id="shorts-desc"></p>
+    </div>
+    <div class="shorts-nav">
+      <button type="button" class="shorts-nav-btn" id="shorts-nav-up" aria-label="Previous">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
+      </button>
+      <button type="button" class="shorts-nav-btn" id="shorts-nav-down" aria-label="Next">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1557,9 +1672,9 @@ function fillCeoShortsPanel(panelId, rowId, shorts){
   `).join('');
 
   Array.from(row.children).forEach((card, i) => {
-    card.addEventListener('click', () => openShort(shorts[i]));
+    card.addEventListener('click', () => openShort(shorts, i));
     card.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openShort(shorts[i]); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openShort(shorts, i); }
     });
     wireHoverPreview(card.querySelector('img'));
   });
@@ -1614,11 +1729,37 @@ function loadShortSource(videoEl, v){
   }
 }
 
-function openShort(v){
+let currentShortsList = [];
+let currentShortIndex = -1;
+
+function updateShortsNav(){
+  const upBtn = document.getElementById('shorts-nav-up');
+  const downBtn = document.getElementById('shorts-nav-down');
+  upBtn.disabled = currentShortIndex <= 0;
+  downBtn.disabled = currentShortIndex >= currentShortsList.length - 1;
+}
+
+function showAdjacentShort(delta){
+  const nextIndex = currentShortIndex + delta;
+  if (nextIndex < 0 || nextIndex >= currentShortsList.length) return;
+  openShort(currentShortsList, nextIndex);
+}
+
+function openShort(list, index){
+  currentShortsList = list;
+  currentShortIndex = index;
+  const v = list[index];
+
   const modal = document.getElementById('shorts-modal');
   const videoEl = document.getElementById('shorts-video');
   const imageEl = document.getElementById('shorts-image');
   const spinner = document.getElementById('shorts-spinner');
+  const titleEl = document.getElementById('shorts-title');
+  const descEl = document.getElementById('shorts-desc');
+
+  titleEl.textContent = v.title || '';
+  descEl.textContent = v.desc || '';
+  updateShortsNav();
 
   if (v.image) {
     if (shortsPlayer) { shortsPlayer.destroy(); shortsPlayer = null; }
@@ -1663,6 +1804,7 @@ function openShort(v){
 }
 
 function closeShort(){
+
   const modal = document.getElementById('shorts-modal');
   const videoEl = document.getElementById('shorts-video');
   const imageEl = document.getElementById('shorts-image');
@@ -1679,6 +1821,27 @@ function closeShort(){
 }
 
 document.getElementById('shorts-close').addEventListener('click', closeShort);
+document.getElementById('shorts-nav-up').addEventListener('click', () => showAdjacentShort(-1));
+document.getElementById('shorts-nav-down').addEventListener('click', () => showAdjacentShort(1));
+
+// Mobile: no arrows shown (see .shorts-nav CSS), so swipe up/down on the
+// player itself navigates instead — swipe up moves to the next short,
+// swipe down moves to the previous one, mirroring a native shorts feed.
+(function(){
+  const modalInner = document.querySelector('.shorts-modal-inner');
+  let touchStartY = null;
+  modalInner.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  modalInner.addEventListener('touchend', (e) => {
+    if (touchStartY === null) return;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    touchStartY = null;
+    if (Math.abs(dy) < 50) return;
+    showAdjacentShort(dy < 0 ? 1 : -1);
+  }, { passive: true });
+})();
+
 document.getElementById('shorts-modal').addEventListener('click', (e) => {
   if (e.target.id === 'shorts-modal') closeShort();
 });
