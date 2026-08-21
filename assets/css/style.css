@@ -6307,7 +6307,7 @@ html.skip-preloader .rb-loader-overlay {
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 500;
+  z-index: 9999;
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -6318,17 +6318,7 @@ html.skip-preloader .rb-loader-overlay {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-}
-
-.back-to-top.show {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
 }
 
 .back-to-top:hover {
